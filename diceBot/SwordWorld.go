@@ -17,6 +17,10 @@ func (sw *SwordWorld) Dicebot() DiceBot {
 	return sw.DiceBot
 }
 
+func (sw *SwordWorld) GameName() string {
+	return "SwordWorld"
+}
+
 func (sw *SwordWorld) HelpMessage() string {
 	return "・SW　レーティング表　　　　　(Kx[c]+m$f) (x:キー, c:クリティカル値, m:ボーナス, f:出目修正)"
 }
