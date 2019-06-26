@@ -2,7 +2,8 @@ package testcase
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
+	"io/ioutil"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -43,7 +44,7 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 
 	dice, err := ParseDice(matches[3])
 	if err != nil {
-		return nil, errors.Wrapf(err, "Parse: %s#%d", gameId, index)
+		return nil, err
 	}
 
 	input := strings.Split(matches[1], "\n")
@@ -69,7 +70,7 @@ func ParseDice(source string) ([]Die, error) {
 	for i, diceStr := range diceStrs {
 		matches := diceRe.FindStringSubmatch(diceStr)
 		if matches == nil {
-			return nil, fmt.Errorf("ParseDice: #%d: %s: ダイス構文エラー", i, diceStr)
+			return nil, fmt.Errorf("ParseDice: #%d: %q: ダイス構文エラー", i+1, diceStr)
 		}
 
 		result, _ := strconv.Atoi(matches[1])
@@ -78,4 +79,31 @@ func ParseDice(source string) ([]Die, error) {
 	}
 
 	return dice, nil
+}
+
+func ParseFile(filename string) ([]*DiceBotTestCase, error) {
+	contentBytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	basename := path.Base(filename)
+	gameId := strings.TrimSuffix(basename, path.Ext(basename))
+
+	content := strings.TrimRight(string(contentBytes), "\n")
+	testCaseSources := strings.Split(content, "\n============================\n")
+	testCases := []*DiceBotTestCase{}
+
+	for i, source := range testCaseSources {
+		index := i + 1
+
+		testCase, err := Parse(source, gameId, index)
+		if err != nil {
+			return nil, err
+		}
+
+		testCases = append(testCases, testCase)
+	}
+
+	return testCases, nil
 }
