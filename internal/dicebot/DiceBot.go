@@ -1,4 +1,4 @@
-package diceBot
+package dicebot
 
 const EMPTY_PREFIXES_PATTERN = `(?i)(^|\s)(S)?()(\s|$)`
 

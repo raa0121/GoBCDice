@@ -1,4 +1,4 @@
-package diceBot
+package dicebot
 
 import (
 	"testing"

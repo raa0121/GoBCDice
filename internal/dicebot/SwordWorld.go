@@ -1,4 +1,4 @@
-package diceBot
+package dicebot
 
 type SwordWorld struct {
 	DiceBot
