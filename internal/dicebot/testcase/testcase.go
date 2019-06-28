@@ -32,10 +32,17 @@ type DiceBotTestCase struct {
 }
 
 var (
+	// テストケースのソースコードを表す正規表現
 	sourceRe = regexp.MustCompile("(?s)\\Ainput:\n(.+)\noutput:(.*)\nrand:(.*)")
-	diceRe   = regexp.MustCompile(`\A\s*(\d+)/(\d+)\s*\z`)
+	// テストケースのソースコード内のダイス表記を表す正規表現
+	diceRe = regexp.MustCompile(`\A\s*(\d+)/(\d+)\s*\z`)
 )
 
+// Parseは、テストケースのソースコードを構文解析してDiceBotTestCaseを作り、
+// それを指すポインタを返す。失敗するとnilを返す。
+//
+// gameIdにはゲームの識別子を指定する。
+// indexにはテストケース番号を指定する。
 func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 	matches := sourceRe.FindStringSubmatch(source)
 	if matches == nil {
@@ -59,6 +66,8 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 	}, nil
 }
 
+// ParseDiceはテストケースのソースコード内のダイス表記を解析する
+// 振られたサイコロの情報の配列を返す
 func ParseDice(source string) ([]Die, error) {
 	dice := []Die{}
 
@@ -81,6 +90,10 @@ func ParseDice(source string) ([]Die, error) {
 	return dice, nil
 }
 
+// ParseFileはテストケースのソースコードファイルを解析し、
+// DiceBotTestCaseのポインタの配列を返す。
+//
+// filenameには、ソースコードファイルのパスを指定する。
 func ParseFile(filename string) ([]*DiceBotTestCase, error) {
 	contentBytes, err := ioutil.ReadFile(filename)
 	if err != nil {
