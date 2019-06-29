@@ -1,4 +1,4 @@
-package diceBot
+package dicebot
 
 type SwordWorld struct {
 	DiceBot
@@ -15,6 +15,10 @@ func NewSwordWorld() SwordWorld {
 
 func (sw *SwordWorld) Dicebot() DiceBot {
 	return sw.DiceBot
+}
+
+func (sw *SwordWorld) GameName() string {
+	return "SwordWorld"
 }
 
 func (sw *SwordWorld) HelpMessage() string {
