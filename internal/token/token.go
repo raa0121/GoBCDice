@@ -1,7 +1,7 @@
 package token
 
 // トークンの種類の型
-type TokenType string
+type TokenType int
 
 // トークンを表す構造体
 type Token struct {
@@ -15,58 +15,87 @@ type Token struct {
 
 const (
 	// 無効
-	ILLEGAL = "ILLEGAL"
+	ILLEGAL TokenType = iota
 	// テキストの終端（End Of Text）
-	EOT = "EOT"
+	EOT
 
 	// 識別子
-	IDENT = "IDENT"
+	IDENT
 	// 整数
-	INT = "INT"
+	INT
 
 	// プラス
-	PLUS = "+"
+	PLUS
 	// マイナス
-	MINUS = "-"
+	MINUS
 	// アスタリスク
-	ASTERISK = "*"
+	ASTERISK
 	// スラッシュ
-	SLASH = "/"
+	SLASH
 
 	// 等号
-	EQ = "="
+	EQ
 	// 小なり
-	LT = "<"
+	LT
 	// 大なり
-	GT = ">"
+	GT
 
 	// 開き括弧
-	L_PAREN = "("
+	L_PAREN
 	// 閉じ括弧
-	R_PAREN = ")"
+	R_PAREN
 	// 開き角括弧
-	L_BRACKET = "["
+	L_BRACKET
 	// 閉じ角括弧
-	R_BRACKET = "]"
+	R_BRACKET
+
+	// ダイスロール：加算ロールとD66ロール
+	D_ROLL
+	// バラバラロール
+	B_ROLL
+	// 個数振り足しロール
+	R_ROLL
+	// 上方無限ロール
+	U_ROLL
+	// シークレットロール
+	SECRET
+
+	// 計算
+	CALC
+	// ランダム選択
+	CHOICE
 )
 
-// キーワード
-const (
-	// ダイスロール：加算ロールとD66ロール
-	D_ROLL = "D_ROLL"
-	// バラバラロール
-	B_ROLL = "B_ROLL"
-	// 個数振り足しロール
-	R_ROLL = "R_ROLL"
-	// 上方無限ロール
-	U_ROLL = "U_ROLL"
-	// シークレットロール
-	SECRET = "SECRET_ROLL"
-	// 計算
-	CALC = "CALC"
-	// ランダム選択
-	CHOICE = "CHOICE"
-)
+var tokenTypeString = map[TokenType]string{
+	ILLEGAL: "ILLEGAL",
+	EOT:     "EOT",
+
+	IDENT: "IDENT",
+	INT:   "INT",
+
+	PLUS:     "+",
+	MINUS:    "-",
+	ASTERISK: "*",
+	SLASH:    "/",
+
+	EQ: "=",
+	LT: "<",
+	GT: ">",
+
+	L_PAREN:   "(",
+	R_PAREN:   ")",
+	L_BRACKET: "[",
+	R_BRACKET: "]",
+
+	D_ROLL: "D_ROLL",
+	B_ROLL: "B_ROLL",
+	R_ROLL: "R_ROLL",
+	U_ROLL: "U_ROLL",
+	SECRET: "SECRET_ROLL",
+
+	CALC:   "CALC",
+	CHOICE: "CHOICE",
+}
 
 // 識別子 -> キーワードの対応表
 var keywords = map[string]TokenType{
@@ -87,4 +116,12 @@ func LookUpIdent(ident string) TokenType {
 	}
 
 	return IDENT
+}
+
+func (tt TokenType) String() string {
+	if ttStr, ok := tokenTypeString[tt]; ok {
+		return ttStr
+	}
+
+	return "UNKNOWN"
 }
