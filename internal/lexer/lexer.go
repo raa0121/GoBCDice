@@ -27,41 +27,52 @@ func New(input string) *Lexer {
 
 // NextTokenは次のトークンを返す
 func (l *Lexer) NextToken() token.Token {
+	// トークンが何文字目で発見されたか
+	// 利用者に示すものなので、1-indexed
+	column := l.position + 1
+
 	var tok token.Token
 
 	switch l.ch {
 	case '+':
-		tok = newToken(token.PLUS, l.ch)
+		tok = newToken(token.PLUS, l.ch, column)
 	case '-':
-		tok = newToken(token.MINUS, l.ch)
+		tok = newToken(token.MINUS, l.ch, column)
 	case '*':
-		tok = newToken(token.ASTERISK, l.ch)
+		tok = newToken(token.ASTERISK, l.ch, column)
 	case '/':
-		tok = newToken(token.SLASH, l.ch)
+		tok = newToken(token.SLASH, l.ch, column)
 	case '=':
-		tok = newToken(token.EQ, l.ch)
+		tok = newToken(token.EQ, l.ch, column)
 	case '<':
-		tok = newToken(token.LT, l.ch)
+		tok = newToken(token.LT, l.ch, column)
 	case '>':
-		tok = newToken(token.GT, l.ch)
+		tok = newToken(token.GT, l.ch, column)
 	case '(':
-		tok = newToken(token.L_PAREN, l.ch)
+		tok = newToken(token.L_PAREN, l.ch, column)
 	case ')':
-		tok = newToken(token.R_PAREN, l.ch)
+		tok = newToken(token.R_PAREN, l.ch, column)
 	case '[':
-		tok = newToken(token.L_BRACKET, l.ch)
+		tok = newToken(token.L_BRACKET, l.ch, column)
 	case ']':
-		tok = newToken(token.R_BRACKET, l.ch)
+		tok = newToken(token.R_BRACKET, l.ch, column)
 	case 0:
 		tok.Type = token.EOT
 		tok.Literal = ""
+		tok.Column = column
 	default:
 		if isDigit(l.ch) {
+			// tok.Column は必ず readNumber() の前に設定する
+			tok.Column = column
+
 			tok.Type = token.INT
 			tok.Literal = l.readNumber()
 
 			return tok
 		} else if isLetter(l.ch) {
+			// tok.Column は必ず readIdentifier() の前に設定する
+			tok.Column = column
+
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookUpIdent(strings.ToUpper(tok.Literal))
 
@@ -97,10 +108,12 @@ func (l *Lexer) readChar() {
 //
 // tokenTypeにはトークンの種類を指定する
 // chには文字を指定する。返り値のLiteralではstringに変換される。
-func newToken(tokenType token.TokenType, ch rune) token.Token {
+// columnにはトークンが何文字目で発見されたかを指定する
+func newToken(tokenType token.TokenType, ch rune, column int) token.Token {
 	return token.Token{
 		Type:    tokenType,
 		Literal: string(ch),
+		Column:  column,
 	}
 }
 

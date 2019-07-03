@@ -9,6 +9,8 @@ type Token struct {
 	Type TokenType
 	// リテラル
 	Literal string
+	// トークンが何文字目で発見されたか
+	Column int
 }
 
 const (
