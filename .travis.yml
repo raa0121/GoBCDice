@@ -21,5 +21,8 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx"   ]; then brew update                       ; fi
   - if [ "$TRAVIS_OS_NAME" == "osx"   ]; then brew install gtk+3                ; fi
   - if [ "$TRAVIS_OS_NAME" == "osx"   ]; then ulimit -n 8192                    ; fi
+  - go get modernc.org/goyacc
+  - make -C internal/parser
 
-script: go test -v ./...
+script:
+  - go test -v ./...
