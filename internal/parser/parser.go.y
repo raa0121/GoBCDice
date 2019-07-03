@@ -45,41 +45,35 @@ import (
 %token<token> CHOICE
 
 %type<expr> command
-%type<expr> d_roll
-%type<expr> calc
 %type<expr> int_expr
+%type<expr> d_roll_expr
+%type<expr> d_roll
 %type<expr> int
 
 %left PLUS, MINUS
 %left ASTERISK, SLASH
+%nonassoc D_ROLL
 
 %%
 
 command
-	: d_roll
+	: d_roll_expr
 	{
-		$$ = $1
-		yylex.(*LexerWrapper).ast = $$
-	}
-	| calc
-	{
-		$$ = $1
-		yylex.(*LexerWrapper).ast = $$
-	}
-
-d_roll
-	: int D_ROLL int
-	{
-		$$ = ast.NewDRoll($1, $2, $3)
-	}
-
-calc
-	: CALC L_PAREN int_expr R_PAREN
-	{
-		$$ = &ast.Calc{
-			Tok: $1,
-			Expression: $3,
+		$$ = &ast.Command{
+			Tok: $1.Token(),
+			Expression: $1,
+			Name: "DRollExpr",
 		}
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| CALC L_PAREN int_expr R_PAREN
+	{
+		$$ = &ast.Command{
+			Tok: $3.Token(),
+			Expression: $3,
+			Name: "Calc",
+		}
+		yylex.(*LexerWrapper).ast = $$
 	}
 
 int_expr
@@ -106,6 +100,70 @@ int_expr
 	| int_expr SLASH int_expr
 	{
 		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+
+d_roll_expr
+	: d_roll
+	{
+		$$ = $1
+	}
+	| L_PAREN d_roll_expr R_PAREN
+	{
+		$$ = $2
+	}
+	| d_roll_expr PLUS d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr MINUS d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr ASTERISK d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr SLASH d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr PLUS d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr MINUS d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr ASTERISK d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr SLASH d_roll_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr PLUS int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr MINUS int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr ASTERISK int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| d_roll_expr SLASH int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+
+d_roll
+	: int D_ROLL int
+	{
+		$$ = ast.NewDRoll($1, $2, $3)
 	}
 
 int

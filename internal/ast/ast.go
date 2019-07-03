@@ -7,26 +7,25 @@ import (
 
 type Node interface {
 	Token() token.Token
-	Type() string
 	SExp() string
 }
 
-type Calc struct {
-	// 最初のトークン
+type Command struct {
 	Tok        token.Token
 	Expression Node
+	Name       string
 }
 
-func (n *Calc) Token() token.Token {
+func (n *Command) Token() token.Token {
 	return n.Tok
 }
 
-func (n *Calc) Type() string {
-	return "Calc"
+func (n *Command) Type() string {
+	return "Command"
 }
 
-func (n *Calc) SExp() string {
-	return fmt.Sprintf("(Calc %s)", n.Expression.SExp())
+func (n *Command) SExp() string {
+	return fmt.Sprintf("(%s %s)", n.Name, n.Expression.SExp())
 }
 
 type DRoll struct {
