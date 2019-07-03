@@ -35,16 +35,44 @@ type DRoll struct {
 	Sides Node
 }
 
-func (n *DRoll) Token() token.Token {
+type InfixExpression struct {
+	Tok             token.Token
+	Left            Node
+	Operator        string
+	OperatorForSExp string
+	Right           Node
+}
+
+func (n *InfixExpression) Token() token.Token {
 	return n.Tok
 }
 
-func (n *DRoll) Type() string {
-	return "DRoll"
+func (n *InfixExpression) Type() string {
+	return "InfixExpression"
 }
 
-func (n *DRoll) SExp() string {
-	return fmt.Sprintf("(DRoll %s %s)", n.Num.SExp(), n.Sides.SExp())
+func (n *InfixExpression) SExp() string {
+	return fmt.Sprintf("(%s %s %s)", n.OperatorForSExp, n.Left.SExp(), n.Right.SExp())
+}
+
+func NewDRoll(num Node, tok token.Token, sides Node) *InfixExpression {
+	return &InfixExpression{
+		Tok:             tok,
+		Left:            num,
+		Operator:        "D",
+		OperatorForSExp: "DRoll",
+		Right:           sides,
+	}
+}
+
+func NewInfixExpression(left Node, tok token.Token, right Node) *InfixExpression {
+	return &InfixExpression{
+		Tok:             tok,
+		Left:            left,
+		Operator:        tok.Literal,
+		OperatorForSExp: tok.Literal,
+		Right:           right,
+	}
 }
 
 type Int struct {

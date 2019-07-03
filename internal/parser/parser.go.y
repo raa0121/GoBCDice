@@ -47,8 +47,11 @@ import (
 %type<expr> command
 %type<expr> d_roll
 %type<expr> calc
-%type<expr> arithmetic_expr
+%type<expr> int_expr
 %type<expr> int
+
+%left PLUS, MINUS
+%left ASTERISK, SLASH
 
 %%
 
@@ -67,15 +70,11 @@ command
 d_roll
 	: int D_ROLL int
 	{
-		$$ = &ast.DRoll{
-			Tok: $1.Token(),
-			Num: $1,
-			Sides: $3,
-		}
+		$$ = ast.NewDRoll($1, $2, $3)
 	}
 
 calc
-	: CALC L_PAREN arithmetic_expr R_PAREN
+	: CALC L_PAREN int_expr R_PAREN
 	{
 		$$ = &ast.Calc{
 			Tok: $1,
@@ -83,10 +82,26 @@ calc
 		}
 	}
 
-arithmetic_expr
+int_expr
 	: int
 	{
 		$$ = $1
+	}
+	| int_expr PLUS int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr MINUS int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr ASTERISK int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
+	}
+	| int_expr SLASH int_expr
+	{
+		$$ = ast.NewInfixExpression($1, $2, $3)
 	}
 
 int
