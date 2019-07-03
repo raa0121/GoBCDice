@@ -4,18 +4,30 @@ import (
 	"testing"
 )
 
-func TestParseInt(t *testing.T) {
-	expected := IntNode{value: 42}
-
-	actual, err := Parse("42")
-
-	if err != nil {
-		t.Fatalf("got err: %s", err)
+func TestParse(t *testing.T) {
+	testCases := []struct {
+		input        string
+		expectedSExp string
+	}{
+		{"C(1)", "(Calc 1)"},
+		{"C(42)", "(Calc 42)"},
+		{"2D6", "(DRoll 2 6)"},
+		{"12D60", "(DRoll 12 60)"},
 	}
 
-	actualInt := actual.(IntNode)
+	for i, test := range testCases {
+		actual, err := Parse(test.input)
 
-	if actualInt.value != expected.value {
-		t.Errorf("wrong value: got: %v, want: %v", actualInt.value, expected.value)
+		if err != nil {
+			t.Errorf("#%d (%q): got err: %s", i, test.input, err)
+			continue
+		}
+
+		actualSExp := actual.SExp()
+
+		if actualSExp != test.expectedSExp {
+			t.Errorf("#%d (%q): wrong value: got: %q, want: %q",
+				i, test.input, actualSExp, test.expectedSExp)
+		}
 	}
 }

@@ -3,29 +3,18 @@ package parser
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/internal/ast"
 	"github.com/raa0121/GoBCDice/internal/lexer"
 	"github.com/raa0121/GoBCDice/internal/token"
 	"strconv"
 )
 
-type Expression interface{
-	
-}
-
-type IntNode struct{
-	value int
-	token token.Token
-}
-
 %}
 
 %union{
 	token token.Token
-	expr Expression
+	expr ast.Node
 }
-
-%type<expr> command
-%type<expr> expr
 
 %token<token> ILLEGAL
 
@@ -55,22 +44,60 @@ type IntNode struct{
 %token<token> CALC
 %token<token> CHOICE
 
+%type<expr> command
+%type<expr> d_roll
+%type<expr> calc
+%type<expr> arithmetic_expr
+%type<expr> int
+
 %%
 
 command
-	: expr
+	: d_roll
 	{
 		$$ = $1
-		yylex.(*LexerWrapper).result = $$
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| calc
+	{
+		$$ = $1
+		yylex.(*LexerWrapper).ast = $$
 	}
 
-expr
+d_roll
+	: int D_ROLL int
+	{
+		$$ = &ast.DRoll{
+			Tok: $1.Token(),
+			Num: $1,
+			Sides: $3,
+		}
+	}
+
+calc
+	: CALC L_PAREN arithmetic_expr R_PAREN
+	{
+		$$ = &ast.Calc{
+			Tok: $1,
+			Expression: $3,
+		}
+	}
+
+arithmetic_expr
+	: int
+	{
+		$$ = $1
+	}
+
+int
 	: INT
 	{
+		// TODO: 整数が大きすぎるときなどのエラー処理が必要
 		value, _ := strconv.Atoi($1.Literal)
-		$$ = IntNode{
-			value: value,
-			token: $1,
+
+		$$ = &ast.Int{
+			Tok: $1,
+			Value: value,
 		}
 	}
 
@@ -79,7 +106,7 @@ expr
 type LexerWrapper struct {
 	Input string
 	Column int
-	result Expression
+	ast ast.Node
 	lexer *lexer.Lexer
 	err string
 }
@@ -137,16 +164,16 @@ func (lw *LexerWrapper) Lex(lval *yySymType) int {
 }
 
 func (lw *LexerWrapper) Error(e string) {
-	lw.err = e
+	lw.err = fmt.Sprintf("column %d: %s", lw.Column, e)
 }
 
-func Parse(input string) (Expression, error) {
+func Parse(input string) (ast.Node, error) {
 	lw := newLexerWrapper(input)
 
 	if yyParse(lw) != 0 {
 		return nil, fmt.Errorf(lw.err)
 	} else {
-		return lw.result, nil
+		return lw.ast, nil
 	}
 }
 
