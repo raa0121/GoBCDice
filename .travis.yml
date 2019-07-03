@@ -1,0 +1,10 @@
+language: go
+
+go:
+- "1.11"
+- 1.12.x
+- master
+
+go_import_path: github.com/raa0121/GoBCDice
+
+script: go test -v ./...
