@@ -25,6 +25,11 @@ func TestParse(t *testing.T) {
 		{"C((1+2)*3)", "(Calc (* (+ 1 2) 3))", false},
 		{"C((1+2)/3)", "(Calc (/ (+ 1 2) 3))", false},
 		{"CC(1)", "", true},
+		{"C([1...3])", "(Calc (Rand 1 3))", false},
+		{"C([1...3]*2)", "(Calc (* (Rand 1 3) 2))", false},
+		{"C([(1+2)...(4+5)])", "(Calc (Rand (+ 1 2) (+ 4 5)))", false},
+		{"C([1+2...4-5])", "", true},
+		{"C([1...2...3])", "", true},
 		{"2D6", "(DRollExpr (DRoll 2 6))", false},
 		{"2D6D6", "", true},
 		{"12D60", "(DRollExpr (DRoll 12 60))", false},
@@ -45,6 +50,10 @@ func TestParse(t *testing.T) {
 		{"2d(1+5)", "(DRollExpr (DRoll 2 (+ 1 5)))", false},
 		{"(8/2)D(4+6)", "(DRollExpr (DRoll (/ 8 2) (+ 4 6)))", false},
 		{"(2-1)d(8/2)*(1+1)d(3*4/2)+2*3", "(DRollExpr (+ (* (DRoll (- 2 1) (/ 8 2)) (DRoll (+ 1 1) (/ (* 3 4) 2))) (* 2 3)))", false},
+		{"[1...5]D6", "(DRollExpr (DRoll (Rand 1 5) 6))", false},
+		{"([2...4]+2)D10", "(DRollExpr (DRoll (+ (Rand 2 4) 2) 10))", false},
+		{"[(2+3)...8]D6", "(DRollExpr (DRoll (Rand (+ 2 3) 8) 6))", false},
+		{"[5...(7+1)]D6", "(DRollExpr (DRoll (Rand 5 (+ 7 1)) 6))", false},
 	}
 
 	for i, test := range testCases {
@@ -73,7 +82,7 @@ func TestParse(t *testing.T) {
 		actualSExp := actual.SExp()
 
 		if actualSExp != test.expectedSExp {
-			t.Errorf("#%d (%q): wrong value: got: %q, want: %q",
+			t.Errorf("#%d (%q): wrong SExp: got: %q, want: %q",
 				i, test.input, actualSExp, test.expectedSExp)
 		}
 	}

@@ -67,6 +67,33 @@ func TestNextToken(t *testing.T) {
 				{token.EOT, "", 18},
 			},
 		},
+		{
+			input: "[1...5]D6",
+			expectations: []tokenExpectation{
+				{token.L_BRACKET, "[", 1},
+				{token.INT, "1", 2},
+				{token.DOTS, "...", 3},
+				{token.INT, "5", 6},
+				{token.R_BRACKET, "]", 7},
+				{token.D_ROLL, "D", 8},
+				{token.INT, "6", 9},
+				{token.EOT, "", 10},
+			},
+		},
+		{
+			input: "[1..5]D6",
+			expectations: []tokenExpectation{
+				{token.L_BRACKET, "[", 1},
+				{token.INT, "1", 2},
+				{token.ILLEGAL, ".", 3},
+				{token.ILLEGAL, ".", 4},
+				{token.INT, "5", 5},
+				{token.R_BRACKET, "]", 6},
+				{token.D_ROLL, "D", 7},
+				{token.INT, "6", 8},
+				{token.EOT, "", 9},
+			},
+		},
 	}
 
 	for i, testcase := range testcases {

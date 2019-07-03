@@ -69,6 +69,8 @@ const (
 	U_ROLL
 	// シークレットロール
 	SECRET
+	// ランダム数値の埋め込み "..."
+	DOTS
 
 	// 計算
 	CALC
@@ -102,6 +104,7 @@ var tokenTypeString = map[TokenType]string{
 	R_ROLL: "R_ROLL",
 	U_ROLL: "U_ROLL",
 	SECRET: "SECRET_ROLL",
+	DOTS:   "...",
 
 	CALC:   "CALC",
 	CHOICE: "CHOICE",

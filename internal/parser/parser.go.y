@@ -40,6 +40,7 @@ import (
 %token<token> R_ROLL
 %token<token> U_ROLL
 %token<token> SECRET
+%token<token> DOTS
 
 %token<token> CALC
 %token<token> CHOICE
@@ -48,11 +49,13 @@ import (
 %type<expr> int_expr
 %type<expr> d_roll_expr
 %type<expr> d_roll
+%type<expr> rand
 %type<expr> int
 
 %left PLUS, MINUS
 %left ASTERISK, SLASH
 %nonassoc D_ROLL
+%nonassoc DOTS
 
 %%
 
@@ -78,6 +81,10 @@ command
 
 int_expr
 	: int
+	{
+		$$ = $1
+	}
+	| rand
 	{
 		$$ = $1
 	}
@@ -165,6 +172,18 @@ d_roll
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
+	| rand D_ROLL int
+	{
+		$$ = ast.NewDRoll($1, $2, $3)
+	}
+	| int D_ROLL rand
+	{
+		$$ = ast.NewDRoll($1, $2, $3)
+	}
+	| rand D_ROLL rand
+	{
+		$$ = ast.NewDRoll($1, $2, $3)
+	}
 	| L_PAREN int_expr R_PAREN D_ROLL int
 	{
 		$$ = ast.NewDRoll($2, $4, $5)
@@ -176,6 +195,24 @@ d_roll
 	| L_PAREN int_expr R_PAREN D_ROLL L_PAREN int_expr R_PAREN
 	{
 		$$ = ast.NewDRoll($2, $4, $6)
+	}
+
+rand
+	: L_BRACKET int DOTS int R_BRACKET
+	{
+		$$ = ast.NewRand($2, $3, $4)
+	}
+	| L_BRACKET L_PAREN int_expr R_PAREN DOTS int R_BRACKET
+	{
+		$$ = ast.NewRand($3, $5, $6)
+	}
+	| L_BRACKET int DOTS L_PAREN int_expr R_PAREN R_BRACKET
+	{
+		$$ = ast.NewRand($2, $3, $5)
+	}
+	| L_BRACKET L_PAREN int_expr R_PAREN DOTS L_PAREN int_expr R_PAREN R_BRACKET
+	{
+		$$ = ast.NewRand($3, $5, $7)
 	}
 
 int
@@ -225,6 +262,7 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.R_ROLL: R_ROLL,
 	token.U_ROLL: U_ROLL,
 	token.SECRET: SECRET,
+	token.DOTS: DOTS,
 
 	token.CALC: CALC,
 	token.CHOICE: CHOICE,

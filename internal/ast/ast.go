@@ -64,6 +64,16 @@ func NewDRoll(num Node, tok token.Token, sides Node) *InfixExpression {
 	}
 }
 
+func NewRand(min Node, tok token.Token, max Node) *InfixExpression {
+	return &InfixExpression{
+		Tok:             tok,
+		Left:            min,
+		Operator:        "...",
+		OperatorForSExp: "Rand",
+		Right:           max,
+	}
+}
+
 func NewInfixExpression(left Node, tok token.Token, right Node) *InfixExpression {
 	return &InfixExpression{
 		Tok:             tok,

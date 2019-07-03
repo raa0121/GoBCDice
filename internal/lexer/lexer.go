@@ -25,6 +25,20 @@ func New(input string) *Lexer {
 	return l
 }
 
+var oneCharTokenType = map[rune]token.TokenType{
+	'+': token.PLUS,
+	'-': token.MINUS,
+	'*': token.ASTERISK,
+	'/': token.SLASH,
+	'=': token.EQ,
+	'<': token.LT,
+	'>': token.GT,
+	'(': token.L_PAREN,
+	')': token.R_PAREN,
+	'[': token.L_BRACKET,
+	']': token.R_BRACKET,
+}
+
 // NextTokenは次のトークンを返す
 func (l *Lexer) NextToken() token.Token {
 	// トークンが何文字目で発見されたか
@@ -33,50 +47,46 @@ func (l *Lexer) NextToken() token.Token {
 
 	var tok token.Token
 
-	switch l.ch {
-	case '+':
-		tok = newToken(token.PLUS, l.ch, column)
-	case '-':
-		tok = newToken(token.MINUS, l.ch, column)
-	case '*':
-		tok = newToken(token.ASTERISK, l.ch, column)
-	case '/':
-		tok = newToken(token.SLASH, l.ch, column)
-	case '=':
-		tok = newToken(token.EQ, l.ch, column)
-	case '<':
-		tok = newToken(token.LT, l.ch, column)
-	case '>':
-		tok = newToken(token.GT, l.ch, column)
-	case '(':
-		tok = newToken(token.L_PAREN, l.ch, column)
-	case ')':
-		tok = newToken(token.R_PAREN, l.ch, column)
-	case '[':
-		tok = newToken(token.L_BRACKET, l.ch, column)
-	case ']':
-		tok = newToken(token.R_BRACKET, l.ch, column)
-	case 0:
-		tok.Type = token.EOT
-		tok.Literal = ""
-		tok.Column = column
-	default:
-		if isDigit(l.ch) {
-			// tok.Column は必ず readNumber() の前に設定する
+	if tokenType, ok := oneCharTokenType[l.ch]; ok {
+		tok = newToken(tokenType, l.ch, column)
+	} else {
+		switch l.ch {
+		case '.':
+			if literal, ok := l.tryReadDots(); ok {
+				tok.Type = token.DOTS
+				tok.Literal = literal
+				tok.Column = column
+
+				return tok
+			}
+
+			tok = newToken(token.ILLEGAL, l.ch, column)
+		case 0:
+			tok.Type = token.EOT
+			tok.Literal = ""
 			tok.Column = column
+		default:
+			if isDigit(l.ch) {
+				// tok.Column は必ず readNumber() の前に設定する
+				tok.Column = column
 
-			tok.Type = token.INT
-			tok.Literal = l.readNumber()
+				tok.Type = token.INT
+				tok.Literal = l.readNumber()
 
-			return tok
-		} else if isLetter(l.ch) {
-			// tok.Column は必ず readIdentifier() の前に設定する
-			tok.Column = column
+				return tok
+			}
 
-			tok.Literal = l.readIdentifier()
-			tok.Type = token.LookUpIdent(strings.ToUpper(tok.Literal))
+			if isLetter(l.ch) {
+				// tok.Column は必ず readIdentifier() の前に設定する
+				tok.Column = column
 
-			return tok
+				tok.Literal = l.readIdentifier()
+				tok.Type = token.LookUpIdent(strings.ToUpper(tok.Literal))
+
+				return tok
+			}
+
+			tok = newToken(token.ILLEGAL, l.ch, column)
 		}
 	}
 
@@ -102,6 +112,24 @@ func (l *Lexer) readChar() {
 	// 状態更新：次の文字へ進む
 	l.position = l.readPosition
 	l.readPosition++
+}
+
+// peekCharは読み込む位置にある文字を返す。
+// ただし、読み込み位置は次に進めない。
+func (l *Lexer) peekChar(step int) rune {
+	posToPeek := l.readPosition + step - 1
+
+	if posToPeek >= len(l.input) {
+		return 0
+	}
+
+	return l.input[posToPeek]
+}
+
+// setPositionは、読み込み位置をposに設定する
+func (l *Lexer) setPosition(pos int) {
+	l.position = pos
+	l.readPosition = pos + 1
 }
 
 // newTokenは新しいトークンを返す
@@ -141,6 +169,27 @@ func (l *Lexer) readIdentifier() string {
 // readNumberは数値を読み込んで返す
 func (l *Lexer) readNumber() string {
 	return l.readCharsWhile(isDigit)
+}
+
+// tryReadDotsはランダム数値埋め込みの "..." の読み込みを試す
+// "..." があれば、literalでリテラルを、okでtrueを返す
+// "..." でなければ、okでfalseを返す
+func (l *Lexer) tryReadDots() (literal string, ok bool) {
+	ch0 := l.ch
+
+	if l.peekChar(1) != '.' || l.peekChar(2) != '.' {
+		return string(l.ch), false
+	}
+
+	l.readChar()
+	ch1 := l.ch
+
+	l.readChar()
+	ch2 := l.ch
+
+	l.readChar()
+
+	return (string(ch0) + string(ch1) + string(ch2)), true
 }
 
 // isLetterはchがアルファベットかどうかを返す
