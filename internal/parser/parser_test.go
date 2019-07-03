@@ -38,6 +38,13 @@ func TestParse(t *testing.T) {
 		{"2d6*3", "(DRollExpr (* (DRoll 2 6) 3))", false},
 		{"2d10+3-4", "(DRollExpr (- (+ (DRoll 2 10) 3) 4))", false},
 		{"2d10+3*4", "(DRollExpr (+ (DRoll 2 10) (* 3 4)))", false},
+		{"2d6*3-1d6+1", "(DRollExpr (+ (- (* (DRoll 2 6) 3) (DRoll 1 6)) 1))", false},
+		{"(2+3)d6-1+3d6+2", "(DRollExpr (+ (+ (- (DRoll (+ 2 3) 6) 1) (DRoll 3 6)) 2))", false},
+		{"(2*3-4)d6-1d4+1", "(DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))", false},
+		{"((2+3)*4/3)d6*2+5", "(DRollExpr (+ (* (DRoll (/ (* (+ 2 3) 4) 3) 6) 2) 5))", false},
+		{"2d(1+5)", "(DRollExpr (DRoll 2 (+ 1 5)))", false},
+		{"(8/2)D(4+6)", "(DRollExpr (DRoll (/ 8 2) (+ 4 6)))", false},
+		{"(2-1)d(8/2)*(1+1)d(3*4/2)+2*3", "(DRollExpr (+ (* (DRoll (- 2 1) (/ 8 2)) (DRoll (+ 1 1) (/ (* 3 4) 2))) (* 2 3)))", false},
 	}
 
 	for i, test := range testCases {

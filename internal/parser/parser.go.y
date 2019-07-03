@@ -69,7 +69,7 @@ command
 	| CALC L_PAREN int_expr R_PAREN
 	{
 		$$ = &ast.Command{
-			Tok: $3.Token(),
+			Tok: $1,
 			Expression: $3,
 			Name: "Calc",
 		}
@@ -164,6 +164,18 @@ d_roll
 	: int D_ROLL int
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
+	}
+	| L_PAREN int_expr R_PAREN D_ROLL int
+	{
+		$$ = ast.NewDRoll($2, $4, $5)
+	}
+	| int D_ROLL L_PAREN int_expr R_PAREN
+	{
+		$$ = ast.NewDRoll($1, $2, $4)
+	}
+	| L_PAREN int_expr R_PAREN D_ROLL L_PAREN int_expr R_PAREN
+	{
+		$$ = ast.NewDRoll($2, $4, $6)
 	}
 
 int
