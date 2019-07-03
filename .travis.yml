@@ -5,12 +5,12 @@ os:
   - osx
 
 go:
-- "1.11"
-- 1.12.x
-- master
+  - "1.11"
+  - 1.12.x
+  - master
 
-go_import_path: github.com/raa0121/GoBCDice
-
+env:
+  - GO111MODULES=on
 
 before_install:
   - echo $TRAVIS_OS_NAME
