@@ -10,7 +10,7 @@ go:
   - master
 
 env:
-  - GO111MODULES=on
+  - GO111MODULE=on
 
 before_install:
   - echo $TRAVIS_OS_NAME
