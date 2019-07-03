@@ -87,6 +87,10 @@ int_expr
 	{
 		$$ = $1
 	}
+	| L_PAREN int_expr R_PAREN
+	{
+		$$ = $2
+	}
 	| int_expr PLUS int_expr
 	{
 		$$ = ast.NewInfixExpression($1, $2, $3)
