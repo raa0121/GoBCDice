@@ -14,10 +14,11 @@ type Token struct {
 }
 
 const (
-	// 無効
-	ILLEGAL TokenType = iota
 	// テキストの終端（End Of Text）
-	EOT
+	EOT TokenType = iota
+
+	// 無効
+	ILLEGAL
 
 	// 識別子
 	IDENT
@@ -67,8 +68,8 @@ const (
 )
 
 var tokenTypeString = map[TokenType]string{
-	ILLEGAL: "ILLEGAL",
 	EOT:     "EOT",
+	ILLEGAL: "ILLEGAL",
 
 	IDENT: "IDENT",
 	INT:   "INT",
