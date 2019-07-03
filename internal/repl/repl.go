@@ -12,7 +12,7 @@ import (
 
 const (
 	// REPLのプロンプト
-	PROMPT = "> "
+	PROMPT = ">> "
 
 	// トークン出力コマンド
 	COMMAND_TOKEN = ".token "
@@ -69,7 +69,7 @@ func printTokens(input string, out io.Writer) {
 	l := lexer.New(input)
 
 	for tok := l.NextToken(); tok.Type != token.EOT; tok = l.NextToken() {
-		fmt.Fprintf(out, "%+v\n", tok)
+		fmt.Fprintf(out, "%s\n", tok)
 	}
 }
 

@@ -1,5 +1,9 @@
 package token
 
+import (
+	"fmt"
+)
+
 // トークンの種類の型
 type TokenType int
 
@@ -11,6 +15,11 @@ type Token struct {
 	Literal string
 	// トークンが何文字目で発見されたか
 	Column int
+}
+
+func (t Token) String() string {
+	return fmt.Sprintf("<Token %s Literal:%q Column:%d>",
+		t.Type, t.Literal, t.Column)
 }
 
 const (
