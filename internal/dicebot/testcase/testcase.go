@@ -2,20 +2,13 @@ package testcase
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/internal/die"
 	"io/ioutil"
 	"path"
 	"regexp"
 	"strconv"
 	"strings"
 )
-
-// サイコロを表す構造体
-type Die struct {
-	// 出目
-	result int
-	// サイコロの面の数
-	sides int
-}
 
 // ダイスボットのテストケースを表す構造体
 type DiceBotTestCase struct {
@@ -28,7 +21,7 @@ type DiceBotTestCase struct {
 	// 出力文字列
 	output string
 	// 入力するダイス列
-	dice []Die
+	dice []die.Die
 }
 
 var (
@@ -68,8 +61,8 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 
 // ParseDiceはテストケースのソースコード内のダイス表記を解析する
 // 振られたサイコロの情報の配列を返す
-func ParseDice(source string) ([]Die, error) {
-	dice := []Die{}
+func ParseDice(source string) ([]die.Die, error) {
+	dice := []die.Die{}
 
 	if source == "" {
 		return dice, nil
@@ -82,9 +75,9 @@ func ParseDice(source string) ([]Die, error) {
 			return nil, fmt.Errorf("ParseDice: #%d: %q: ダイス構文エラー", i+1, diceStr)
 		}
 
-		result, _ := strconv.Atoi(matches[1])
-		sides, _ := strconv.Atoi(matches[2])
-		dice = append(dice, Die{result, sides})
+		Value, _ := strconv.Atoi(matches[1])
+		Sides, _ := strconv.Atoi(matches[2])
+		dice = append(dice, die.Die{Value, Sides})
 	}
 
 	return dice, nil

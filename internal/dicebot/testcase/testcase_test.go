@@ -1,6 +1,7 @@
 package testcase
 
 import (
+	"github.com/raa0121/GoBCDice/internal/die"
 	"reflect"
 	"testing"
 )
@@ -38,7 +39,7 @@ rand:4/6,1/6`,
 			index:  1,
 			input:  []string{"2d6+1-1-2-3-4"},
 			output: "DiceBot : (2D6+1-1-2-3-4) ＞ 5[4,1]+1-1-2-3-4 ＞ -4",
-			dice:   []Die{{4, 6}, {1, 6}},
+			dice:   []die.Die{{4, 6}, {1, 6}},
 		},
 		err: false,
 	},
@@ -55,7 +56,7 @@ rand:4/6,1/6`,
 			index:  2,
 			input:  []string{"S2d6"},
 			output: "DiceBot : (2D6) ＞ 5[4,1] ＞ 5###secret dice###",
-			dice:   []Die{{4, 6}, {1, 6}},
+			dice:   []die.Die{{4, 6}, {1, 6}},
 		},
 		err: false,
 	},
@@ -76,7 +77,7 @@ rand:6/6,6/6,6/6`,
 			output: `Satasupe : サタスペ作成：ベース部品：「大型の金属製の筒」  アクセサリ部品：「ガスボンベや殺虫剤」
 部品効果：「命中：8、ダメージ：5、耐久度3、両手」「爆発3」
 完成品：サタスペ  （ダメージ＋5・命中8・射撃、「両手」「爆発3」「サタスペ1」「耐久度3」）`,
-			dice: []Die{{6, 6}, {6, 6}, {6, 6}},
+			dice: []die.Die{{6, 6}, {6, 6}, {6, 6}},
 		},
 		err: false,
 	},
@@ -97,7 +98,7 @@ rand:1/6,3/6`,
 			output: `GranCrest : 国特徴・文化表(13) ＞ 禁欲的
 あなたの国民は、道徳を重んじ、常に自分の欲望を制限することが理想的だと考えている。
 食料＋４、資金－１`,
-			dice: []Die{{1, 6}, {3, 6}},
+			dice: []die.Die{{1, 6}, {3, 6}},
 		},
 		err: false,
 	},
@@ -127,7 +128,7 @@ func TestParse(t *testing.T) {
 
 var parseDiceTestCases = []struct {
 	source   string
-	expected []Die
+	expected []die.Die
 	err      bool
 }{
 	{
@@ -144,22 +145,22 @@ var parseDiceTestCases = []struct {
 	},
 	{
 		source:   "",
-		expected: []Die{},
+		expected: []die.Die{},
 		err:      false,
 	},
 	{
 		source:   "1/6",
-		expected: []Die{{1, 6}},
+		expected: []die.Die{{1, 6}},
 		err:      false,
 	},
 	{
 		source:   "1/6,2/6,3/6",
-		expected: []Die{{1, 6}, {2, 6}, {3, 6}},
+		expected: []die.Die{{1, 6}, {2, 6}, {3, 6}},
 		err:      false,
 	},
 	{
 		source:   "1/6, 2/6, 3/6",
-		expected: []Die{{1, 6}, {2, 6}, {3, 6}},
+		expected: []die.Die{{1, 6}, {2, 6}, {3, 6}},
 		err:      false,
 	},
 }
@@ -198,28 +199,28 @@ var parseFileTestCases = []struct {
 				index:  1,
 				input:  []string{"2d6+1-1-2-3-4"},
 				output: "DiceBot : (2D6+1-1-2-3-4) ＞ 5[4,1]+1-1-2-3-4 ＞ -4",
-				dice:   []Die{{4, 6}, {1, 6}},
+				dice:   []die.Die{{4, 6}, {1, 6}},
 			},
 			{
 				gameId: "DiceBot",
 				index:  2,
 				input:  []string{"S2d6"},
 				output: "DiceBot : (2D6) ＞ 5[4,1] ＞ 5###secret dice###",
-				dice:   []Die{{4, 6}, {1, 6}},
+				dice:   []die.Die{{4, 6}, {1, 6}},
 			},
 			{
 				gameId: "DiceBot",
 				index:  3,
 				input:  []string{"4d10"},
 				output: "4d10 : (4D10) ＞ 18[3,2,5,8] ＞ 18",
-				dice:   []Die{{3, 10}, {2, 10}, {5, 10}, {8, 10}},
+				dice:   []die.Die{{3, 10}, {2, 10}, {5, 10}, {8, 10}},
 			},
 			{
 				gameId: "DiceBot",
 				index:  4,
 				input:  []string{"2R6"},
 				output: "DiceBot : 2R6 ＞ 条件が間違っています。2R6>=5 あるいは 2R6[5] のように振り足し目標値を指定してください。",
-				dice:   []Die{},
+				dice:   []die.Die{},
 			},
 		},
 	},
@@ -233,7 +234,7 @@ var parseFileTestCases = []struct {
 				output: `Satasupe : サタスペ作成：ベース部品：「大型の金属製の筒」  アクセサリ部品：「ガスボンベや殺虫剤」
 部品効果：「命中：8、ダメージ：5、耐久度3、両手」「爆発3」
 完成品：サタスペ  （ダメージ＋5・命中8・射撃、「両手」「爆発3」「サタスペ1」「耐久度3」）`,
-				dice: []Die{{6, 6}, {6, 6}, {6, 6}},
+				dice: []die.Die{{6, 6}, {6, 6}, {6, 6}},
 			},
 			{
 				gameId: "multiline",
@@ -242,7 +243,7 @@ var parseFileTestCases = []struct {
 				output: `GranCrest : 国特徴・文化表(13) ＞ 禁欲的
 あなたの国民は、道徳を重んじ、常に自分の欲望を制限することが理想的だと考えている。
 食料＋４、資金－１`,
-				dice: []Die{{1, 6}, {3, 6}},
+				dice: []die.Die{{1, 6}, {3, 6}},
 			},
 		},
 	},
