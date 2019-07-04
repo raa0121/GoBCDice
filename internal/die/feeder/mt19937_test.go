@@ -6,11 +6,19 @@ import (
 	"testing"
 )
 
+func TestMT19937_CanSpecifyDie(t *testing.T) {
+	f := NewMT19937(1)
+
+	if f.CanSpecifyDie() {
+		t.Fatalf("MT19937はダイスを指定できてはならない")
+	}
+}
+
 func TestMT19937_Seed(t *testing.T) {
 	testcases := []int64{1, 2, 20190401}
 
 	for i, expected := range testcases {
-		f := newMT19937(expected)
+		f := NewMT19937(expected)
 
 		if actual := f.Seed(); actual != expected {
 			t.Errorf("#%d: wrong seed: got %d, want %d", i, actual, expected)
@@ -27,7 +35,7 @@ func TestMT19937_Next(t *testing.T) {
 	}
 
 	for i, test := range testcases {
-		f := newMT19937(1)
+		f := NewMT19937(1)
 
 		for j, expectedDie := range test {
 			actualDie, err := f.Next(expectedDie.Sides)

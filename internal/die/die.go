@@ -4,11 +4,11 @@ import (
 	"fmt"
 )
 
-// サイコロを表す構造体
+// ダイスを表す構造体
 type Die struct {
 	// 出目
 	Value int
-	// サイコロの面の数
+	// ダイスの面の数
 	Sides int
 }
 

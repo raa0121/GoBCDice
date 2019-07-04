@@ -4,10 +4,13 @@ import (
 	"github.com/raa0121/GoBCDice/internal/die"
 )
 
-// DieFeederは、サイコロ供給機のインターフェース
+// DieFeederは、ダイス供給機のインターフェース
 type DieFeeder interface {
-	// Nextはサイコロを1つ供給する
+	// Nextはダイスを1つ供給する
 	//
-	// sides: サイコロの面の数
+	// sides: ダイスの面の数
 	Next(sides int) (die.Die, error)
+
+	// CanSpecifyDieは、供給されるダイスを指定できるかを返す
+	CanSpecifyDie() bool
 }
