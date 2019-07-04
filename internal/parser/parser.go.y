@@ -56,6 +56,7 @@ import (
 %left ASTERISK, SLASH
 %nonassoc D_ROLL
 %nonassoc DOTS
+%nonassoc UPLUS, UMINUS
 
 %%
 
@@ -81,14 +82,16 @@ command
 
 int_expr
 	: int
-	{
-		$$ = $1
-	}
 	| rand
-	{
-		$$ = $1
-	}
 	| L_PAREN int_expr R_PAREN
+	{
+		$$ = $2
+	}
+	| MINUS int_expr %prec UMINUS
+	{
+		$$ = ast.NewPrefixExpression($1, $2)
+	}
+	| PLUS int_expr %prec UPLUS
 	{
 		$$ = $2
 	}
@@ -111,10 +114,15 @@ int_expr
 
 d_roll_expr
 	: d_roll
-	{
-		$$ = $1
-	}
 	| L_PAREN d_roll_expr R_PAREN
+	{
+		$$ = $2
+	}
+	| MINUS d_roll_expr %prec UMINUS
+	{
+		$$ = ast.NewPrefixExpression($1, $2)
+	}
+	| PLUS d_roll_expr %prec UPLUS
 	{
 		$$ = $2
 	}

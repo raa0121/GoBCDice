@@ -28,10 +28,32 @@ func (n *Command) SExp() string {
 	return fmt.Sprintf("(%s %s)", n.Name, n.Expression.SExp())
 }
 
-type DRoll struct {
-	Tok   token.Token
-	Num   Node
-	Sides Node
+type PrefixExpression struct {
+	Tok             token.Token
+	Operator        string
+	OperatorForSExp string
+	Right           Node
+}
+
+func (n *PrefixExpression) Token() token.Token {
+	return n.Tok
+}
+
+func (n *PrefixExpression) Type() string {
+	return "PrefixExpression"
+}
+
+func (n *PrefixExpression) SExp() string {
+	return fmt.Sprintf("(%s %s)", n.OperatorForSExp, n.Right.SExp())
+}
+
+func NewPrefixExpression(tok token.Token, right Node) *PrefixExpression {
+	return &PrefixExpression{
+		Tok:             tok,
+		Operator:        tok.Literal,
+		OperatorForSExp: tok.Literal,
+		Right:           right,
+	}
 }
 
 type InfixExpression struct {
