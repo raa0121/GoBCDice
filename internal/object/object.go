@@ -5,12 +5,19 @@ import (
 )
 
 // オブジェクトの種類を表す型
-type ObjectType string
+type ObjectType int
 
 const (
-	INTEGER_OBJ = "INTEGER"
-	SUCCESS_OBJ = "SUCCESS"
+	ILLEGAL_OBJ ObjectType = iota
+	INTEGER_OBJ
+	SF_OBJ
 )
+
+var objectTypeString = map[ObjectType]string{
+	ILLEGAL_OBJ: "ILLEGAL",
+	INTEGER_OBJ: "INTEGER",
+	SF_OBJ:      "SF",
+}
 
 // オブジェクトが持つインターフェース
 type Object interface {
@@ -35,18 +42,18 @@ func (i *Integer) Inspect() string {
 }
 
 // 成功/失敗オブジェクトの構造体
-type Success struct {
+type SF struct {
 	// 値
 	Value bool
 }
 
-func (s *Success) Type() ObjectType {
-	return SUCCESS_OBJ
+func (sf *SF) Type() ObjectType {
+	return SF_OBJ
 }
 
-func (s *Success) Inspect() string {
+func (sf *SF) Inspect() string {
 	str := "failure"
-	if s.Value == true {
+	if sf.Value == true {
 		str = "success"
 	}
 

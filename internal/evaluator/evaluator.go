@@ -13,8 +13,9 @@ func Eval(node ast.Node) object.Object {
 		// TODO: もしかしたらコマンドの種類で分岐する？
 		return Eval(node.Expression)
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
-		return evalPrefixExpression(node.Operator, right)
+		return evalPrefixExpression(node)
+	case *ast.InfixExpression:
+		return evalInfixExpression(node)
 	case *ast.Int:
 		return &object.Integer{Value: node.Value}
 	}
@@ -22,8 +23,17 @@ func Eval(node ast.Node) object.Object {
 	return nil
 }
 
-func evalPrefixExpression(operator string, right object.Object) object.Object {
-	switch operator {
+func evalPrefixExpression(node *ast.PrefixExpression) object.Object {
+	if node.Right == nil {
+		return nil
+	}
+
+	right := Eval(node.Right)
+	if right == nil {
+		return nil
+	}
+
+	switch node.Operator {
 	case "-":
 		return evalUnaryMinusOperatorExpression(right)
 	}
@@ -38,4 +48,52 @@ func evalUnaryMinusOperatorExpression(right object.Object) object.Object {
 
 	value := right.(*object.Integer).Value
 	return &object.Integer{Value: -value}
+}
+
+func evalInfixExpression(node *ast.InfixExpression) object.Object {
+	if node.Left == nil || node.Right == nil {
+		return nil
+	}
+
+	left := Eval(node.Left)
+	if left == nil {
+		return nil
+	}
+
+	right := Eval(node.Right)
+	if right == nil {
+		return nil
+	}
+
+	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
+		return evalIntegerInfixExpression(
+			node.Operator,
+			left.(*object.Integer),
+			right.(*object.Integer),
+		)
+	}
+
+	return nil
+}
+
+func evalIntegerInfixExpression(
+	operator string,
+	left *object.Integer,
+	right *object.Integer,
+) object.Object {
+	leftValue := left.Value
+	rightValue := right.Value
+
+	switch operator {
+	case "+":
+		return &object.Integer{Value: leftValue + rightValue}
+	case "-":
+		return &object.Integer{Value: leftValue - rightValue}
+	case "*":
+		return &object.Integer{Value: leftValue * rightValue}
+	case "/":
+		return &object.Integer{Value: leftValue / rightValue}
+	}
+
+	return nil
 }
