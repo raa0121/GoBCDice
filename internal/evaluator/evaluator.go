@@ -33,21 +33,22 @@ func evalPrefixExpression(node *ast.PrefixExpression) object.Object {
 		return nil
 	}
 
-	switch node.Operator {
-	case "-":
-		return evalUnaryMinusOperatorExpression(right)
+	if right.Type() == object.INTEGER_OBJ {
+		return evalIntegerPrefixExpression(node.Operator, right.(*object.Integer))
 	}
 
 	return nil
 }
 
-func evalUnaryMinusOperatorExpression(right object.Object) object.Object {
-	if right.Type() != object.INTEGER_OBJ {
-		return nil
+func evalIntegerPrefixExpression(operator string, right *object.Integer) object.Object {
+	value := right.Value
+
+	switch operator {
+	case "-":
+		return &object.Integer{Value: -value}
 	}
 
-	value := right.(*object.Integer).Value
-	return &object.Integer{Value: -value}
+	return nil
 }
 
 func evalInfixExpression(node *ast.InfixExpression) object.Object {
