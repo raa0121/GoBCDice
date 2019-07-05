@@ -43,14 +43,18 @@ func TestEvalCalc(t *testing.T) {
 
 	for i, test := range testcases {
 		input := test.input
-		ast, err := parser.Parse(input)
-		if err != nil {
-			t.Errorf("#%d: %q: 構文解析エラー: %s", i, input, err)
+		ast, parseErr := parser.Parse(input)
+		if parseErr != nil {
+			t.Errorf("#%d: %q: 構文解析エラー: %s", i, input, parseErr)
 			continue
 		}
 
 		// ノードを評価する
-		evaluated := Eval(ast)
+		evaluated, evalErr := Eval(ast)
+		if evalErr != nil {
+			t.Errorf("#%d: %q: 評価エラー: %s", i, input, evalErr)
+			continue
+		}
 
 		if evaluated == nil {
 			t.Errorf("#%d: %q: Evalの対象外 (nil)", i, input)
@@ -58,8 +62,8 @@ func TestEvalCalc(t *testing.T) {
 		}
 
 		// 型が合っているか？
-		obj, ok := evaluated.(*object.Integer)
-		if !ok {
+		obj, typeMatched := evaluated.(*object.Integer)
+		if !typeMatched {
 			t.Errorf("#%d: %q: 整数オブジェクトでない: got=%T (%+v)", i, input, obj, obj)
 			continue
 		}

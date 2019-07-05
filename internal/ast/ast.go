@@ -5,8 +5,37 @@ import (
 	"github.com/raa0121/GoBCDice/internal/token"
 )
 
+type NodeType int
+
+func (t NodeType) String() string {
+	if str, ok := nodeTypeString[t]; ok {
+		return str
+	}
+
+	return nodeTypeString[UNKNOWN_NODE]
+}
+
+const (
+	UNKNOWN_NODE NodeType = iota
+
+	COMMAND_NODE
+	PREFIX_EXPRESSION_NODE
+	INFIX_EXPRESSION_NODE
+	INT_NODE
+)
+
+var nodeTypeString = map[NodeType]string{
+	UNKNOWN_NODE: "UNKNOWN",
+
+	COMMAND_NODE:           "Command",
+	PREFIX_EXPRESSION_NODE: "PrefixExpression",
+	INFIX_EXPRESSION_NODE:  "InfixExpression",
+	INT_NODE:               "Int",
+}
+
 type Node interface {
 	Token() token.Token
+	Type() NodeType
 	SExp() string
 }
 
@@ -20,8 +49,8 @@ func (n *Command) Token() token.Token {
 	return n.Tok
 }
 
-func (n *Command) Type() string {
-	return "Command"
+func (n *Command) Type() NodeType {
+	return COMMAND_NODE
 }
 
 func (n *Command) SExp() string {
@@ -39,8 +68,8 @@ func (n *PrefixExpression) Token() token.Token {
 	return n.Tok
 }
 
-func (n *PrefixExpression) Type() string {
-	return "PrefixExpression"
+func (n *PrefixExpression) Type() NodeType {
+	return PREFIX_EXPRESSION_NODE
 }
 
 func (n *PrefixExpression) SExp() string {
@@ -68,8 +97,8 @@ func (n *InfixExpression) Token() token.Token {
 	return n.Tok
 }
 
-func (n *InfixExpression) Type() string {
-	return "InfixExpression"
+func (n *InfixExpression) Type() NodeType {
+	return INFIX_EXPRESSION_NODE
 }
 
 func (n *InfixExpression) SExp() string {
@@ -115,8 +144,8 @@ func (n *Int) Token() token.Token {
 	return n.Tok
 }
 
-func (n *Int) Type() string {
-	return "Int"
+func (n *Int) Type() NodeType {
+	return INT_NODE
 }
 
 func (n *Int) SExp() string {

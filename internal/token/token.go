@@ -7,6 +7,14 @@ import (
 // トークンの種類の型
 type TokenType int
 
+func (t TokenType) String() string {
+	if str, ok := tokenTypeString[t]; ok {
+		return str
+	}
+
+	return "UNKNOWN"
+}
+
 // トークンを表す構造体
 type Token struct {
 	// トークンの種類
@@ -129,12 +137,4 @@ func LookUpIdent(ident string) TokenType {
 	}
 
 	return IDENT
-}
-
-func (tt TokenType) String() string {
-	if ttStr, ok := tokenTypeString[tt]; ok {
-		return ttStr
-	}
-
-	return "UNKNOWN"
 }

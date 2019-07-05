@@ -7,6 +7,14 @@ import (
 // オブジェクトの種類を表す型
 type ObjectType int
 
+func (t ObjectType) String() string {
+	if str, ok := objectTypeString[t]; ok {
+		return str
+	}
+
+	return objectTypeString[ILLEGAL_OBJ]
+}
+
 const (
 	ILLEGAL_OBJ ObjectType = iota
 	INTEGER_OBJ
@@ -15,6 +23,7 @@ const (
 
 var objectTypeString = map[ObjectType]string{
 	ILLEGAL_OBJ: "ILLEGAL",
+
 	INTEGER_OBJ: "INTEGER",
 	SF_OBJ:      "SF",
 }
