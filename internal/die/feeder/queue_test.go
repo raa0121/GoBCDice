@@ -30,7 +30,7 @@ func TestQueue_Dice_ShouldCopyDice(t *testing.T) {
 	}
 
 	for _, dice := range testcases {
-		t.Run(fmt.Sprintf("%v", dice), func(t *testing.T) {
+		t.Run(fmt.Sprintf("[%v]", die.FormatDiceWithoutSpaces(dice)), func(t *testing.T) {
 			f := NewQueue(dice)
 
 			diceFromQueue := f.Dice()
@@ -48,39 +48,42 @@ func TestQueue_Dice_ShouldCopyDice(t *testing.T) {
 }
 
 func TestQueue_Next(t *testing.T) {
-	testcases := []struct {
-		dice []die.Die
-	}{
-		{[]die.Die{{2, 6}}},
-		{[]die.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}}},
-		{[]die.Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}},
+	testcases := [][]die.Die{
+		{{2, 6}},
+		{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}},
+		{{2, 4}, {3, 6}, {5, 10}, {10, 20}},
 	}
 
-	for i, test := range testcases {
-		f := NewQueue(test.dice)
+	for _, dice := range testcases {
+		t.Run(fmt.Sprintf("[%s]", die.FormatDiceWithoutSpaces(dice)), func(t *testing.T) {
+			f := NewQueue(dice)
 
-		allDiceTaken := true
+			gotErr := false
+			for _, expectedDie := range dice {
+				if gotErr {
+					return
+				}
 
-		for j, expectedDie := range test.dice {
-			actualDie, err := f.Next(expectedDie.Sides)
-			if err != nil {
-				t.Errorf("#%d-%d: got err: %s", i, j, err)
+				t.Run(expectedDie.String(), func(t *testing.T) {
+					actualDie, err := f.Next(expectedDie.Sides)
+					if err != nil {
+						t.Errorf("got err: %s", err)
+						gotErr = true
 
-				allDiceTaken = false
-				break
+						return
+					}
+
+					if !reflect.DeepEqual(actualDie, expectedDie) {
+						t.Errorf("wrong die: got %v, want %v",
+							actualDie, expectedDie)
+					}
+				})
 			}
 
-			if !reflect.DeepEqual(actualDie, expectedDie) {
-				t.Errorf("#%d-%d: wrong die: got %v, want %v",
-					i, j, actualDie, expectedDie)
-			}
-		}
-
-		if allDiceTaken {
 			if !f.IsEmpty() {
-				t.Errorf("#%d: %d dice remain", i, f.Remaining())
+				t.Errorf("%d dice remain", f.Remaining())
 			}
-		}
+		})
 	}
 }
 
@@ -94,15 +97,18 @@ func TestQueue_Append(t *testing.T) {
 
 	f.Append(dice[2:6])
 
-	for i, expected := range dice {
-		actual, err := f.Next(6)
-		if err != nil {
-			t.Fatalf("#%d: エラー: %s", i, err)
-		}
+	for _, expected := range dice {
+		t.Run(expected.String(), func(t *testing.T) {
+			actual, err := f.Next(6)
+			if err != nil {
+				t.Fatalf("エラー: %s", err)
+				return
+			}
 
-		if !reflect.DeepEqual(actual, expected) {
-			t.Errorf("#%d: 異なるダイス: got %s, want %s", i, actual, expected)
-		}
+			if !reflect.DeepEqual(actual, expected) {
+				t.Errorf("異なるダイス: got %s, want %s", actual, expected)
+			}
+		})
 	}
 
 	if !f.IsEmpty() {
@@ -121,5 +127,34 @@ func TestQueue_Clear(t *testing.T) {
 
 	if !f.IsEmpty() {
 		t.Fatalf("キューを空にできませんでした (残り %d ダイス)", f.Remaining())
+	}
+}
+
+func TestQueue_Set(t *testing.T) {
+	dice := []die.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}}
+
+	f := NewQueue(dice[0:2])
+	if f.Remaining() != 2 {
+		t.Fatalf("キューに正しくダイスが入っていません")
+	}
+
+	f.Set(dice[2:6])
+
+	for _, expected := range dice[2:6] {
+		t.Run(expected.String(), func(t *testing.T) {
+			actual, err := f.Next(6)
+			if err != nil {
+				t.Fatalf("エラー: %s", err)
+				return
+			}
+
+			if !reflect.DeepEqual(actual, expected) {
+				t.Errorf("異なるダイス: got %s, want %s", actual, expected)
+			}
+		})
+	}
+
+	if !f.IsEmpty() {
+		t.Fatalf("キューにダイスが残っています")
 	}
 }

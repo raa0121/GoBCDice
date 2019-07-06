@@ -1,6 +1,7 @@
 package feeder
 
 import (
+	"fmt"
 	"github.com/raa0121/GoBCDice/internal/die"
 	"reflect"
 	"testing"
@@ -17,12 +18,14 @@ func TestMT19937_CanSpecifyDie(t *testing.T) {
 func TestMT19937_Seed(t *testing.T) {
 	testcases := []int64{1, 2, 20190401}
 
-	for i, expected := range testcases {
-		f := NewMT19937(expected)
+	for _, expected := range testcases {
+		t.Run(fmt.Sprintf("%d", expected), func(t *testing.T) {
+			f := NewMT19937(expected)
 
-		if actual := f.Seed(); actual != expected {
-			t.Errorf("#%d: wrong seed: got %d, want %d", i, actual, expected)
-		}
+			if actual := f.Seed(); actual != expected {
+				t.Errorf("wrong seed: got %d, want %d", actual, expected)
+			}
+		})
 	}
 }
 
@@ -34,20 +37,29 @@ func TestMT19937_Next(t *testing.T) {
 		{{2, 2}, {1, 4}, {2, 6}, {4, 10}, {3, 20}},
 	}
 
-	for i, test := range testcases {
-		f := NewMT19937(1)
+	for _, dice := range testcases {
+		t.Run(fmt.Sprintf("[%s]", die.FormatDiceWithoutSpaces(dice)), func(t *testing.T) {
+			f := NewMT19937(1)
 
-		for j, expectedDie := range test {
-			actualDie, err := f.Next(expectedDie.Sides)
-			if err != nil {
-				t.Errorf("#%d-%d: got err: %s", i, j, err)
-				break
-			}
+			gotErr := false
+			for _, expectedDie := range dice {
+				if gotErr {
+					return
+				}
 
-			if !reflect.DeepEqual(actualDie, expectedDie) {
-				t.Errorf("#%d-%d: wrong die: got %s, want %s",
-					i, j, actualDie, expectedDie)
+				t.Run(expectedDie.String(), func(t *testing.T) {
+					actualDie, err := f.Next(expectedDie.Sides)
+					if err != nil {
+						t.Fatalf("got err: %s", err)
+						return
+					}
+
+					if !reflect.DeepEqual(actualDie, expectedDie) {
+						t.Errorf("wrong die: got %s, want %s",
+							actualDie, expectedDie)
+					}
+				})
 			}
-		}
+		})
 	}
 }

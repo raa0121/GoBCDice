@@ -236,17 +236,17 @@ func eval(r *REPL, c *Command, input string) {
 		return
 	}
 
-	evaluator := evaluator.NewEvaluator(
-		r.diceRoller, evaluator.NewEnvironment())
-
+	// ダイスロール結果を指定していた場合は、評価後にそれを復元する
 	if r.dieFeeder.CanSpecifyDie() {
 		dice := r.dieFeeder.(*feeder.Queue).Dice()
 		defer func() {
 			f := r.dieFeeder.(*feeder.Queue)
-			f.Clear()
-			f.Append(dice)
+			f.Set(dice)
 		}()
 	}
+
+	evaluator := evaluator.NewEvaluator(
+		r.diceRoller, evaluator.NewEnvironment())
 
 	result, evalErr := evaluator.Eval(ast)
 	if evalErr != nil {
@@ -274,6 +274,15 @@ func rollDice(r *REPL, c *Command, input string) {
 		return
 	}
 
+	// ダイスロール結果を指定していた場合は、評価後にそれを復元する
+	if r.dieFeeder.CanSpecifyDie() {
+		dice := r.dieFeeder.(*feeder.Queue).Dice()
+		defer func() {
+			f := r.dieFeeder.(*feeder.Queue)
+			f.Set(dice)
+		}()
+	}
+
 	num, _ := strconv.Atoi(matches[1])
 	sides, _ := strconv.Atoi(matches[2])
 
@@ -283,12 +292,7 @@ func rollDice(r *REPL, c *Command, input string) {
 		return
 	}
 
-	diceStrs := []string{}
-	for _, d := range dice {
-		diceStrs = append(diceStrs, fmt.Sprintf("%d/%d", d.Value, d.Sides))
-	}
-
-	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, strings.Join(diceStrs, ", "))
+	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, die.FormatDice(dice))
 }
 
 // setDieFeederは、ダイス供給機を設定する。
@@ -331,8 +335,7 @@ func setDiceQueue(r *REPL, c *Command, input string) {
 	}
 
 	f := r.dieFeeder.(*feeder.Queue)
-	f.Clear()
-	f.Append(dice)
+	f.Set(dice)
 
 	fmt.Fprintln(r.out, "OK")
 }

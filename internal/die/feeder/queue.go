@@ -74,6 +74,12 @@ func (f *Queue) Clear() {
 	f.queue = []die.Die{}
 }
 
+// Setは指定されたダイスをキューに配置する
+func (f *Queue) Set(dice []die.Die) {
+	f.Clear()
+	f.Append(dice)
+}
+
 // Remainingは残りのダイスの数を返す
 func (f *Queue) Remaining() int {
 	return len(f.queue)
