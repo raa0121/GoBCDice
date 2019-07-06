@@ -34,7 +34,7 @@ const (
 
 // コマンドハンドラの型
 // 返り値は、REPLを終了するならばtrue、続けるならばfalse
-type commandHandler func(r *REPL, c *Command, input string)
+type CommandHandler func(r *REPL, c *Command, input string)
 
 // REPLコマンドを表す構造体
 type Command struct {
@@ -45,7 +45,7 @@ type Command struct {
 	// 解説
 	Description string
 	// コマンドハンドラ
-	Handler commandHandler
+	Handler CommandHandler
 }
 
 var (
@@ -109,6 +109,9 @@ func init() {
 	}
 }
 
+// Newは新しいREPLを構築し、返す。
+// REPLは、inから入力された文字列をコマンドとして実行し、
+// outにその結果を出力する。
 func New(in io.Reader, out io.Writer) *REPL {
 	f := feeder.NewMT19937WithSeedFromTime()
 
@@ -120,6 +123,7 @@ func New(in io.Reader, out io.Writer) *REPL {
 	}
 }
 
+// StartはREPLを開始する
 func (r *REPL) Start() {
 	scanner := bufio.NewScanner(r.in)
 
@@ -139,14 +143,14 @@ func (r *REPL) Start() {
 
 		matches := commandRe.FindStringSubmatch(line)
 		if matches == nil {
-			printSExp(r, commandMap[COMMAND_AST], line)
+			r.executeDefaultCommand(line)
 			continue
 		}
 
 		commandName := matches[1]
 		cmd, ok := commandMap[commandName]
 		if !ok {
-			printSExp(r, commandMap[COMMAND_AST], line)
+			r.executeDefaultCommand(line)
 			continue
 		}
 
@@ -155,10 +159,18 @@ func (r *REPL) Start() {
 	}
 }
 
+// executeDefaultCommand は、inputを引数として既定のコマンドを実行する。
+// コマンドが指定されていなかったとき、マッチしなかったときに使う。
+func (r *REPL) executeDefaultCommand(input string) {
+	printSExp(r, commandMap[COMMAND_AST], input)
+}
+
+// printCommandUsageは、コマンドcの使用法を出力する
 func (r *REPL) printCommandUsage(c *Command) {
 	fmt.Fprintf(r.out, "使用法: %s\n", c.Usage)
 }
 
+// printTokensは、inputを字句解析し、得られたトークン列を出力する
 func printTokens(r *REPL, c *Command, input string) {
 	if input == "" {
 		r.printCommandUsage(c)
@@ -180,6 +192,7 @@ func printTokens(r *REPL, c *Command, input string) {
 	}
 }
 
+// printSExpは、inputを構文解析し、得られたASTをS式の形で出力する
 func printSExp(r *REPL, c *Command, input string) {
 	if input == "" {
 		r.printCommandUsage(c)
@@ -197,6 +210,8 @@ func printSExp(r *REPL, c *Command, input string) {
 
 var rollDiceRe = regexp.MustCompile(`\A(\d+)\s+(\d+)\z`)
 
+// rollDiceは、inputで指定されたダイスロールを行う。
+// inputは、「振る数 面数」の形の文字列とする。
 func rollDice(r *REPL, c *Command, input string) {
 	matches := rollDiceRe.FindStringSubmatch(input)
 	if matches == nil {
@@ -221,6 +236,11 @@ func rollDice(r *REPL, c *Command, input string) {
 	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, strings.Join(diceStrs, ", "))
 }
 
+// setDieFeederは、ダイス供給機を設定する。
+// inputには以下を指定できる。
+//
+// * "queue": 出目を指定する。
+// * "mt"   : ランダムな出目とする。
 func setDieFeeder(r *REPL, c *Command, input string) {
 	var f feeder.DieFeeder
 
@@ -241,6 +261,8 @@ func setDieFeeder(r *REPL, c *Command, input string) {
 	fmt.Fprintln(r.out, "OK")
 }
 
+// setDiceQueueは、ダイスロールで取り出されるダイスの列を設定する。
+// inputは "値/面数, 値/面数, ..." という形にする。
 func setDiceQueue(r *REPL, c *Command, input string) {
 	if !r.dieFeeder.CanSpecifyDie() {
 		fmt.Fprintln(r.out, "現在のダイス供給方法では、取り出されるダイスの列を設定できません")
@@ -260,6 +282,7 @@ func setDiceQueue(r *REPL, c *Command, input string) {
 	fmt.Fprintln(r.out, "OK")
 }
 
+// printHelpは、利用できるコマンドの使用法と説明を出力する
 func printHelp(r *REPL, _ *Command, _ string) {
 	for _, c := range commands {
 		fmt.Fprintf(r.out, "%s\n    %s\n", c.Usage, c.Description)
