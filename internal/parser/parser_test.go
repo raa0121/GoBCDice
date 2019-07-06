@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -17,7 +18,14 @@ func TestParse(t *testing.T) {
 		{"C(1+2)", "(Calc (+ 1 2))", false},
 		{"C(1-2)", "(Calc (- 1 2))", false},
 		{"C(1*2)", "(Calc (* 1 2))", false},
+
+		// int_expr SLASH int_expr
 		{"C(1/2)", "(Calc (/ 1 2))", false},
+		// int_expr SLASH int_expr U
+		{"C(1/2u)", "(Calc (/U 1 2))", false},
+		// int_expr SLASH int_expr R
+		{"C(1/2r)", "(Calc (/R 1 2))", false},
+
 		{"C(-1+2)", "(Calc (+ (- 1) 2))", false},
 		{"C(+1+2)", "(Calc (+ 1 2))", false},
 		{"C(1+2-3)", "(Calc (- (+ 1 2) 3))", false},
@@ -28,6 +36,12 @@ func TestParse(t *testing.T) {
 		{"C(1+(2-3))", "(Calc (+ 1 (- 2 3)))", false},
 		{"C((1+2)*3)", "(Calc (* (+ 1 2) 3))", false},
 		{"C((1+2)/3)", "(Calc (/ (+ 1 2) 3))", false},
+		{"C((1+2)/3+4*5-6)", "(Calc (- (+ (/ (+ 1 2) 3) (* 4 5)) 6))", false},
+		{"C((1+2)/3u+4*5-6)", "(Calc (- (+ (/U (+ 1 2) 3) (* 4 5)) 6))", false},
+		{"C((1+2)/3r+4*5-6)", "(Calc (- (+ (/R (+ 1 2) 3) (* 4 5)) 6))", false},
+		{"C(100/(1+2))", "(Calc (/ 100 (+ 1 2)))", false},
+		{"C(100/(1+2)u)", "(Calc (/U 100 (+ 1 2)))", false},
+		{"C(100/(1+2)r)", "(Calc (/R 100 (+ 1 2)))", false},
 		{"C(-(1+2))", "(Calc (- (+ 1 2)))", false},
 		{"C(+(1+2))", "(Calc (+ 1 2))", false},
 		{"CC(1)", "", true},
@@ -53,8 +67,40 @@ func TestParse(t *testing.T) {
 		{"+(2D6)", "(DRollExpr (DRoll 2 6))", false},
 		{"(1)", "", true},
 		{"2d6*3", "(DRollExpr (* (DRoll 2 6) 3))", false},
+
+		// d_roll_expr SLASH int_expr
+		{"2d6/2", "(DRollExpr (/ (DRoll 2 6) 2))", false},
+		// d_roll_expr SLASH int_expr U
+		{"2d6/2u", "(DRollExpr (/U (DRoll 2 6) 2))", false},
+		// d_roll_expr SLASH int_expr R
+		{"2d6/2r", "(DRollExpr (/R (DRoll 2 6) 2))", false},
+
+		// int_expr SLASH d_roll_expr
+		{"100/2d6+1", "(DRollExpr (+ (/ 100 (DRoll 2 6)) 1))", false},
+		// int_expr SLASH d_roll_expr U
+		{"100/2d6u+1", "(DRollExpr (+ (/U 100 (DRoll 2 6)) 1))", false},
+		// int_expr SLASH d_roll_expr R
+		{"100/2d6r+1", "(DRollExpr (+ (/R 100 (DRoll 2 6)) 1))", false},
+
+		// int_expr SLASH d_roll_expr
+		{"100/(2d6+1)+4*5", "(DRollExpr (+ (/ 100 (+ (DRoll 2 6) 1)) (* 4 5)))", false},
+		// int_expr SLASH d_roll_expr U
+		{"100/(2d6+1)u+4*5", "(DRollExpr (+ (/U 100 (+ (DRoll 2 6) 1)) (* 4 5)))", false},
+		// int_expr SLASH d_roll_expr R
+		{"100/(2d6+1)r+4*5", "(DRollExpr (+ (/R 100 (+ (DRoll 2 6) 1)) (* 4 5)))", false},
+
+		// d_roll_expr SLASH d_roll_expr
+		{"4d10/2d6+1", "(DRollExpr (+ (/ (DRoll 4 10) (DRoll 2 6)) 1))", false},
+		// d_roll_expr SLASH d_roll_expr U
+		{"4d10/2d6u+1", "(DRollExpr (+ (/U (DRoll 4 10) (DRoll 2 6)) 1))", false},
+		// d_roll_expr SLASH d_roll_expr R
+		{"4d10/2d6r+1", "(DRollExpr (+ (/R (DRoll 4 10) (DRoll 2 6)) 1))", false},
+
 		{"2d10+3-4", "(DRollExpr (- (+ (DRoll 2 10) 3) 4))", false},
 		{"2d10+3*4", "(DRollExpr (+ (DRoll 2 10) (* 3 4)))", false},
+		{"2d10/3+4*5-6", "(DRollExpr (- (+ (/ (DRoll 2 10) 3) (* 4 5)) 6))", false},
+		{"2d10/3u+4*5-6", "(DRollExpr (- (+ (/U (DRoll 2 10) 3) (* 4 5)) 6))", false},
+		{"2d10/3r+4*5-6", "(DRollExpr (- (+ (/R (DRoll 2 10) 3) (* 4 5)) 6))", false},
 		{"2d6*3-1d6+1", "(DRollExpr (+ (- (* (DRoll 2 6) 3) (DRoll 1 6)) 1))", false},
 		{"(2+3)d6-1+3d6+2", "(DRollExpr (+ (+ (- (DRoll (+ 2 3) 6) 1) (DRoll 3 6)) 2))", false},
 		{"(2*3-4)d6-1d4+1", "(DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))", false},
@@ -68,34 +114,35 @@ func TestParse(t *testing.T) {
 		{"[5...(7+1)]D6", "(DRollExpr (DRoll (Rand 5 (+ 7 1)) 6))", false},
 	}
 
-	for i, test := range testCases {
-		actual, err := Parse(test.input)
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
+			actual, err := Parse(test.input)
 
-		if err != nil {
-			// エラーが発生した！
+			if err != nil {
+				// エラーが発生した！
 
-			if !test.err {
-				// エラーを想定していなかった場合
-				t.Errorf("#%d (%q): got err: %s", i, test.input, err)
+				if !test.err {
+					// エラーを想定していなかった場合
+					t.Fatalf("got err: %s", err)
+				}
+
+				// エラーを想定していたので、この挙動は正常
+
+				return
 			}
 
-			// エラーを想定していたので、この挙動は正常
+			if test.err {
+				// エラーを想定していたのに、発生していない
+				t.Fatal("should err")
+				return
+			}
 
-			continue
-		}
+			actualSExp := actual.SExp()
 
-		if test.err {
-			// エラーを想定していたのに、発生していない
-			t.Errorf("#%d (%q): should err", i, test.input)
-
-			continue
-		}
-
-		actualSExp := actual.SExp()
-
-		if actualSExp != test.expectedSExp {
-			t.Errorf("#%d (%q): wrong SExp: got: %q, want: %q",
-				i, test.input, actualSExp, test.expectedSExp)
-		}
+			if actualSExp != test.expectedSExp {
+				t.Errorf("wrong SExp: got: %q, want: %q",
+					actualSExp, test.expectedSExp)
+			}
+		})
 	}
 }

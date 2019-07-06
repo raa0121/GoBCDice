@@ -71,10 +71,10 @@ const (
 	D_ROLL
 	// バラバラロール
 	B_ROLL
-	// 個数振り足しロール
-	R_ROLL
-	// 上方無限ロール
-	U_ROLL
+	// 個数振り足しロール、切り上げ
+	R
+	// 上方無限ロール、四捨五入
+	U
 	// シークレットロール
 	SECRET
 	// ランダム数値の埋め込み "..."
@@ -109,9 +109,9 @@ var tokenTypeString = map[TokenType]string{
 
 	D_ROLL: "D_ROLL",
 	B_ROLL: "B_ROLL",
-	R_ROLL: "R_ROLL",
-	U_ROLL: "U_ROLL",
-	SECRET: "SECRET_ROLL",
+	R:      "R",
+	U:      "U",
+	SECRET: "SECRET",
 	DOTS:   "...",
 
 	CALC:   "CALC",
@@ -122,8 +122,8 @@ var tokenTypeString = map[TokenType]string{
 var keywords = map[string]TokenType{
 	"D":      D_ROLL,
 	"B":      B_ROLL,
-	"R":      R_ROLL,
-	"U":      U_ROLL,
+	"R":      R,
+	"U":      U,
 	"S":      SECRET,
 	"C":      CALC,
 	"CHOICE": CHOICE,

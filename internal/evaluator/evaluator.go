@@ -6,6 +6,7 @@ import (
 	"github.com/raa0121/GoBCDice/internal/die"
 	"github.com/raa0121/GoBCDice/internal/die/roller"
 	"github.com/raa0121/GoBCDice/internal/object"
+	"math"
 )
 
 // 評価器の構造体
@@ -69,7 +70,8 @@ func (e *Evaluator) evalPrefixExpression(
 			node.Operator, right.(*object.Integer))
 	}
 
-	return nil, fmt.Errorf("unknown operator: %s%s", node.Operator, right.Type())
+	return nil, fmt.Errorf("operator not implemented: %s%s",
+		node.Operator, right.Type())
 }
 
 func (e *Evaluator) evalIntegerPrefixExpression(
@@ -83,7 +85,8 @@ func (e *Evaluator) evalIntegerPrefixExpression(
 		return &object.Integer{Value: -value}, nil
 	}
 
-	return nil, fmt.Errorf("unknown operator: %s%s", operator, right.Type())
+	return nil, fmt.Errorf("operator not implemented: %s%s",
+		operator, right.Type())
 }
 
 func (e *Evaluator) evalInfixExpression(
@@ -123,7 +126,8 @@ func (e *Evaluator) evalInfixExpression(
 		)
 	}
 
-	return nil, fmt.Errorf("unknown operator: %s %s %s", left.Type(), node.Operator, right.Type())
+	return nil, fmt.Errorf("operator not implemented: %s %s %s",
+		left.Type(), node.Operator, right.Type())
 }
 
 func (e *Evaluator) evalIntegerInfixExpression(
@@ -142,12 +146,25 @@ func (e *Evaluator) evalIntegerInfixExpression(
 	case "*":
 		return &object.Integer{Value: leftValue * rightValue}, nil
 	case "/":
+		// 除算（小数点以下切り捨て）
 		return &object.Integer{Value: leftValue / rightValue}, nil
+	case "/U":
+		{
+			// 除算（小数点以下切り上げ）
+			resultFloat := math.Ceil(float64(leftValue) / float64(rightValue))
+			return &object.Integer{Value: int(resultFloat)}, nil
+		}
+	case "/R":
+		{
+			// 除算（小数点以下四捨五入）
+			resultFloat := math.Round(float64(leftValue) / float64(rightValue))
+			return &object.Integer{Value: int(resultFloat)}, nil
+		}
 	case "D":
 		return e.evalSumRoll(left, right)
 	}
 
-	return nil, fmt.Errorf("unknown operator: %s %s %s",
+	return nil, fmt.Errorf("operator not implemented: %s %s %s",
 		left.Type(), operator, right.Type())
 }
 

@@ -43,6 +43,12 @@ func TestEvalCalc(t *testing.T) {
 		{"C((1+2)/3)", 1},
 		{"C(-(1+2))", -3},
 		{"C(+(1+2))", 3},
+		{"C(1+50/3-2)", 15},
+		{"C(1+50/3u-2)", 16},
+		{"C(1+50/3r-2)", 16},
+		{"C(1+100/3-2)", 32},
+		{"C(1+100/3u-2)", 33},
+		{"C(1+100/3r-2)", 32},
 	}
 
 	for _, test := range testcases {
@@ -175,7 +181,7 @@ func TestEvalDRollExpr(t *testing.T) {
 		},
 		{
 			input:    "3D6+1D6/2U",
-			expected: 0,
+			expected: 10,
 			dice:     []die.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
 		},
 		{

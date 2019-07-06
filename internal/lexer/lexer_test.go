@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"github.com/raa0121/GoBCDice/internal/token"
 	"testing"
 )
@@ -94,28 +95,64 @@ func TestNextToken(t *testing.T) {
 				{token.EOT, "", 9},
 			},
 		},
+		{
+			input: "2d6/3u",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.SLASH, "/", 4},
+				{token.INT, "3", 5},
+				{token.U, "u", 6},
+				{token.EOT, "", 7},
+			},
+		},
+		{
+			input: "2d6/3r",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.SLASH, "/", 4},
+				{token.INT, "3", 5},
+				{token.R, "r", 6},
+				{token.EOT, "", 7},
+			},
+		},
 	}
 
-	for i, testcase := range testcases {
-		l := New(testcase.input)
+	for _, test := range testcases {
+		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
+			l := New(test.input)
 
-		for j, e := range testcase.expectations {
-			tok := l.NextToken()
+			for _, e := range test.expectations {
+				var name string
 
-			if tok.Type != e.expectedType {
-				t.Errorf("#%d-%d: Type: got: %q, want: %q",
-					i, j, tok.Type, e.expectedType)
+				if e.expectedType == token.EOT {
+					name = "EOT"
+				} else {
+					name = fmt.Sprintf("%q", e.expectedLiteral)
+				}
+
+				t.Run(name, func(t *testing.T) {
+					tok := l.NextToken()
+
+					if tok.Type != e.expectedType {
+						t.Errorf("Type: got: %q, want: %q",
+							tok.Type, e.expectedType)
+					}
+
+					if tok.Literal != e.expectedLiteral {
+						t.Errorf("Literal: got: %q, want: %q",
+							tok.Literal, e.expectedLiteral)
+					}
+
+					if tok.Column != e.expectedColumn {
+						t.Errorf("Column: got: %d, want: %d",
+							tok.Column, e.expectedColumn)
+					}
+				})
 			}
-
-			if tok.Literal != e.expectedLiteral {
-				t.Errorf("#%d-%d: Literal: got: %q, want: %q",
-					i, j, tok.Literal, e.expectedLiteral)
-			}
-
-			if tok.Column != e.expectedColumn {
-				t.Errorf("#%d-%d: Column: got: %d, want: %d",
-					i, j, tok.Column, e.expectedColumn)
-			}
-		}
+		})
 	}
 }

@@ -37,8 +37,8 @@ import (
 
 %token<token> D_ROLL
 %token<token> B_ROLL
-%token<token> R_ROLL
-%token<token> U_ROLL
+%token<token> R
+%token<token> U
 %token<token> SECRET
 %token<token> DOTS
 
@@ -109,7 +109,15 @@ int_expr
 	}
 	| int_expr SLASH int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
+	}
+	| int_expr SLASH int_expr U
+	{
+		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
+	}
+	| int_expr SLASH int_expr R
+	{
+		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
 
 d_roll_expr
@@ -140,7 +148,15 @@ d_roll_expr
 	}
 	| d_roll_expr SLASH d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
+	}
+	| d_roll_expr SLASH d_roll_expr U
+	{
+		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
+	}
+	| d_roll_expr SLASH d_roll_expr R
+	{
+		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
 	| int_expr PLUS d_roll_expr
 	{
@@ -156,7 +172,15 @@ d_roll_expr
 	}
 	| int_expr SLASH d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
+	}
+	| int_expr SLASH d_roll_expr U
+	{
+		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
+	}
+	| int_expr SLASH d_roll_expr R
+	{
+		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
 	| d_roll_expr PLUS int_expr
 	{
@@ -172,7 +196,15 @@ d_roll_expr
 	}
 	| d_roll_expr SLASH int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
+	}
+	| d_roll_expr SLASH int_expr U
+	{
+		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
+	}
+	| d_roll_expr SLASH int_expr R
+	{
+		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
 
 d_roll
@@ -267,8 +299,8 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 
 	token.D_ROLL: D_ROLL,
 	token.B_ROLL: B_ROLL,
-	token.R_ROLL: R_ROLL,
-	token.U_ROLL: U_ROLL,
+	token.R: R,
+	token.U: U,
 	token.SECRET: SECRET,
 	token.DOTS: DOTS,
 
