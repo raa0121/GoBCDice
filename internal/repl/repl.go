@@ -239,6 +239,15 @@ func eval(r *REPL, c *Command, input string) {
 	evaluator := evaluator.NewEvaluator(
 		r.diceRoller, evaluator.NewEnvironment())
 
+	if r.dieFeeder.CanSpecifyDie() {
+		dice := r.dieFeeder.(*feeder.Queue).Dice()
+		defer func() {
+			f := r.dieFeeder.(*feeder.Queue)
+			f.Clear()
+			f.Append(dice)
+		}()
+	}
+
 	result, evalErr := evaluator.Eval(ast)
 	if evalErr != nil {
 		fmt.Fprintln(r.out, evalErr)

@@ -33,6 +33,17 @@ func (f *Queue) CanSpecifyDie() bool {
 	return true
 }
 
+// Diceは、現在のキューの内容をコピーして返す
+func (f *Queue) Dice() []die.Die {
+	dice := []die.Die{}
+
+	for _, d := range f.queue {
+		dice = append(dice, d)
+	}
+
+	return dice
+}
+
 // Nextはキューからダイスを1つ取り出して供給する
 func (f *Queue) Next(_ int) (die.Die, error) {
 	if f.IsEmpty() {
