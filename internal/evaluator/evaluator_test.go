@@ -2,8 +2,11 @@ package evaluator
 
 import (
 	"github.com/raa0121/GoBCDice/internal/die"
+	"github.com/raa0121/GoBCDice/internal/die/feeder"
+	"github.com/raa0121/GoBCDice/internal/die/roller"
 	"github.com/raa0121/GoBCDice/internal/object"
 	"github.com/raa0121/GoBCDice/internal/parser"
+	"reflect"
 	"testing"
 )
 
@@ -42,36 +45,43 @@ func TestEvalCalc(t *testing.T) {
 		{"C(+(1+2))", 3},
 	}
 
-	for i, test := range testcases {
-		input := test.input
-		ast, parseErr := parser.Parse(input)
-		if parseErr != nil {
-			t.Errorf("#%d: %q: 構文解析エラー: %s", i, input, parseErr)
-			continue
-		}
+	for _, test := range testcases {
+		t.Run(test.input, func(t *testing.T) {
+			ast, parseErr := parser.Parse(test.input)
+			if parseErr != nil {
+				t.Errorf("構文解析エラー: %s", parseErr)
+				return
+			}
 
-		// ノードを評価する
-		evaluated, evalErr := Eval(ast)
-		if evalErr != nil {
-			t.Errorf("#%d: %q: 評価エラー: %s", i, input, evalErr)
-			continue
-		}
+			// ノードを評価する
+			dieFeeder := feeder.NewEmptyQueue()
+			evaluator := &Evaluator{
+				diceRoller: roller.New(dieFeeder),
+				env:        NewEnvironment(),
+			}
 
-		if evaluated == nil {
-			t.Errorf("#%d: %q: Evalの対象外 (nil)", i, input)
-			continue
-		}
+			evaluated, evalErr := evaluator.Eval(ast)
+			if evalErr != nil {
+				t.Errorf("評価エラー: %s", evalErr)
+				return
+			}
 
-		// 型が合っているか？
-		obj, typeMatched := evaluated.(*object.Integer)
-		if !typeMatched {
-			t.Errorf("#%d: %q: 整数オブジェクトでない: got=%T (%+v)", i, input, obj, obj)
-			continue
-		}
+			if evaluated == nil {
+				t.Error("Evalの対象外 (nil)")
+				return
+			}
 
-		if obj.Value != test.expected {
-			t.Errorf("#%d: %q: 異なる値: got=%d, want=%d", i, input, obj.Value, test.expected)
-		}
+			// 型が合っているか？
+			obj, typeMatched := evaluated.(*object.Integer)
+			if !typeMatched {
+				t.Errorf("整数オブジェクトでない: %T (%+v)", obj, obj)
+				return
+			}
+
+			if obj.Value != test.expected {
+				t.Errorf("異なる値: got=%d, want=%d", obj.Value, test.expected)
+			}
+		})
 	}
 }
 
@@ -198,35 +208,45 @@ func TestEvalDRollExpr(t *testing.T) {
 		},
 	}
 
-	for i, test := range testcases {
-		input := test.input
-		ast, parseErr := parser.Parse(input)
-		if parseErr != nil {
-			t.Errorf("#%d: %q: 構文解析エラー: %s", i, input, parseErr)
-			continue
-		}
+	for _, test := range testcases {
+		t.Run(test.input, func(t *testing.T) {
+			ast, parseErr := parser.Parse(test.input)
+			if parseErr != nil {
+				t.Fatalf("構文解析エラー: %s", parseErr)
+				return
+			}
 
-		// ノードを評価する
-		evaluated, evalErr := Eval(ast)
-		if evalErr != nil {
-			t.Errorf("#%d: %q: 評価エラー: %s", i, input, evalErr)
-			continue
-		}
+			// ノードを評価する
+			dieFeeder := feeder.NewQueue(test.dice)
+			evaluator := &Evaluator{
+				diceRoller: roller.New(dieFeeder),
+				env:        NewEnvironment(),
+			}
 
-		if evaluated == nil {
-			t.Errorf("#%d: %q: Evalの対象外 (nil)", i, input)
-			continue
-		}
+			evaluated, evalErr := evaluator.Eval(ast)
+			if evalErr != nil {
+				t.Fatalf("評価エラー: %s", evalErr)
+			}
 
-		// 型が合っているか？
-		obj, typeMatched := evaluated.(*object.Integer)
-		if !typeMatched {
-			t.Errorf("#%d: %q: 整数オブジェクトでない: got=%T (%+v)", i, input, obj, obj)
-			continue
-		}
+			if evaluated == nil {
+				t.Fatalf("Evalの対象外 (nil)")
+			}
 
-		if obj.Value != test.expected {
-			t.Errorf("#%d: %q: 異なる値: got=%d, want=%d", i, input, obj.Value, test.expected)
-		}
+			// 型が合っているか？
+			obj, typeMatched := evaluated.(*object.Integer)
+			if !typeMatched {
+				t.Fatalf("整数オブジェクトでない: %T (%+v)", obj, obj)
+			}
+
+			if obj.Value != test.expected {
+				t.Errorf("異なる評価結果: got=%d, want=%d", obj.Value, test.expected)
+			}
+
+			rolledDice := evaluator.env.RolledDice()
+			if !reflect.DeepEqual(rolledDice, test.dice) {
+				t.Errorf("異なるダイスロール結果記録: got=%v, want=%v",
+					rolledDice, test.dice)
+			}
+		})
 	}
 }

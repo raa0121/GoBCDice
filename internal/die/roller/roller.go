@@ -28,6 +28,10 @@ func (dr *DiceRoller) DieFeeder() feeder.DieFeeder {
 
 // RollDiceは、sides個の面を持つダイスをnum個振り、その結果を返す
 func (dr *DiceRoller) RollDice(num int, sides int) ([]die.Die, error) {
+	if sides < 1 {
+		return nil, fmt.Errorf("ダイスの面数が少なすぎます: %d", sides)
+	}
+
 	if num < 1 {
 		return nil, fmt.Errorf("振るダイス数が少なすぎます: %d", num)
 	}

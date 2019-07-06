@@ -44,6 +44,12 @@ func TestDiceRoller_RollDice_Queue(t *testing.T) {
 			sides: 6,
 			err:   true,
 		},
+		{
+			dice:  []die.Die{{1, -6}},
+			num:   1,
+			sides: -6,
+			err:   true,
+		},
 	}
 
 	for i, test := range testcases {
