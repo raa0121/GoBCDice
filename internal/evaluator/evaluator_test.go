@@ -55,10 +55,7 @@ func TestEvalCalc(t *testing.T) {
 
 			// ノードを評価する
 			dieFeeder := feeder.NewEmptyQueue()
-			evaluator := &Evaluator{
-				diceRoller: roller.New(dieFeeder),
-				env:        NewEnvironment(),
-			}
+			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
 			evaluated, evalErr := evaluator.Eval(ast)
 			if evalErr != nil {
@@ -212,16 +209,13 @@ func TestEvalDRollExpr(t *testing.T) {
 		t.Run(test.input, func(t *testing.T) {
 			ast, parseErr := parser.Parse(test.input)
 			if parseErr != nil {
-				t.Fatalf("構文解析エラー: %s", parseErr)
+				t.Fatalf("構文エラー: %s", parseErr)
 				return
 			}
 
 			// ノードを評価する
 			dieFeeder := feeder.NewQueue(test.dice)
-			evaluator := &Evaluator{
-				diceRoller: roller.New(dieFeeder),
-				env:        NewEnvironment(),
-			}
+			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
 			evaluated, evalErr := evaluator.Eval(ast)
 			if evalErr != nil {
@@ -242,7 +236,7 @@ func TestEvalDRollExpr(t *testing.T) {
 				t.Errorf("異なる評価結果: got=%d, want=%d", obj.Value, test.expected)
 			}
 
-			rolledDice := evaluator.env.RolledDice()
+			rolledDice := evaluator.RolledDice()
 			if !reflect.DeepEqual(rolledDice, test.dice) {
 				t.Errorf("異なるダイスロール結果記録: got=%v, want=%v",
 					rolledDice, test.dice)

@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/raa0121/GoBCDice/internal/dicebot/testcase"
+	"github.com/raa0121/GoBCDice/internal/die"
 	"github.com/raa0121/GoBCDice/internal/die/feeder"
 	"github.com/raa0121/GoBCDice/internal/die/roller"
+	"github.com/raa0121/GoBCDice/internal/evaluator"
 	"github.com/raa0121/GoBCDice/internal/lexer"
 	"github.com/raa0121/GoBCDice/internal/parser"
 	"github.com/raa0121/GoBCDice/internal/token"
@@ -25,6 +27,7 @@ const (
 
 	COMMAND_TOKEN          = "token"
 	COMMAND_AST            = "ast"
+	COMMAND_EVAL           = "eval"
 	COMMAND_ROLL           = "roll"
 	COMMAND_SET_DIE_FEEDER = "set-die-feeder"
 	COMMAND_SET_DICE_QUEUE = "set-dice-queue"
@@ -49,10 +52,14 @@ type Command struct {
 }
 
 var (
-	commands   []Command
+	// 利用できるコマンド
+	commands []Command
+	// コマンド名とコマンドとの対応
 	commandMap = map[string]*Command{}
 
-	commandRe    = regexp.MustCompile(`\A\.([-a-z]+)(?:\s+(.+))*`)
+	// コマンド実行を表す正規表現
+	commandRe = regexp.MustCompile(`\A\.([-a-z]+)(?:\s+(.+))*`)
+	// 末尾の空白を表す正規表現
 	tailSpacesRe = regexp.MustCompile(`\s+\z`)
 )
 
@@ -63,6 +70,7 @@ type REPL struct {
 	diceRoller *roller.DiceRoller
 }
 
+// initはパッケージを初期化する
 func init() {
 	commands = []Command{
 		{
@@ -76,6 +84,12 @@ func init() {
 			Usage:       "." + COMMAND_AST + " BCDiceコマンド",
 			Description: "入力されたBCDiceコマンドのASTをS式の形で出力します",
 			Handler:     printSExp,
+		},
+		{
+			Name:        COMMAND_EVAL,
+			Usage:       "." + COMMAND_EVAL + " BCDiceコマンド",
+			Description: "入力されたBCDiceコマンドを評価します",
+			Handler:     eval,
 		},
 		{
 			Name:        COMMAND_ROLL,
@@ -128,7 +142,7 @@ func (r *REPL) Start() {
 	scanner := bufio.NewScanner(r.in)
 
 	for {
-		fmt.Print(PROMPT)
+		fmt.Printf("\n%s", PROMPT)
 
 		scanned := scanner.Scan()
 		if !scanned {
@@ -162,7 +176,7 @@ func (r *REPL) Start() {
 // executeDefaultCommand は、inputを引数として既定のコマンドを実行する。
 // コマンドが指定されていなかったとき、マッチしなかったときに使う。
 func (r *REPL) executeDefaultCommand(input string) {
-	printSExp(r, commandMap[COMMAND_AST], input)
+	eval(r, commandMap[COMMAND_EVAL], input)
 }
 
 // printCommandUsageは、コマンドcの使用法を出力する
@@ -206,6 +220,38 @@ func printSExp(r *REPL, c *Command, input string) {
 	}
 
 	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, ast.SExp())
+}
+
+// evalは、inputを構文解析して評価し、その結果を出力する。
+// ダイスロールが行われた場合、その結果も出力する。
+func eval(r *REPL, c *Command, input string) {
+	if input == "" {
+		r.printCommandUsage(c)
+		return
+	}
+
+	ast, parseErr := parser.Parse(input)
+	if parseErr != nil {
+		fmt.Fprintf(r.out, "構文エラー: %s\n", parseErr)
+		return
+	}
+
+	evaluator := evaluator.NewEvaluator(
+		r.diceRoller, evaluator.NewEnvironment())
+
+	result, evalErr := evaluator.Eval(ast)
+	if evalErr != nil {
+		fmt.Fprintln(r.out, evalErr)
+		return
+	}
+
+	fmt.Fprintf(r.out, "%s%+v\n", RESULT_HEADER, result.Inspect())
+
+	rolledDice := evaluator.RolledDice()
+	if len(rolledDice) > 0 {
+		fmt.Fprintf(r.out, "%sダイスロール結果: %s\n",
+			RESULT_INDENT, die.FormatDice(rolledDice))
+	}
 }
 
 var rollDiceRe = regexp.MustCompile(`\A(\d+)\s+(\d+)\z`)

@@ -8,9 +8,26 @@ import (
 	"github.com/raa0121/GoBCDice/internal/object"
 )
 
+// 評価器の構造体
 type Evaluator struct {
 	diceRoller *roller.DiceRoller
 	env        *Environment
+}
+
+// NewEvaluatorは新しい評価器を返す。
+//
+// * diceRoller: ダイスローラー
+// * env: 評価環境
+func NewEvaluator(diceRoller *roller.DiceRoller, env *Environment) *Evaluator {
+	return &Evaluator{
+		diceRoller: diceRoller,
+		env:        env,
+	}
+}
+
+// RolledDiceは、ダイスロール結果を返す
+func (e *Evaluator) RolledDice() []die.Die {
+	return e.env.RolledDice()
 }
 
 // Evalはnodeを評価してObjectに変換し、返す
