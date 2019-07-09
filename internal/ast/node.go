@@ -17,19 +17,39 @@ func (t NodeType) String() string {
 const (
 	UNKNOWN_NODE NodeType = iota
 
-	COMMAND_NODE
+	D_ROLL_EXPR_NODE
+	CALC_NODE
 	PREFIX_EXPRESSION_NODE
+
 	INFIX_EXPRESSION_NODE
+	ADD_NODE
+	SUBTRACT_NODE
+	MULTIPLY_NODE
+	DIVIDE_WITH_ROUNDING_UP_NODE
+	DIVIDE_WITH_ROUNDING_NODE
+	DIVIDE_WITH_ROUNDING_DOWN_NODE
+	D_ROLL_NODE
+	RANDOM_NUMBER_NODE
+
 	INT_NODE
 )
 
 var nodeTypeString = map[NodeType]string{
 	UNKNOWN_NODE: "UNKNOWN",
 
-	COMMAND_NODE:           "Command",
-	PREFIX_EXPRESSION_NODE: "PrefixExpression",
-	INFIX_EXPRESSION_NODE:  "InfixExpression",
-	INT_NODE:               "Int",
+	D_ROLL_EXPR_NODE:               "DRollExpr",
+	CALC_NODE:                      "Calc",
+	PREFIX_EXPRESSION_NODE:         "PrefixExpression",
+	INFIX_EXPRESSION_NODE:          "InfixExpression",
+	ADD_NODE:                       "Add",
+	SUBTRACT_NODE:                  "Subtract",
+	MULTIPLY_NODE:                  "Multiply",
+	DIVIDE_WITH_ROUNDING_UP_NODE:   "DivideWithRoundingUp",
+	DIVIDE_WITH_ROUNDING_NODE:      "DivideWithRounding",
+	DIVIDE_WITH_ROUNDING_DOWN_NODE: "DivideWithRoundingDown",
+	D_ROLL_NODE:                    "DRoll",
+	RANDOM_NUMBER_NODE:             "RandomNumber",
+	INT_NODE:                       "Int",
 }
 
 // 抽象構文木のノードのインターフェース
@@ -40,4 +60,17 @@ type Node interface {
 	Type() NodeType
 	// SExpはノードのS式を返す
 	SExp() string
+	// InfixNotationは中置記法表記を返す
+	InfixNotation() string
+}
+
+// Nodeが共通で持つ要素
+type NodeImpl struct {
+	// トークン
+	tok token.Token
+}
+
+// Tokenは対応するトークンを返す
+func (n *NodeImpl) Token() token.Token {
+	return n.tok
 }

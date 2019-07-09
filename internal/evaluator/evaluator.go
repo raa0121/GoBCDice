@@ -34,44 +34,44 @@ func (e *Evaluator) RolledDice() []die.Die {
 // Evalはnodeを評価してObjectに変換し、返す
 func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	// 型で分岐する
-	switch node := node.(type) {
-	case *ast.Command:
+	switch n := node.(type) {
+	case ast.Command:
 		// TODO: もしかしたらコマンドの種類で分岐する？
-		return e.Eval(node.Expression)
-	case *ast.PrefixExpression:
-		return e.evalPrefixExpression(node)
-	case *ast.InfixExpression:
-		return e.evalInfixExpression(node)
+		return e.Eval(n.Expression())
+	case ast.PrefixExpression:
+		return e.evalPrefixExpression(n)
+	case ast.InfixExpression:
+		return e.evalInfixExpression(n)
 	case *ast.Int:
-		return &object.Integer{Value: node.Value}, nil
+		return &object.Integer{Value: n.Value}, nil
 	}
 
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
 }
 
 func (e *Evaluator) evalPrefixExpression(
-	node *ast.PrefixExpression,
+	node ast.PrefixExpression,
 ) (object.Object, error) {
-	if node.Right == nil {
-		return nil, fmt.Errorf("operator %s: right is nil", node.Operator)
+	if node.Right() == nil {
+		return nil, fmt.Errorf("operator %s: right is nil", node.Operator())
 	}
 
-	right, err := e.Eval(node.Right)
+	right, err := e.Eval(node.Right())
 	if err != nil {
 		return nil, err
 	}
 
 	if right == nil {
-		return nil, fmt.Errorf("operator %s: evaluated right is nil", node.Operator)
+		return nil, fmt.Errorf("operator %s: evaluated right is nil", node.Operator())
 	}
 
 	if right.Type() == object.INTEGER_OBJ {
 		return e.evalIntegerPrefixExpression(
-			node.Operator, right.(*object.Integer))
+			node.Operator(), right.(*object.Integer))
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s%s",
-		node.Operator, right.Type())
+		node.Operator(), right.Type())
 }
 
 func (e *Evaluator) evalIntegerPrefixExpression(
@@ -90,44 +90,44 @@ func (e *Evaluator) evalIntegerPrefixExpression(
 }
 
 func (e *Evaluator) evalInfixExpression(
-	node *ast.InfixExpression,
+	node ast.InfixExpression,
 ) (object.Object, error) {
-	if node.Left == nil {
-		return nil, fmt.Errorf("operator %s: left is nil", node.Operator)
+	if node.Left() == nil {
+		return nil, fmt.Errorf("operator %s: left is nil", node.Operator())
 	}
 
-	if node.Right == nil {
-		return nil, fmt.Errorf("operator %s: right is nil", node.Operator)
+	if node.Right() == nil {
+		return nil, fmt.Errorf("operator %s: right is nil", node.Operator())
 	}
 
-	left, leftErr := e.Eval(node.Left)
+	left, leftErr := e.Eval(node.Left())
 	if leftErr != nil {
 		return nil, leftErr
 	}
 
 	if left == nil {
-		return nil, fmt.Errorf("operator %s: evaluated left is nil", node.Operator)
+		return nil, fmt.Errorf("operator %s: evaluated left is nil", node.Operator())
 	}
 
-	right, rightErr := e.Eval(node.Right)
+	right, rightErr := e.Eval(node.Right())
 	if rightErr != nil {
 		return nil, rightErr
 	}
 
 	if right == nil {
-		return nil, fmt.Errorf("operator %s: evaluated right is nil", node.Operator)
+		return nil, fmt.Errorf("operator %s: evaluated right is nil", node.Operator())
 	}
 
 	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
 		return e.evalIntegerInfixExpression(
-			node.Operator,
+			node.Operator(),
 			left.(*object.Integer),
 			right.(*object.Integer),
 		)
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s %s %s",
-		left.Type(), node.Operator, right.Type())
+		left.Type(), node.Operator(), right.Type())
 }
 
 func (e *Evaluator) evalIntegerInfixExpression(

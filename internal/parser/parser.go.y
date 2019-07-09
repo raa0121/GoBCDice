@@ -63,20 +63,12 @@ import (
 command
 	: d_roll_expr
 	{
-		$$ = &ast.Command{
-			Tok: $1.Token(),
-			Expression: $1,
-			Name: "DRollExpr",
-		}
+		$$ = ast.NewDRollExpr($1.Token(), $1)
 		yylex.(*LexerWrapper).ast = $$
 	}
 	| CALC L_PAREN int_expr R_PAREN
 	{
-		$$ = &ast.Command{
-			Tok: $1,
-			Expression: $3,
-			Name: "Calc",
-		}
+		$$ = ast.NewCalc($1, $3)
 		yylex.(*LexerWrapper).ast = $$
 	}
 
@@ -97,15 +89,15 @@ int_expr
 	}
 	| int_expr PLUS int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewAdd($1, $2, $3)
 	}
 	| int_expr MINUS int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewSubtract($1, $2, $3)
 	}
 	| int_expr ASTERISK int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewMultiply($1, $2, $3)
 	}
 	| int_expr SLASH int_expr
 	{
@@ -136,15 +128,15 @@ d_roll_expr
 	}
 	| d_roll_expr PLUS d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewAdd($1, $2, $3)
 	}
 	| d_roll_expr MINUS d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewSubtract($1, $2, $3)
 	}
 	| d_roll_expr ASTERISK d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewMultiply($1, $2, $3)
 	}
 	| d_roll_expr SLASH d_roll_expr
 	{
@@ -160,15 +152,15 @@ d_roll_expr
 	}
 	| int_expr PLUS d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewAdd($1, $2, $3)
 	}
 	| int_expr MINUS d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewSubtract($1, $2, $3)
 	}
 	| int_expr ASTERISK d_roll_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewMultiply($1, $2, $3)
 	}
 	| int_expr SLASH d_roll_expr
 	{
@@ -184,15 +176,15 @@ d_roll_expr
 	}
 	| d_roll_expr PLUS int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewAdd($1, $2, $3)
 	}
 	| d_roll_expr MINUS int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewSubtract($1, $2, $3)
 	}
 	| d_roll_expr ASTERISK int_expr
 	{
-		$$ = ast.NewInfixExpression($1, $2, $3)
+		$$ = ast.NewMultiply($1, $2, $3)
 	}
 	| d_roll_expr SLASH int_expr
 	{
@@ -240,19 +232,19 @@ d_roll
 rand
 	: L_BRACKET int DOTS int R_BRACKET
 	{
-		$$ = ast.NewRand($2, $3, $4)
+		$$ = ast.NewRandomNumber($2, $3, $4)
 	}
 	| L_BRACKET L_PAREN int_expr R_PAREN DOTS int R_BRACKET
 	{
-		$$ = ast.NewRand($3, $5, $6)
+		$$ = ast.NewRandomNumber($3, $5, $6)
 	}
 	| L_BRACKET int DOTS L_PAREN int_expr R_PAREN R_BRACKET
 	{
-		$$ = ast.NewRand($2, $3, $5)
+		$$ = ast.NewRandomNumber($2, $3, $5)
 	}
 	| L_BRACKET L_PAREN int_expr R_PAREN DOTS L_PAREN int_expr R_PAREN R_BRACKET
 	{
-		$$ = ast.NewRand($3, $5, $7)
+		$$ = ast.NewRandomNumber($3, $5, $7)
 	}
 
 int
@@ -261,10 +253,7 @@ int
 		// TODO: 整数が大きすぎるときなどのエラー処理が必要
 		value, _ := strconv.Atoi($1.Literal)
 
-		$$ = &ast.Int{
-			Tok: $1,
-			Value: value,
-		}
+		$$ = ast.NewInt(value, $1)
 	}
 
 %%

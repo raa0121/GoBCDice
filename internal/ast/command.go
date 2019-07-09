@@ -1,25 +1,16 @@
 package ast
 
-import (
-	"fmt"
-	"github.com/raa0121/GoBCDice/internal/token"
-)
-
-// トップレベルにあるコマンドのノード
-type Command struct {
-	Tok        token.Token
-	Expression Node
-	Name       string
+// トップレベルにあるコマンドのインターフェース
+type Command interface {
+	Node
+	Expression() Node
 }
 
-func (n *Command) Token() token.Token {
-	return n.Tok
+type CommandImpl struct {
+	NodeImpl
+	expr Node
 }
 
-func (n *Command) Type() NodeType {
-	return COMMAND_NODE
-}
-
-func (n *Command) SExp() string {
-	return fmt.Sprintf("(%s %s)", n.Name, n.Expression.SExp())
+func (n *CommandImpl) Expression() Node {
+	return n.expr
 }

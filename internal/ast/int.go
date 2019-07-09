@@ -6,13 +6,12 @@ import (
 )
 
 type Int struct {
-	Tok   token.Token
+	NodeImpl
 	Value int
 }
 
-func (n *Int) Token() token.Token {
-	return n.Tok
-}
+// IntがNodeを実装していることの確認
+var _ Node = (*Int)(nil)
 
 func (n *Int) Type() NodeType {
 	return INT_NODE
@@ -20,4 +19,17 @@ func (n *Int) Type() NodeType {
 
 func (n *Int) SExp() string {
 	return fmt.Sprintf("%d", n.Value)
+}
+
+func (n *Int) InfixNotation() string {
+	return fmt.Sprintf("%d", n.Value)
+}
+
+func NewInt(value int, tok token.Token) *Int {
+	return &Int{
+		NodeImpl: NodeImpl{
+			tok: tok,
+		},
+		Value: value,
+	}
 }
