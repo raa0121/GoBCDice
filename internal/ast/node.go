@@ -60,8 +60,6 @@ type Node interface {
 	Type() NodeType
 	// SExpはノードのS式を返す
 	SExp() string
-	// InfixNotationは中置記法表記を返す
-	InfixNotation() string
 }
 
 // Nodeが共通で持つ要素

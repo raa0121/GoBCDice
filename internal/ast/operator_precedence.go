@@ -1,12 +1,18 @@
 package ast
 
-type PrecType int
+// 演算子の優先順位の型
+type OperatorPrecedenceType int
 
 const (
-	PREC_MIN PrecType = iota
+	PREC_MIN OperatorPrecedenceType = iota
+	// Add, Subtract
 	PREC_ADDITIVE
+	// Multiply, Divide
 	PREC_MULTITIVE
+	// DRoll
 	PREC_D_ROLL
+	// RandomNumber
 	PREC_DOTS
+	// 単項-, +
 	PREC_U_PLUS_MINUS
 )

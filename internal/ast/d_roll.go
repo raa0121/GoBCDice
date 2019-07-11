@@ -17,6 +17,16 @@ func (n *DRoll) Type() NodeType {
 	return D_ROLL_NODE
 }
 
+// IsCommutativeは可換演算子かどうかを返す
+func (n *DRoll) IsCommutative() bool {
+	return false
+}
+
+// Precedenceは演算子の優先順位を返す
+func (n *DRoll) Precedence() OperatorPrecedenceType {
+	return PREC_D_ROLL
+}
+
 // NewDRollは加算ロールのノードを返す
 //
 // * num: 振るダイスの数のノード

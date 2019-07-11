@@ -17,6 +17,16 @@ func (n *Multiply) Type() NodeType {
 	return MULTIPLY_NODE
 }
 
+// IsCommutativeは可換演算子かどうかを返す
+func (n *Multiply) IsCommutative() bool {
+	return true
+}
+
+// Precedenceは演算子の優先順位を返す
+func (n *Multiply) Precedence() OperatorPrecedenceType {
+	return PREC_MULTITIVE
+}
+
 // NewMultiplyは、乗算のノードを返す
 //
 // * multiplicand: 被乗数のノード

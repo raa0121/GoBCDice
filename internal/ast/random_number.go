@@ -17,6 +17,16 @@ func (n *RandomNumber) Type() NodeType {
 	return RANDOM_NUMBER_NODE
 }
 
+// IsCommutativeは可換演算子かどうかを返す
+func (n *RandomNumber) IsCommutative() bool {
+	return false
+}
+
+// Precedenceは演算子の優先順位を返す
+func (n *RandomNumber) Precedence() OperatorPrecedenceType {
+	return PREC_DOTS
+}
+
 // NewRandはランダム数値取り出しのノードを返す
 //
 // * min: 最小値のノード

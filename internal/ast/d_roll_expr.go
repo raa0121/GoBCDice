@@ -39,7 +39,3 @@ func (n *DRollExpr) Type() NodeType {
 func (n *DRollExpr) SExp() string {
 	return fmt.Sprintf("(DRollExpr %s)", n.Expression().SExp())
 }
-
-func (n *DRollExpr) InfixNotation() string {
-	return n.Expression().InfixNotation()
-}

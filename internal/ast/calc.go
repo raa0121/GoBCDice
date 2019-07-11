@@ -38,7 +38,3 @@ func (n *Calc) Type() NodeType {
 func (n *Calc) SExp() string {
 	return fmt.Sprintf("(Calc %s)", n.Expression().SExp())
 }
-
-func (n *Calc) InfixNotation() string {
-	return fmt.Sprintf("C(%s)", n.Expression().InfixNotation())
-}

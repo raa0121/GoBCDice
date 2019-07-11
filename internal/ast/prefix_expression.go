@@ -60,11 +60,6 @@ func (n *PrefixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s)", n.OperatorForSExp(), n.Right().SExp())
 }
 
-// InfixNotationは中置記法表記を返す
-func (n *PrefixExpressionImpl) InfixNotation() string {
-	return n.Operator() + n.Right().InfixNotation()
-}
-
 // NewPrefixExpressionは前置演算子のノードを返す。
 // 評価時とS式とで演算子の表示を変更しなくてもよい場合に使う。
 //

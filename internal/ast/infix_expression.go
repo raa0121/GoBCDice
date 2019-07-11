@@ -17,6 +17,10 @@ type InfixExpression interface {
 	OperatorForSExp() string
 	// Rightは右のノードを返す
 	Right() Node
+	// IsCommutativeは可換演算子かどうかを返す
+	IsCommutative() bool
+	// Precedenceは演算子の優先順位を返す
+	Precedence() OperatorPrecedenceType
 }
 
 // 中置演算子のノードを表す構造体
@@ -68,11 +72,6 @@ func (n *InfixExpressionImpl) Right() Node {
 func (n *InfixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s %s)",
 		n.OperatorForSExp(), n.Left().SExp(), n.Right().SExp())
-}
-
-// InfixNotationは中置記法表記を返す
-func (n *InfixExpressionImpl) InfixNotation() string {
-	return n.left.InfixNotation() + n.Operator() + n.right.InfixNotation()
 }
 
 // NewInfixExpressionは中置演算子のノードを返す。
