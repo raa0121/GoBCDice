@@ -17,8 +17,6 @@ type InfixExpression interface {
 	OperatorForSExp() string
 	// Rightは右のノードを返す
 	Right() Node
-	// IsCommutativeは可換演算子かどうかを返す
-	IsCommutative() bool
 	// Precedenceは演算子の優先順位を返す
 	Precedence() OperatorPrecedenceType
 	// IsLeftAssociativeは左結合性かどうかを返す

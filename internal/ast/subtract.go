@@ -20,11 +20,6 @@ func (n *Subtract) Type() NodeType {
 	return SUBTRACT_NODE
 }
 
-// IsCommutativeは可換演算子かどうかを返す
-func (n *Subtract) IsCommutative() bool {
-	return false
-}
-
 // Precedenceは演算子の優先順位を返す
 func (n *Subtract) Precedence() OperatorPrecedenceType {
 	return PREC_ADDITIVE

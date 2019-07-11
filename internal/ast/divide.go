@@ -99,21 +99,6 @@ func (n *DivideWithRoundingDown) Type() NodeType {
 	return DIVIDE_WITH_ROUNDING_DOWN_NODE
 }
 
-// IsCommutativeは可換演算子かどうかを返す
-func (n *DivideWithRoundingUp) IsCommutative() bool {
-	return false
-}
-
-// IsCommutativeは可換演算子かどうかを返す
-func (n *DivideWithRounding) IsCommutative() bool {
-	return false
-}
-
-// IsCommutativeは可換演算子かどうかを返す
-func (n *DivideWithRoundingDown) IsCommutative() bool {
-	return false
-}
-
 // NewDivideWithRoundingUpは、小数点以下を切り上げる除算のノードを返す
 //
 // * dividend: 被除数のノード

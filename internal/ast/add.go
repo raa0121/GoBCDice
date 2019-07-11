@@ -20,11 +20,6 @@ func (n *Add) Type() NodeType {
 	return ADD_NODE
 }
 
-// IsCommutativeは可換演算子かどうかを返す
-func (n *Add) IsCommutative() bool {
-	return true
-}
-
 // Precedenceは演算子の優先順位を返す
 func (n *Add) Precedence() OperatorPrecedenceType {
 	return PREC_ADDITIVE
