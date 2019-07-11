@@ -5,7 +5,7 @@ import (
 	"github.com/raa0121/GoBCDice/internal/ast"
 )
 
-// nodeの中置記法表記を返す
+// InfixNotationはnodeの中置表記を返す
 func InfixNotation(node ast.Node) (string, error) {
 	switch n := node.(type) {
 	case *ast.Calc:
@@ -21,6 +21,7 @@ func InfixNotation(node ast.Node) (string, error) {
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
 }
 
+// infixNotationOfCalcは計算ノードの中置表記を返す
 func infixNotationOfCalc(node *ast.Calc) (string, error) {
 	expr, err := InfixNotation(node.Expression())
 	if err != nil {
@@ -30,6 +31,7 @@ func infixNotationOfCalc(node *ast.Calc) (string, error) {
 	return fmt.Sprintf("C(%s)", expr), nil
 }
 
+// infixNotationOfPrefixExpressionは前置演算子を使った式の中置表記を返す
 func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) {
 	right := node.Right()
 	rightInfixNotation, rightErr := InfixNotation(right)
@@ -44,48 +46,63 @@ func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) 
 	return fmt.Sprintf("%s(%s)", node.Operator(), rightInfixNotation), nil
 }
 
+// infixNotationOfInfixExpressionは中置演算子を使った式の中置表記を返す
 func infixNotationOfInfixExpression(node ast.InfixExpression) (string, error) {
-	left := node.Left()
-	leftInfixNotation, leftErr := InfixNotation(left)
+	leftInfixNotation, leftErr := parenthesizeChildOfInfixExpression(
+		node,
+		node.Left(),
+		node.IsLeftAssociative(),
+	)
 	if leftErr != nil {
 		return "", leftErr
 	}
 
-	right := node.Right()
-	rightInfixNotation, rightErr := InfixNotation(right)
+	rightInfixNotation, rightErr := parenthesizeChildOfInfixExpression(
+		node,
+		node.Right(),
+		node.IsRightAssociative(),
+	)
 	if rightErr != nil {
 		return "", rightErr
 	}
 
-	var parenthesizedLeft string
-	switch l := left.(type) {
-	case ast.InfixExpression:
-		if l.Precedence() < node.Precedence() {
-			parenthesizedLeft = fmt.Sprintf("(%s)", leftInfixNotation)
-		} else {
-			parenthesizedLeft = leftInfixNotation
-		}
-	default:
-		parenthesizedLeft = leftInfixNotation
+	return leftInfixNotation + node.Operator() + rightInfixNotation, nil
+}
+
+// parenthesizeChildOfInfixExpressionは、中置演算子の子ノードの中置表記を返す。
+// 必要な場合は子ノードの中置表記を括弧で囲む。
+//
+// * parent: 中置演算子のノード
+// * child: 中置演算子の子ノード
+// * parentIsAssociative: 中置演算子が子ノードの方向に結合性かどうか
+func parenthesizeChildOfInfixExpression(
+	parent ast.InfixExpression,
+	child ast.Node,
+	parentIsAssociative bool,
+) (string, error) {
+	infixNotationOfChild, err := InfixNotation(child)
+	if err != nil {
+		return "", err
 	}
 
-	var parenthesizedRight string
-	switch r := right.(type) {
+	switch c := child.(type) {
 	case ast.PrefixExpression:
-		parenthesizedRight = fmt.Sprintf("(%s)", rightInfixNotation)
+		return parenthesize(infixNotationOfChild), nil
 	case ast.InfixExpression:
-		lowPrecedence := r.Precedence() < node.Precedence()
-		samePrecedenceAndNonCommutative :=
-			r.Precedence() == node.Precedence() && !node.IsCommutative()
-
-		if lowPrecedence || samePrecedenceAndNonCommutative {
-			parenthesizedRight = fmt.Sprintf("(%s)", rightInfixNotation)
-		} else {
-			parenthesizedRight = rightInfixNotation
+		lowPrecedence := c.Precedence() < parent.Precedence()
+		samePrecedenceAndNonAssociative :=
+			c.Precedence() == parent.Precedence() && !parentIsAssociative
+		if lowPrecedence || samePrecedenceAndNonAssociative {
+			return parenthesize(infixNotationOfChild), nil
 		}
-	default:
-		parenthesizedRight = rightInfixNotation
-	}
 
-	return parenthesizedLeft + node.Operator() + parenthesizedRight, nil
+		return infixNotationOfChild, nil
+	default:
+		return infixNotationOfChild, nil
+	}
+}
+
+// parenthesizeはsを括弧で囲む
+func parenthesize(s string) string {
+	return "(" + s + ")"
 }

@@ -12,6 +12,9 @@ type Multiply struct {
 // MultiplyがNodeを実装していることの確認
 var _ Node = (*Multiply)(nil)
 
+// MultiplyがInfixExpressionを実装していることの確認
+var _ InfixExpression = (*Multiply)(nil)
+
 // Typeはノードの種類を返す
 func (n *Multiply) Type() NodeType {
 	return MULTIPLY_NODE
@@ -25,6 +28,16 @@ func (n *Multiply) IsCommutative() bool {
 // Precedenceは演算子の優先順位を返す
 func (n *Multiply) Precedence() OperatorPrecedenceType {
 	return PREC_MULTITIVE
+}
+
+// IsLeftAssociativeは左結合性かどうかを返す
+func (n *Multiply) IsLeftAssociative() bool {
+	return true
+}
+
+// IsRightAssociativeは右結合性かどうかを返す
+func (n *Multiply) IsRightAssociative() bool {
+	return true
 }
 
 // NewMultiplyは、乗算のノードを返す

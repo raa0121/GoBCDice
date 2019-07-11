@@ -12,6 +12,9 @@ type Add struct {
 // AddがNodeを実装していることの確認
 var _ Node = (*Add)(nil)
 
+// AddがInfixExpressionを実装していることの確認
+var _ InfixExpression = (*Add)(nil)
+
 // Typeはノードの種類を返す
 func (n *Add) Type() NodeType {
 	return ADD_NODE
@@ -25,6 +28,16 @@ func (n *Add) IsCommutative() bool {
 // Precedenceは演算子の優先順位を返す
 func (n *Add) Precedence() OperatorPrecedenceType {
 	return PREC_ADDITIVE
+}
+
+// IsLeftAssociativeは左結合性かどうかを返す
+func (n *Add) IsLeftAssociative() bool {
+	return true
+}
+
+// IsRightAssociativeは右結合性かどうかを返す
+func (n *Add) IsRightAssociative() bool {
+	return true
 }
 
 // NewAddは、加算のノードを返す

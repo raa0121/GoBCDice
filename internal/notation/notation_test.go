@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// TestInfixNotationはノードの中置表記をテストする
 func TestInfixNotation(t *testing.T) {
 	testcase := []struct {
 		input    string

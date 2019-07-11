@@ -21,6 +21,10 @@ type InfixExpression interface {
 	IsCommutative() bool
 	// Precedenceは演算子の優先順位を返す
 	Precedence() OperatorPrecedenceType
+	// IsLeftAssociativeは左結合性かどうかを返す
+	IsLeftAssociative() bool
+	// IsRightAssociativeは右結合性かどうかを返す
+	IsRightAssociative() bool
 }
 
 // 中置演算子のノードを表す構造体
