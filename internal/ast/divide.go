@@ -4,16 +4,41 @@ import (
 	"github.com/raa0121/GoBCDice/internal/token"
 )
 
+// 除算の端数処理の方法を表す型
+type RoundingMethodType int
+
+const (
+	// 小数点以下切り捨て
+	ROUNDING_METHOD_ROUND_DOWN RoundingMethodType = iota
+	// 小数点以下四捨五入
+	ROUNDING_METHOD_ROUND
+	// 小数点以下切り上げ
+	ROUNDING_METHOD_ROUND_UP
+)
+
+// 端数処理方法に対応する文字列
+var roundingMethodString = map[RoundingMethodType]string{
+	ROUNDING_METHOD_ROUND_UP:   "U",
+	ROUNDING_METHOD_ROUND:      "R",
+	ROUNDING_METHOD_ROUND_DOWN: "",
+}
+
+// Stringは端数処理方法に対応する文字列を返す
+func (t RoundingMethodType) String() string {
+	if s, ok := roundingMethodString[t]; ok {
+		return s
+	}
+
+	return "UNKNOWN"
+}
+
 // 除算のインターフェース
 type Divide interface {
+	InfixExpression
 	// IsDivideは除算かどうかを返す（ダミーメソッド）
 	IsDivide() bool
-	// Precedenceは演算子の優先順位を返す
-	Precedence() OperatorPrecedenceType
-	// IsLeftAssociativeは左結合性かどうかを返す
-	IsLeftAssociative() bool
-	// IsRightAssociativeは右結合性かどうかを返す
-	IsRightAssociative() bool
+	// RoundingMethod()は端数処理の方法を返す
+	RoundingMethod() RoundingMethodType
 }
 
 // 除算の共通要素を定義する構造体
@@ -97,6 +122,21 @@ func (n *DivideWithRounding) Type() NodeType {
 // Typeはノードの種類を返す
 func (n *DivideWithRoundingDown) Type() NodeType {
 	return DIVIDE_WITH_ROUNDING_DOWN_NODE
+}
+
+// RoundingMethod()は端数処理の方法を返す
+func (n *DivideWithRoundingUp) RoundingMethod() RoundingMethodType {
+	return ROUNDING_METHOD_ROUND_UP
+}
+
+// RoundingMethod()は端数処理の方法を返す
+func (n *DivideWithRounding) RoundingMethod() RoundingMethodType {
+	return ROUNDING_METHOD_ROUND
+}
+
+// RoundingMethod()は端数処理の方法を返す
+func (n *DivideWithRoundingDown) RoundingMethod() RoundingMethodType {
+	return ROUNDING_METHOD_ROUND_DOWN
 }
 
 // NewDivideWithRoundingUpは、小数点以下を切り上げる除算のノードを返す

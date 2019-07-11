@@ -10,6 +10,8 @@ func InfixNotation(node ast.Node) (string, error) {
 	switch n := node.(type) {
 	case *ast.Calc:
 		return infixNotationOfCalc(n)
+	case ast.Divide:
+		return infixNotationOfDivide(n)
 	case ast.PrefixExpression:
 		return infixNotationOfPrefixExpression(n)
 	case ast.InfixExpression:
@@ -44,29 +46,6 @@ func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) 
 	}
 
 	return fmt.Sprintf("%s(%s)", node.Operator(), rightInfixNotation), nil
-}
-
-// infixNotationOfInfixExpressionは中置演算子を使った式の中置表記を返す
-func infixNotationOfInfixExpression(node ast.InfixExpression) (string, error) {
-	leftInfixNotation, leftErr := parenthesizeChildOfInfixExpression(
-		node,
-		node.Left(),
-		node.IsLeftAssociative(),
-	)
-	if leftErr != nil {
-		return "", leftErr
-	}
-
-	rightInfixNotation, rightErr := parenthesizeChildOfInfixExpression(
-		node,
-		node.Right(),
-		node.IsRightAssociative(),
-	)
-	if rightErr != nil {
-		return "", rightErr
-	}
-
-	return leftInfixNotation + node.Operator() + rightInfixNotation, nil
 }
 
 // parenthesizeChildOfInfixExpressionは、中置演算子の子ノードの中置表記を返す。
@@ -105,4 +84,47 @@ func parenthesizeChildOfInfixExpression(
 // parenthesizeはsを括弧で囲む
 func parenthesize(s string) string {
 	return "(" + s + ")"
+}
+
+// infixNotationOfInfixExpressionは中置演算子を使った式の中置表記を返す
+func infixNotationOfInfixExpression(node ast.InfixExpression) (string, error) {
+	left, right, err := infixNotationsOfInfixExpressionChildren(node)
+	if err != nil {
+		return "", err
+	}
+
+	return left + node.Operator() + right, nil
+}
+
+// infixNotationOfInfixExpressionは除算の中置表記を返す
+func infixNotationOfDivide(node ast.Divide) (string, error) {
+	left, right, err := infixNotationsOfInfixExpressionChildren(node)
+	if err != nil {
+		return "", err
+	}
+
+	return left + "/" + right + node.RoundingMethod().String(), nil
+}
+
+// infixNotationsOfInfixExpressionChildrenは中置演算子を使った式の中置表記を返す
+func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression) (string, string, error) {
+	leftInfixNotation, leftErr := parenthesizeChildOfInfixExpression(
+		node,
+		node.Left(),
+		node.IsLeftAssociative(),
+	)
+	if leftErr != nil {
+		return "", "", leftErr
+	}
+
+	rightInfixNotation, rightErr := parenthesizeChildOfInfixExpression(
+		node,
+		node.Right(),
+		node.IsRightAssociative(),
+	)
+	if rightErr != nil {
+		return "", "", rightErr
+	}
+
+	return leftInfixNotation, rightInfixNotation, nil
 }

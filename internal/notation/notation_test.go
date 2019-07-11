@@ -334,6 +334,10 @@ func TestInfixNotation(t *testing.T) {
 		{"C(1/(2/(3-4)))", "C(1/(2/(3-4)))"},
 		{"C(1/(2/(3*4)))", "C(1/(2/(3*4)))"},
 		{"C(1/(2/(3/4)))", "C(1/(2/(3/4)))"},
+		{"C(1/2u)", "C(1/2U)"},
+		{"C(1/2r)", "C(1/2R)"},
+		{"C(100/(1+2)u)", "C(100/(1+2)U)"},
+		{"C(100/(1+2)r)", "C(100/(1+2)R)"},
 	}
 
 	for _, test := range testcase {
@@ -346,7 +350,7 @@ func TestInfixNotation(t *testing.T) {
 
 			actual, notationErr := InfixNotation(ast)
 			if notationErr != nil {
-				t.Fatalf("中置記法表記生成エラー: %s", notationErr)
+				t.Fatalf("中置表記生成エラー: %s", notationErr)
 				return
 			}
 
