@@ -81,7 +81,7 @@ int_expr
 	}
 	| MINUS int_expr %prec UMINUS
 	{
-		$$ = ast.NewPrefixExpression($1, $2)
+		$$ = ast.NewUnaryMinus($1, $2)
 	}
 	| PLUS int_expr %prec UPLUS
 	{
@@ -120,7 +120,7 @@ d_roll_expr
 	}
 	| MINUS d_roll_expr %prec UMINUS
 	{
-		$$ = ast.NewPrefixExpression($1, $2)
+		$$ = ast.NewUnaryMinus($1, $2)
 	}
 	| PLUS d_roll_expr %prec UPLUS
 	{

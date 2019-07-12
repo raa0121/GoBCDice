@@ -7,11 +7,15 @@ import (
 
 type Int struct {
 	NodeImpl
+	PrimaryExpressionImpl
 	Value int
 }
 
 // IntがNodeを実装していることの確認
 var _ Node = (*Int)(nil)
+
+// IntがPrimaryExpressionを実装していることの確認
+var _ PrimaryExpression = (*Int)(nil)
 
 func (n *Int) Type() NodeType {
 	return INT_NODE

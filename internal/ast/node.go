@@ -19,7 +19,9 @@ const (
 
 	D_ROLL_EXPR_NODE
 	CALC_NODE
+
 	PREFIX_EXPRESSION_NODE
+	UNARY_MINUS_NODE
 
 	INFIX_EXPRESSION_NODE
 	ADD_NODE
@@ -40,6 +42,7 @@ var nodeTypeString = map[NodeType]string{
 	D_ROLL_EXPR_NODE:               "DRollExpr",
 	CALC_NODE:                      "Calc",
 	PREFIX_EXPRESSION_NODE:         "PrefixExpression",
+	UNARY_MINUS_NODE:               "UnaryMinus",
 	INFIX_EXPRESSION_NODE:          "InfixExpression",
 	ADD_NODE:                       "Add",
 	SUBTRACT_NODE:                  "Subtract",

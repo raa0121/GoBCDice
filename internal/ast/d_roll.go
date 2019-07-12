@@ -7,6 +7,7 @@ import (
 // 加算ロールのノード
 type DRoll struct {
 	InfixExpressionImpl
+	PrimaryExpressionImpl
 }
 
 // DRollがNodeを実装していることの確認
@@ -14,6 +15,9 @@ var _ Node = (*DRoll)(nil)
 
 // DRollがInfixExpressionを実装していることの確認
 var _ InfixExpression = (*DRoll)(nil)
+
+// DRollがPrimaryExpressionを実装していることの確認
+var _ PrimaryExpression = (*Int)(nil)
 
 // Typeはノードの種類を返す
 func (n *DRoll) Type() NodeType {

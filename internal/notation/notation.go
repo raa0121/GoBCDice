@@ -41,11 +41,12 @@ func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) 
 		return "", rightErr
 	}
 
-	if right.Type() == ast.INT_NODE {
+	switch right.(type) {
+	case ast.PrimaryExpression:
 		return node.Operator() + rightInfixNotation, nil
+	default:
+		return node.Operator() + parenthesize(rightInfixNotation), nil
 	}
-
-	return fmt.Sprintf("%s(%s)", node.Operator(), rightInfixNotation), nil
 }
 
 // parenthesizeChildOfInfixExpressionは、中置演算子の子ノードの中置表記を返す。
@@ -108,11 +109,22 @@ func infixNotationOfDivide(node ast.Divide) (string, error) {
 
 // infixNotationsOfInfixExpressionChildrenは中置演算子を使った式の中置表記を返す
 func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression) (string, string, error) {
-	leftInfixNotation, leftErr := parenthesizeChildOfInfixExpression(
-		node,
-		node.Left(),
-		node.IsLeftAssociative(),
-	)
+	var leftInfixNotation string
+	var leftErr error
+
+	// 演算子が左結合性の場合、単項マイナスは特別扱い
+	// 例えば、-1+2 の中置表記が (-1)+2 ではなく -1+2 とならなければならない
+	//
+	// 左結合性でない場合、例えば (-1)^2 の中置表記は (-1)^2 のままとなる
+	if leftUMinus, uMinus := node.Left().(*ast.UnaryMinus); uMinus && node.IsLeftAssociative() {
+		leftInfixNotation, leftErr = infixNotationOfPrefixExpression(leftUMinus)
+	} else {
+		leftInfixNotation, leftErr = parenthesizeChildOfInfixExpression(
+			node,
+			node.Left(),
+			node.IsLeftAssociative(),
+		)
+	}
 	if leftErr != nil {
 		return "", "", leftErr
 	}
