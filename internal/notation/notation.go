@@ -8,6 +8,8 @@ import (
 // InfixNotationはnodeの中置表記を返す
 func InfixNotation(node ast.Node) (string, error) {
 	switch n := node.(type) {
+	case *ast.DRollExpr:
+		return infixNotationOfDRollExpr(n)
 	case *ast.Calc:
 		return infixNotationOfCalc(n)
 	case ast.Divide:
@@ -21,6 +23,16 @@ func InfixNotation(node ast.Node) (string, error) {
 	}
 
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
+}
+
+// infixNotationOfCalcは加算ロール式の中置表記を返す
+func infixNotationOfDRollExpr(node *ast.DRollExpr) (string, error) {
+	expr, err := InfixNotation(node.Expression())
+	if err != nil {
+		return "", err
+	}
+
+	return expr, nil
 }
 
 // infixNotationOfCalcは計算ノードの中置表記を返す
