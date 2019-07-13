@@ -37,11 +37,11 @@ const (
 	COMMAND_HELP = "help"
 )
 
-// コマンドハンドラの型
-// 返り値は、REPLを終了するならばtrue、続けるならばfalse
+// コマンドハンドラの型。
+// 返り値は、REPLを終了するならばtrue、続けるならばfalse。
 type CommandHandler func(r *REPL, c *Command, input string)
 
-// REPLコマンドを表す構造体
+// REPLコマンドを表す構造体。
 type Command struct {
 	// コマンド名
 	Name string
@@ -72,7 +72,7 @@ type REPL struct {
 	diceRoller *roller.DiceRoller
 }
 
-// initはパッケージを初期化する
+// init はパッケージを初期化する。
 func init() {
 	commands = []Command{
 		{
@@ -125,7 +125,8 @@ func init() {
 	}
 }
 
-// Newは新しいREPLを構築し、返す。
+// New は新しいREPLを構築し、返す。
+//
 // REPLは、inから入力された文字列をコマンドとして実行し、
 // outにその結果を出力する。
 func New(in io.Reader, out io.Writer) *REPL {
@@ -139,7 +140,7 @@ func New(in io.Reader, out io.Writer) *REPL {
 	}
 }
 
-// StartはREPLを開始する
+// Start はREPLを開始する。
 func (r *REPL) Start() {
 	scanner := bufio.NewScanner(r.in)
 
