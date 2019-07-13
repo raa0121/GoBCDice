@@ -3,6 +3,8 @@ package repl
 import (
 	"bufio"
 	"fmt"
+	"github.com/raa0121/GoBCDice/internal/ast"
+	"github.com/raa0121/GoBCDice/internal/command"
 	"github.com/raa0121/GoBCDice/internal/dicebot/testcase"
 	"github.com/raa0121/GoBCDice/internal/die"
 	"github.com/raa0121/GoBCDice/internal/die/feeder"
@@ -230,9 +232,15 @@ func eval(r *REPL, c *Command, input string) {
 		return
 	}
 
-	ast, parseErr := parser.Parse(input)
+	node, parseErr := parser.Parse(input)
 	if parseErr != nil {
 		fmt.Fprintf(r.out, "構文エラー: %s\n", parseErr)
+		return
+	}
+
+	commandNode, nodeIsCommandNode := node.(ast.Command)
+	if !nodeIsCommandNode {
+		fmt.Fprintln(r.out, "実行可能なコマンドではありません")
 		return
 	}
 
@@ -248,19 +256,13 @@ func eval(r *REPL, c *Command, input string) {
 	evaluator := evaluator.NewEvaluator(
 		r.diceRoller, evaluator.NewEnvironment())
 
-	result, evalErr := evaluator.Eval(ast)
-	if evalErr != nil {
-		fmt.Fprintln(r.out, evalErr)
+	result, execErr := command.Execute(commandNode, "DiceBot", evaluator)
+	if execErr != nil {
+		fmt.Fprintln(r.out, execErr)
 		return
 	}
 
-	fmt.Fprintf(r.out, "%s%+v\n", RESULT_HEADER, result.Inspect())
-
-	rolledDice := evaluator.RolledDice()
-	if len(rolledDice) > 0 {
-		fmt.Fprintf(r.out, "%sダイスロール結果: %s\n",
-			RESULT_INDENT, die.FormatDice(rolledDice))
-	}
+	fmt.Fprintln(r.out, RESULT_HEADER+result.Message())
 }
 
 var rollDiceRe = regexp.MustCompile(`\A(\d+)\s+(\d+)\z`)
