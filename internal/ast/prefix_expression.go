@@ -15,6 +15,8 @@ type PrefixExpression interface {
 	OperatorForSExp() string
 	// Rightは右のノードを返す
 	Right() Node
+	// SetRightは右のノードを設定する
+	SetRight(r Node)
 }
 
 // 前置演算子のノードを表す構造体
@@ -55,9 +57,19 @@ func (n *PrefixExpressionImpl) Right() Node {
 	return n.right
 }
 
+// SetRightは右のノードを設定する
+func (n *PrefixExpressionImpl) SetRight(r Node) {
+	n.right = r
+}
+
 // SExpはノードのS式を返す
 func (n *PrefixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s)", n.OperatorForSExp(), n.Right().SExp())
+}
+
+// IsVariableは可変ノードかどうかを返す。
+func (n *PrefixExpressionImpl) IsVariable() bool {
+	return n.Right().IsVariable()
 }
 
 // NewPrefixExpressionは前置演算子のノードを返す。

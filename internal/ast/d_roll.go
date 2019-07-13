@@ -39,6 +39,11 @@ func (n *DRoll) IsRightAssociative() bool {
 	return false
 }
 
+// IsVariableは可変ノードかどうかを返す。
+func (n *DRoll) IsVariable() bool {
+	return true
+}
+
 // NewDRollは加算ロールのノードを返す
 //
 // * num: 振るダイスの数のノード

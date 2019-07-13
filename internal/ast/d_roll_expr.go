@@ -32,10 +32,12 @@ func NewDRollExpr(tok token.Token, expression Node) *DRollExpr {
 	}
 }
 
+// Typeはノードの種類を返す
 func (n *DRollExpr) Type() NodeType {
 	return D_ROLL_EXPR_NODE
 }
 
+// SExpはノードのS式を返す
 func (n *DRollExpr) SExp() string {
 	return fmt.Sprintf("(DRollExpr %s)", n.Expression().SExp())
 }

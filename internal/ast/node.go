@@ -4,8 +4,10 @@ import (
 	"github.com/raa0121/GoBCDice/internal/token"
 )
 
+// NodeTypeはノードの種類を表す型
 type NodeType int
 
+// Stringはノードの種類を文字列として返す
 func (t NodeType) String() string {
 	if str, ok := nodeTypeString[t]; ok {
 		return str
@@ -36,6 +38,7 @@ const (
 	INT_NODE
 )
 
+// ノードの種類とそれを表す文字列との対応
 var nodeTypeString = map[NodeType]string{
 	UNKNOWN_NODE: "UNKNOWN",
 
@@ -63,6 +66,10 @@ type Node interface {
 	Type() NodeType
 	// SExpはノードのS式を返す
 	SExp() string
+	// IsVariableは可変ノードかどうかを返す。
+	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、
+	// 実行のたびに値が変わり得るノードのこと。
+	IsVariable() bool
 }
 
 // Nodeが共通で持つ要素

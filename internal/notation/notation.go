@@ -57,7 +57,7 @@ func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) 
 	case ast.PrimaryExpression:
 		return node.Operator() + rightInfixNotation, nil
 	default:
-		return node.Operator() + parenthesize(rightInfixNotation), nil
+		return node.Operator() + Parenthesize(rightInfixNotation), nil
 	}
 }
 
@@ -79,13 +79,13 @@ func parenthesizeChildOfInfixExpression(
 
 	switch c := child.(type) {
 	case ast.PrefixExpression:
-		return parenthesize(infixNotationOfChild), nil
+		return Parenthesize(infixNotationOfChild), nil
 	case ast.InfixExpression:
 		lowPrecedence := c.Precedence() < parent.Precedence()
 		samePrecedenceAndNonAssociative :=
 			c.Precedence() == parent.Precedence() && !parentIsAssociative
 		if lowPrecedence || samePrecedenceAndNonAssociative {
-			return parenthesize(infixNotationOfChild), nil
+			return Parenthesize(infixNotationOfChild), nil
 		}
 
 		return infixNotationOfChild, nil
@@ -94,8 +94,8 @@ func parenthesizeChildOfInfixExpression(
 	}
 }
 
-// parenthesizeはsを括弧で囲む
-func parenthesize(s string) string {
+// Parenthesizeはsを括弧で囲む
+func Parenthesize(s string) string {
 	return "(" + s + ")"
 }
 

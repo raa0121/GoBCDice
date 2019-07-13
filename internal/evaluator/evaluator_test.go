@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"github.com/raa0121/GoBCDice/internal/die"
 	"github.com/raa0121/GoBCDice/internal/die/feeder"
 	"github.com/raa0121/GoBCDice/internal/die/roller"
@@ -212,7 +213,7 @@ func TestEvalDRollExpr(t *testing.T) {
 	}
 
 	for _, test := range testcases {
-		t.Run(test.input, func(t *testing.T) {
+		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
 			ast, parseErr := parser.Parse(test.input)
 			if parseErr != nil {
 				t.Fatalf("構文エラー: %s", parseErr)
@@ -226,16 +227,19 @@ func TestEvalDRollExpr(t *testing.T) {
 			evaluated, evalErr := evaluator.Eval(ast)
 			if evalErr != nil {
 				t.Fatalf("評価エラー: %s", evalErr)
+				return
 			}
 
 			if evaluated == nil {
 				t.Fatalf("Evalの対象外 (nil)")
+				return
 			}
 
 			// 型が合っているか？
 			obj, typeMatched := evaluated.(*object.Integer)
 			if !typeMatched {
 				t.Fatalf("整数オブジェクトでない: %T (%+v)", obj, obj)
+				return
 			}
 
 			if obj.Value != test.expected {

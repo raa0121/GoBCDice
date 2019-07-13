@@ -11,12 +11,16 @@ type InfixExpression interface {
 	IsInfixExpression() bool
 	// Leftは左のノードを返す
 	Left() Node
+	// SetLeftは左のノードを設定する
+	SetLeft(l Node)
 	// Operatorは演算子を返す
 	Operator() string
 	// OperatorForSExpはS式で表示する演算子を返す
 	OperatorForSExp() string
 	// Rightは右のノードを返す
 	Right() Node
+	// SetRightは右のノードを設定する
+	SetRight(r Node)
 	// Precedenceは演算子の優先順位を返す
 	Precedence() OperatorPrecedenceType
 	// IsLeftAssociativeは左結合性かどうかを返す
@@ -55,6 +59,11 @@ func (n *InfixExpressionImpl) Left() Node {
 	return n.left
 }
 
+// SetLeftは左のノードを設定する
+func (n *InfixExpressionImpl) SetLeft(l Node) {
+	n.left = l
+}
+
 // Operatorは演算子を返す
 func (n *InfixExpressionImpl) Operator() string {
 	return n.operator
@@ -70,10 +79,20 @@ func (n *InfixExpressionImpl) Right() Node {
 	return n.right
 }
 
+// SetRightは右のノードを設定する
+func (n *InfixExpressionImpl) SetRight(r Node) {
+	n.right = r
+}
+
 // SExpはノードのS式を返す
 func (n *InfixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s %s)",
 		n.OperatorForSExp(), n.Left().SExp(), n.Right().SExp())
+}
+
+// IsVariableは可変ノードかどうかを返す。
+func (n *InfixExpressionImpl) IsVariable() bool {
+	return n.Left().IsVariable() || n.Right().IsVariable()
 }
 
 // NewInfixExpressionは中置演算子のノードを返す。

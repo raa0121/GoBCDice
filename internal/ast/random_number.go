@@ -39,6 +39,11 @@ func (n *RandomNumber) IsRightAssociative() bool {
 	return false
 }
 
+// IsVariableは可変ノードかどうかを返す。
+func (n *RandomNumber) IsVariable() bool {
+	return true
+}
+
 // NewRandはランダム数値取り出しのノードを返す
 //
 // * min: 最小値のノード

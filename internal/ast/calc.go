@@ -31,10 +31,12 @@ func NewCalc(tok token.Token, expression Node) *Calc {
 	}
 }
 
+// Typeはノードの種類を返す
 func (n *Calc) Type() NodeType {
 	return CALC_NODE
 }
 
+// SExpはノードのS式を返す
 func (n *Calc) SExp() string {
 	return fmt.Sprintf("(Calc %s)", n.Expression().SExp())
 }

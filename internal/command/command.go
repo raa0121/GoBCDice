@@ -20,6 +20,8 @@ func Execute(
 	switch c := commandNode.(type) {
 	case *ast.Calc:
 		return executeCalc(c, gameId, evaluator)
+	case *ast.DRollExpr:
+		return executeDRollExpr(c, gameId, evaluator)
 	}
 
 	return nil, fmt.Errorf("command execution not implemented: %s", commandNode.Type())
@@ -50,4 +52,69 @@ func executeCalc(
 	result.appendMessagePart(obj.Inspect())
 
 	return result, nil
+}
+
+// executeDRollExprは加算ロールを実行する
+func executeDRollExpr(
+	node *ast.DRollExpr,
+	gameId string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameId: gameId,
+	}
+
+	infixNotationOfNodeWithEvaluatedVarArgs, evaluateVarArgsErr :=
+		evaluateVarArgs(node, evaluator)
+	if evaluateVarArgsErr != nil {
+		return nil, evaluateVarArgsErr
+	}
+
+	infixNotationOfNodeWithDeterminedValues, determineValuesErr :=
+		determineValues(node, evaluator)
+	if determineValuesErr != nil {
+		return nil, determineValuesErr
+	}
+
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	result.appendMessagePart(notation.Parenthesize(infixNotationOfNodeWithEvaluatedVarArgs))
+	result.appendMessagePart(infixNotationOfNodeWithDeterminedValues)
+	result.appendMessagePart(obj.Inspect())
+
+	return result, nil
+}
+
+// 加算ロールなどの可変ノードの引数を評価して整数に変換する
+func evaluateVarArgs(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
+	evalVarArgsErr := evaluator.EvalVarArgs(node)
+	if evalVarArgsErr != nil {
+		return "", evalVarArgsErr
+	}
+
+	infixNotationOfNodeWithEvaluatedVarArgs, iNForEvaluatedVarArgsErr :=
+		notation.InfixNotation(node)
+	if iNForEvaluatedVarArgsErr != nil {
+		return "", iNForEvaluatedVarArgsErr
+	}
+
+	return infixNotationOfNodeWithEvaluatedVarArgs, nil
+}
+
+// 加算ロールなどの可変ノードの値を確定させる
+func determineValues(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
+	nodeForDetermineValues := node
+	// TODO: 加算ロールなどの可変ノードの値を確定させる
+	nodeWithDeterminedValues := nodeForDetermineValues
+
+	infixNotationOfNodeWithDeterminedValues, iNForDeterminedValuesErr :=
+		notation.InfixNotation(nodeWithDeterminedValues)
+	if iNForDeterminedValuesErr != nil {
+		return "", iNForDeterminedValuesErr
+	}
+
+	return infixNotationOfNodeWithDeterminedValues, nil
 }
