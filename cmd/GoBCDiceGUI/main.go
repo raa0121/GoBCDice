@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/andlabs/ui"
 	_ "github.com/andlabs/ui/winmanifest"
-	// "github.com/raa0121/GoBCDiceGUI/diceBot"
+	// "github.com/raa0121/GoBCDice/pkg/diceBot"
 )
 
 var (

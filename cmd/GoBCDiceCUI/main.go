@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/internal/dicebot"
+	"github.com/raa0121/GoBCDice/pkg/dicebot"
 )
 
 func main() {
