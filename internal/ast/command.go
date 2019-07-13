@@ -26,6 +26,11 @@ func (n *CommandImpl) SetExpression(e Node) {
 	n.expr = e
 }
 
+// IsPrimaryExpressionは一次式かどうかを返す
+func (n *CommandImpl) IsPrimaryExpression() bool {
+	return false
+}
+
 // IsVariableは可変ノードかどうかを返す。
 func (n *CommandImpl) IsVariable() bool {
 	return n.Expression().IsVariable()

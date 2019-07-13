@@ -9,22 +9,25 @@ import (
 
 // EvalVarArgsは可変ノードの引数を評価して確定させる
 func (e *Evaluator) EvalVarArgs(node ast.Node) error {
-	if !node.IsVariable() {
-		return nil
-	}
-
 	switch n := node.(type) {
-	case *ast.DRoll:
-		return e.evalVarArgsOfDRoll(n)
 	case ast.Command:
-		return e.evalVarArgsOfCommand(n)
+		return e.evalVarArgsInCommand(n)
 	case ast.PrefixExpression:
-		return e.evalVarArgsOfPrefixExpression(n)
+		return e.evalVarArgsInPrefixExpression(n)
 	case ast.InfixExpression:
-		return e.evalVarArgsOfInfixExpression(n)
+		return e.evalVarArgsInInfixExpression(n)
 	}
 
 	return fmt.Errorf("EvalVarArgs not implemented: %s", node.Type())
+}
+
+func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
+	switch n := node.(type) {
+	case *ast.DRoll:
+		return e.evalVarArgsOfDRoll(n)
+	}
+
+	return fmt.Errorf("evalVarArgsOfVariableExpr not implemented: %s", node.Type())
 }
 
 func (e *Evaluator) evalVarArgsOfDRoll(node *ast.DRoll) error {
@@ -47,34 +50,56 @@ func (e *Evaluator) evalVarArgsOfDRoll(node *ast.DRoll) error {
 	return nil
 }
 
-func (e *Evaluator) evalVarArgsOfCommand(node ast.Command) error {
-	err := e.EvalVarArgs(node.Expression())
-	if err != nil {
-		return err
+func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
+	expr := node.Expression()
+	if expr.IsPrimaryExpression() {
+		if expr.IsVariable() {
+			return e.evalVarArgsOfVariableExpr(expr)
+		}
+
+		return nil
 	}
 
-	return nil
+	return e.EvalVarArgs(expr)
 }
 
-func (e *Evaluator) evalVarArgsOfPrefixExpression(node ast.PrefixExpression) error {
-	err := e.EvalVarArgs(node.Right())
-	if err != nil {
-		return err
+func (e *Evaluator) evalVarArgsInPrefixExpression(node ast.PrefixExpression) error {
+	right := node.Right()
+	if right.IsPrimaryExpression() {
+		if right.IsVariable() {
+			return e.evalVarArgsOfVariableExpr(right)
+		}
+
+		return nil
 	}
 
-	return nil
+	return e.EvalVarArgs(right)
 }
 
-func (e *Evaluator) evalVarArgsOfInfixExpression(node ast.InfixExpression) error {
-	leftErr := e.EvalVarArgs(node.Left())
+func (e *Evaluator) evalVarArgsInInfixExpression(node ast.InfixExpression) error {
+	left := node.Left()
+	var leftErr error
+
+	if left.IsPrimaryExpression() {
+		if left.IsVariable() {
+			leftErr = e.evalVarArgsOfVariableExpr(left)
+		}
+	} else {
+		leftErr = e.EvalVarArgs(left)
+	}
+
 	if leftErr != nil {
 		return leftErr
 	}
 
-	rightErr := e.EvalVarArgs(node.Right())
-	if rightErr != nil {
-		return rightErr
+	right := node.Right()
+	if right.IsPrimaryExpression() {
+		if right.IsVariable() {
+			return e.evalVarArgsOfVariableExpr(right)
+		}
+
+		return nil
 	}
 
-	return nil
+	return e.EvalVarArgs(right)
 }

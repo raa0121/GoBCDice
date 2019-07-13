@@ -153,7 +153,7 @@ func TestEvalDRollExpr(t *testing.T) {
 		{
 			input:    "(2*3-4)d6-1d4+1",
 			expected: 10,
-			dice:     []die.Die{{6, 6}, {5, 6}, {2, 6}},
+			dice:     []die.Die{{6, 6}, {5, 6}, {2, 4}},
 		},
 		{
 			input:    "((2+3)*4/3)d6*2+5",

@@ -7,7 +7,6 @@ import (
 // 加算ロールのノード
 type RandomNumber struct {
 	InfixExpressionImpl
-	PrimaryExpressionImpl
 }
 
 // RandomNumberがNodeを実装していることの確認
@@ -15,9 +14,6 @@ var _ Node = (*RandomNumber)(nil)
 
 // RandomNumberがInfixExpressionを実装していることの確認
 var _ InfixExpression = (*RandomNumber)(nil)
-
-// RandomNumberがPrimaryExpressionを実装していることの確認
-var _ PrimaryExpression = (*Int)(nil)
 
 // Typeはノードの種類を返す
 func (n *RandomNumber) Type() NodeType {
@@ -37,6 +33,11 @@ func (n *RandomNumber) IsLeftAssociative() bool {
 // IsRightAssociativeは右結合性かどうかを返す
 func (n *RandomNumber) IsRightAssociative() bool {
 	return false
+}
+
+// IsPrimaryExpressionは一次式かどうかを返す
+func (n *RandomNumber) IsPrimaryExpression() bool {
+	return true
 }
 
 // IsVariableは可変ノードかどうかを返す。

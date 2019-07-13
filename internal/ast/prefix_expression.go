@@ -67,6 +67,11 @@ func (n *PrefixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s)", n.OperatorForSExp(), n.Right().SExp())
 }
 
+// IsPrimaryExpressionは一次式かどうかを返す
+func (n *PrefixExpressionImpl) IsPrimaryExpression() bool {
+	return false
+}
+
 // IsVariableは可変ノードかどうかを返す。
 func (n *PrefixExpressionImpl) IsVariable() bool {
 	return n.Right().IsVariable()

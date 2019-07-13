@@ -7,7 +7,6 @@ import (
 // 加算ロールのノード
 type DRoll struct {
 	InfixExpressionImpl
-	PrimaryExpressionImpl
 }
 
 // DRollがNodeを実装していることの確認
@@ -15,9 +14,6 @@ var _ Node = (*DRoll)(nil)
 
 // DRollがInfixExpressionを実装していることの確認
 var _ InfixExpression = (*DRoll)(nil)
-
-// DRollがPrimaryExpressionを実装していることの確認
-var _ PrimaryExpression = (*Int)(nil)
 
 // Typeはノードの種類を返す
 func (n *DRoll) Type() NodeType {
@@ -37,6 +33,11 @@ func (n *DRoll) IsLeftAssociative() bool {
 // IsRightAssociativeは右結合性かどうかを返す
 func (n *DRoll) IsRightAssociative() bool {
 	return false
+}
+
+// IsPrimaryExpressionは一次式かどうかを返す
+func (n *DRoll) IsPrimaryExpression() bool {
+	return true
 }
 
 // IsVariableは可変ノードかどうかを返す。

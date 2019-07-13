@@ -36,6 +36,7 @@ const (
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
+	SUM_ROLL_RESULT_NODE
 )
 
 // ノードの種類とそれを表す文字列との対応
@@ -56,6 +57,7 @@ var nodeTypeString = map[NodeType]string{
 	D_ROLL_NODE:                    "DRoll",
 	RANDOM_NUMBER_NODE:             "RandomNumber",
 	INT_NODE:                       "Int",
+	SUM_ROLL_RESULT_NODE:           "SumRollResult",
 }
 
 // 抽象構文木のノードのインターフェース
@@ -66,6 +68,8 @@ type Node interface {
 	Type() NodeType
 	// SExpはノードのS式を返す
 	SExp() string
+	// IsPrimaryExpressionは一次式かどうかを返す
+	IsPrimaryExpression() bool
 	// IsVariableは可変ノードかどうかを返す。
 	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、
 	// 実行のたびに値が変わり得るノードのこと。

@@ -99,7 +99,7 @@ func TestExecuteDRollExpr(t *testing.T) {
 		},
 		{
 			input:    "2D4",
-			expected: "DiceBot : (2D4) ＞ 3[1,2] ＞ 8",
+			expected: "DiceBot : (2D4) ＞ 3[1,2] ＞ 3",
 			dice:     []die.Die{{1, 4}, {2, 4}},
 		},
 		{

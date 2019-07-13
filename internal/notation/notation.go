@@ -3,6 +3,7 @@ package notation
 import (
 	"fmt"
 	"github.com/raa0121/GoBCDice/internal/ast"
+	"strings"
 )
 
 // InfixNotationはnodeの中置表記を返す
@@ -20,6 +21,8 @@ func InfixNotation(node ast.Node) (string, error) {
 		return infixNotationOfInfixExpression(n)
 	case *ast.Int:
 		return fmt.Sprintf("%d", n.Value), nil
+	case *ast.SumRollResult:
+		return infixNotationOfSumRollResult(n)
 	}
 
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
@@ -53,12 +56,11 @@ func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) 
 		return "", rightErr
 	}
 
-	switch right.(type) {
-	case ast.PrimaryExpression:
+	if right.IsPrimaryExpression() {
 		return node.Operator() + rightInfixNotation, nil
-	default:
-		return node.Operator() + Parenthesize(rightInfixNotation), nil
 	}
+
+	return node.Operator() + Parenthesize(rightInfixNotation), nil
 }
 
 // parenthesizeChildOfInfixExpressionは、中置演算子の子ノードの中置表記を返す。
@@ -109,7 +111,7 @@ func infixNotationOfInfixExpression(node ast.InfixExpression) (string, error) {
 	return left + node.Operator() + right, nil
 }
 
-// infixNotationOfInfixExpressionは除算の中置表記を返す
+// infixNotationOfDivideは除算の中置表記を返す
 func infixNotationOfDivide(node ast.Divide) (string, error) {
 	left, right, err := infixNotationsOfInfixExpressionChildren(node)
 	if err != nil {
@@ -151,4 +153,15 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression) (string, 
 	}
 
 	return leftInfixNotation, rightInfixNotation, nil
+}
+
+// infixNotationOfSumRollResultは加算ロール結果の中置表記を返す
+func infixNotationOfSumRollResult(node *ast.SumRollResult) (string, error) {
+	dieValueStrs := []string{}
+
+	for _, d := range node.Dice {
+		dieValueStrs = append(dieValueStrs, fmt.Sprintf("%d", d.Value))
+	}
+
+	return fmt.Sprintf("%d[%s]", node.Value(), strings.Join(dieValueStrs, ",")), nil
 }

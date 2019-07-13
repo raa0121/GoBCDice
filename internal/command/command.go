@@ -37,16 +37,19 @@ func executeCalc(
 		GameId: gameId,
 	}
 
+	// 抽象構文木を中置表記に変換する
 	infixNotation, notationErr := notation.InfixNotation(node)
 	if notationErr != nil {
 		return nil, notationErr
 	}
 
+	// 抽象構文木を評価する
 	obj, evalErr := evaluator.Eval(node)
 	if evalErr != nil {
 		return nil, evalErr
 	}
 
+	// 結果のメッセージを作る
 	result.appendMessagePart(infixNotation)
 	result.appendMessagePart("計算結果")
 	result.appendMessagePart(obj.Inspect())
@@ -64,23 +67,27 @@ func executeDRollExpr(
 		GameId: gameId,
 	}
 
-	infixNotationOfNodeWithEvaluatedVarArgs, evaluateVarArgsErr :=
-		evaluateVarArgs(node, evaluator)
-	if evaluateVarArgsErr != nil {
-		return nil, evaluateVarArgsErr
+	// 加算ロールなどの可変ノードの引数を評価して整数に変換する
+	infixNotationOfNodeWithEvaluatedVarArgs, evalVarArgsErr :=
+		evalVarArgs(node, evaluator)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
 	}
 
+	// 加算ロールなどの可変ノードの値を決定する
 	infixNotationOfNodeWithDeterminedValues, determineValuesErr :=
 		determineValues(node, evaluator)
 	if determineValuesErr != nil {
 		return nil, determineValuesErr
 	}
 
+	// 変換された抽象構文木を評価する
 	obj, evalErr := evaluator.Eval(node)
 	if evalErr != nil {
 		return nil, evalErr
 	}
 
+	// 結果のメッセージを作る
 	result.appendMessagePart(notation.Parenthesize(infixNotationOfNodeWithEvaluatedVarArgs))
 	result.appendMessagePart(infixNotationOfNodeWithDeterminedValues)
 	result.appendMessagePart(obj.Inspect())
@@ -88,33 +95,34 @@ func executeDRollExpr(
 	return result, nil
 }
 
-// 加算ロールなどの可変ノードの引数を評価して整数に変換する
-func evaluateVarArgs(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
-	evalVarArgsErr := evaluator.EvalVarArgs(node)
-	if evalVarArgsErr != nil {
-		return "", evalVarArgsErr
+// 加算ロールなどの可変ノードの引数を評価して整数に変換する。
+// 返り値はその結果の中置表記とエラー。
+func evalVarArgs(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
+	evalErr := evaluator.EvalVarArgs(node)
+	if evalErr != nil {
+		return "", evalErr
 	}
 
-	infixNotationOfNodeWithEvaluatedVarArgs, iNForEvaluatedVarArgsErr :=
-		notation.InfixNotation(node)
-	if iNForEvaluatedVarArgsErr != nil {
-		return "", iNForEvaluatedVarArgsErr
+	infixNotation, infixNotationErr := notation.InfixNotation(node)
+	if infixNotationErr != nil {
+		return "", infixNotationErr
 	}
 
-	return infixNotationOfNodeWithEvaluatedVarArgs, nil
+	return infixNotation, nil
 }
 
-// 加算ロールなどの可変ノードの値を確定させる
+// determineValuesは加算ロールなどの可変ノードの値を決定する。
+// 返り値はその結果の中置表記とエラー。
 func determineValues(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
-	nodeForDetermineValues := node
-	// TODO: 加算ロールなどの可変ノードの値を確定させる
-	nodeWithDeterminedValues := nodeForDetermineValues
-
-	infixNotationOfNodeWithDeterminedValues, iNForDeterminedValuesErr :=
-		notation.InfixNotation(nodeWithDeterminedValues)
-	if iNForDeterminedValuesErr != nil {
-		return "", iNForDeterminedValuesErr
+	determineValuesErr := evaluator.DetermineValues(node)
+	if determineValuesErr != nil {
+		return "", determineValuesErr
 	}
 
-	return infixNotationOfNodeWithDeterminedValues, nil
+	infixNotation, infixNotationErr := notation.InfixNotation(node)
+	if infixNotationErr != nil {
+		return "", infixNotationErr
+	}
+
+	return infixNotation, nil
 }

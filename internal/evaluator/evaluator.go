@@ -44,6 +44,8 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 		return e.evalInfixExpression(n)
 	case *ast.Int:
 		return &object.Integer{Value: n.Value}, nil
+	case *ast.SumRollResult:
+		return &object.Integer{Value: n.Value()}, nil
 	}
 
 	return nil, fmt.Errorf("unknown type: %s", node.Type())

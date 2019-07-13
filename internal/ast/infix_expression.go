@@ -90,6 +90,11 @@ func (n *InfixExpressionImpl) SExp() string {
 		n.OperatorForSExp(), n.Left().SExp(), n.Right().SExp())
 }
 
+// IsPrimaryExpressionは一次式かどうかを返す
+func (n *InfixExpressionImpl) IsPrimaryExpression() bool {
+	return false
+}
+
 // IsVariableは可変ノードかどうかを返す。
 func (n *InfixExpressionImpl) IsVariable() bool {
 	return n.Left().IsVariable() || n.Right().IsVariable()

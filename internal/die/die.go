@@ -18,6 +18,11 @@ func (d Die) String() string {
 	return fmt.Sprintf("<Die %d/%d>", d.Value, d.Sides)
 }
 
+// SExpはダイスのS式を返す
+func (d Die) SExp() string {
+	return fmt.Sprintf("(Die %d %d)", d.Value, d.Sides)
+}
+
 // FormatDiceはダイス列を文字列として整形して返す。
 // 結果の文字列は "値/面数, 値/面数, ..." という形式。
 func FormatDice(dice []Die) string {
