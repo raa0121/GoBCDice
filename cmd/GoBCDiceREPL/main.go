@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/internal/repl"
+	"github.com/raa0121/GoBCDice/cmd/GoBCDiceREPL/repl"
 	"os"
 )
 
