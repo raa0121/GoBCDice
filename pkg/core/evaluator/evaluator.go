@@ -1,3 +1,15 @@
+/*
+BCDiceコマンドの評価処理のパッケージ。
+
+主な処理は、以下の3つ。
+
+1. ダイスロールなどの可変ノードの引数を評価し、整数に変換する。
+
+2. 可変ノードの値を決定する。
+
+3. 抽象構文木を評価し、値のオブジェクトに変換する。
+
+*/
 package evaluator
 
 import (
@@ -9,16 +21,16 @@ import (
 	"math"
 )
 
-// 評価器の構造体
+// 評価器の構造体。
 type Evaluator struct {
 	diceRoller *roller.DiceRoller
 	env        *Environment
 }
 
-// NewEvaluatorは新しい評価器を返す。
+// NewEvaluator は新しい評価器を返す。
 //
-// * diceRoller: ダイスローラー
-// * env: 評価環境
+// diceRoller: ダイスローラー,
+// env: 評価環境
 func NewEvaluator(diceRoller *roller.DiceRoller, env *Environment) *Evaluator {
 	return &Evaluator{
 		diceRoller: diceRoller,
@@ -26,12 +38,12 @@ func NewEvaluator(diceRoller *roller.DiceRoller, env *Environment) *Evaluator {
 	}
 }
 
-// RolledDiceは、ダイスロール結果を返す
+// RolledDice はダイスロール結果を返す。
 func (e *Evaluator) RolledDice() []die.Die {
 	return e.env.RolledDice()
 }
 
-// Evalはnodeを評価してObjectに変換し、返す
+// Eval はnodeを評価してObjectに変換し、返す。
 func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	// 型で分岐する
 	switch n := node.(type) {
@@ -51,6 +63,7 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
 }
 
+// evalPrefixExpression は前置式を評価する。
 func (e *Evaluator) evalPrefixExpression(
 	node ast.PrefixExpression,
 ) (object.Object, error) {
@@ -76,6 +89,7 @@ func (e *Evaluator) evalPrefixExpression(
 		node.Operator(), right.Type())
 }
 
+// evalIntegerPrefixExpression は整数ノードを子に持つ前置式を評価する。
 func (e *Evaluator) evalIntegerPrefixExpression(
 	operator string,
 	right *object.Integer,
@@ -91,6 +105,7 @@ func (e *Evaluator) evalIntegerPrefixExpression(
 		operator, right.Type())
 }
 
+// evalInfixExpression は中置式を評価する。
 func (e *Evaluator) evalInfixExpression(
 	node ast.InfixExpression,
 ) (object.Object, error) {
@@ -132,6 +147,7 @@ func (e *Evaluator) evalInfixExpression(
 		left.Type(), node.Operator(), right.Type())
 }
 
+// evalIntegerInfixExpression は整数ノード同士を子に持つ中置式を評価する。
 func (e *Evaluator) evalIntegerInfixExpression(
 	operator string,
 	left *object.Integer,
@@ -170,6 +186,7 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		left.Type(), operator, right.Type())
 }
 
+// evalSumRoll は加算ロールを評価する。
 func (e *Evaluator) evalSumRoll(
 	num *object.Integer,
 	sides *object.Integer,
@@ -190,7 +207,7 @@ func (e *Evaluator) evalSumRoll(
 	return &object.Integer{Value: sum}, nil
 }
 
-// rollDiceは、sides個の面を持つダイスをnum個振り、その結果を返す。
+// rollDice は、sides個の面を持つダイスをnum個振り、その結果を返す。
 // また、ダイスロールの結果を記録する。
 func (e *Evaluator) rollDice(num int, sides int) ([]die.Die, error) {
 	rolledDice, err := e.diceRoller.RollDice(num, sides)

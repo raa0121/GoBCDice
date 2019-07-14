@@ -7,6 +7,26 @@ import (
 	"testing"
 )
 
+// ダイスをランダムに供給：現在時刻をシードとする場合の例。
+func Example_mT19937WithSeedFromTime() die.Die {
+	// ダイスの値をランダムにする
+	dieFeeder := NewMT19937WithSeedFromTime()
+	// 6面ダイスを1個振る
+	d, _ := dieFeeder.Next(6)
+
+	return d
+}
+
+// ダイスをランダムに供給：シードを指定する場合の例。
+func Example_mT19937WithSpecifiedSeed() die.Die {
+	// ダイスの値をランダムにする
+	dieFeeder := NewMT19937(1)
+	// 6面ダイスを1個振る
+	d, _ := dieFeeder.Next(6)
+
+	return d
+}
+
 func TestMT19937_CanSpecifyDie(t *testing.T) {
 	f := NewMT19937(1)
 

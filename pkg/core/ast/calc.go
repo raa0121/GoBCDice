@@ -5,21 +5,22 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
-// 計算コマンドのノード
+// 計算コマンドのノード。
+// コマンド。
 type Calc struct {
 	CommandImpl
 }
 
-// CalcがNodeを実装していることの確認
+// Calc がNodeを実装していることの確認。
 var _ Node = (*Calc)(nil)
 
-// CalcがCommandを実装していることの確認
+// Calc がCommandを実装していることの確認。
 var _ Command = (*Calc)(nil)
 
-// NewCalcは新しい計算コマンドを返す
+// NewCalc は新しい計算コマンドを返す。
 //
-// * tok: トークン
-// * expression: 式
+// tok: 対応するトークン,
+// expression: 式。
 func NewCalc(tok token.Token, expression Node) *Calc {
 	return &Calc{
 		CommandImpl: CommandImpl{
@@ -31,12 +32,12 @@ func NewCalc(tok token.Token, expression Node) *Calc {
 	}
 }
 
-// Typeはノードの種類を返す
+// Type はノードの種類を返す。
 func (n *Calc) Type() NodeType {
 	return CALC_NODE
 }
 
-// SExpはノードのS式を返す
+// SExp はノードのS式を返す。
 func (n *Calc) SExp() string {
 	return fmt.Sprintf("(Calc %s)", n.Expression().SExp())
 }

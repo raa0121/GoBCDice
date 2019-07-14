@@ -1,3 +1,9 @@
+/*
+BCDiceコマンドの実行処理のパッケージ。
+構文解析で得たコマンドのノードを評価して、最終的な出力のメッセージを生成することができる。
+
+このパッケージにおいて、コマンドの種類ごとに実行の仕方を定義する。
+*/
 package command
 
 import (
@@ -7,11 +13,11 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/notation"
 )
 
-// Executeは指定されたコマンドを実行する。
+// Execute は指定されたコマンドを実行する。
 //
-// * commandNode: コマンドのノード
-// * gameId: ゲーム識別子
-// * evaluator: 評価器
+// commandNode: コマンドのノード,
+// gameId: ゲーム識別子,
+// evaluator: 評価器。
 func Execute(
 	commandNode ast.Command,
 	gameId string,
@@ -27,7 +33,7 @@ func Execute(
 	return nil, fmt.Errorf("command execution not implemented: %s", commandNode.Type())
 }
 
-// executeCalcは計算を実行する
+// executeCalc は計算を実行する。
 func executeCalc(
 	node *ast.Calc,
 	gameId string,
@@ -57,7 +63,7 @@ func executeCalc(
 	return result, nil
 }
 
-// executeDRollExprは加算ロールを実行する
+// executeDRollExpr は加算ロールを実行する。
 func executeDRollExpr(
 	node *ast.DRollExpr,
 	gameId string,
@@ -95,7 +101,7 @@ func executeDRollExpr(
 	return result, nil
 }
 
-// 加算ロールなどの可変ノードの引数を評価して整数に変換する。
+// evalVarArgs は、加算ロールなどの可変ノードの引数を評価して整数に変換する。
 // 返り値はその結果の中置表記とエラー。
 func evalVarArgs(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
 	evalErr := evaluator.EvalVarArgs(node)
@@ -111,7 +117,7 @@ func evalVarArgs(node ast.Node, evaluator *evaluator.Evaluator) (string, error) 
 	return infixNotation, nil
 }
 
-// determineValuesは加算ロールなどの可変ノードの値を決定する。
+// determineValues は加算ロールなどの可変ノードの値を決定する。
 // 返り値はその結果の中置表記とエラー。
 func determineValues(node ast.Node, evaluator *evaluator.Evaluator) (string, error) {
 	determineValuesErr := evaluator.DetermineValues(node)

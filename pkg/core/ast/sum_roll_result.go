@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-// 加算ロールの結果を表すノード
+// 加算ロールの結果を表すノード。
+// 一次式。
 type SumRollResult struct {
 	NodeImpl
 
@@ -13,15 +14,15 @@ type SumRollResult struct {
 	Dice []die.Die
 }
 
-// SumRollResultがNodeを実装していることの確認
+// SumRollResult がNodeを実装していることの確認。
 var _ Node = (*SumRollResult)(nil)
 
-// Typeはノードの種類を返す
+// Type はノードの種類を返す。
 func (n *SumRollResult) Type() NodeType {
 	return SUM_ROLL_RESULT_NODE
 }
 
-// Valueは出目の合計を返す
+// Value は出目の合計を返す。
 func (n *SumRollResult) Value() int {
 	sum := 0
 
@@ -32,6 +33,7 @@ func (n *SumRollResult) Value() int {
 	return sum
 }
 
+// SExp はノードのS式を返す。
 func (n *SumRollResult) SExp() string {
 	diceStrs := []string{}
 
@@ -42,17 +44,21 @@ func (n *SumRollResult) SExp() string {
 	return "(SumRollResult " + strings.Join(diceStrs, " ") + ")"
 }
 
-// IsPrimaryExpressionは一次式かどうかを返す
+// IsPrimaryExpression は一次式かどうかを返す。
+// SumRollResultではtrueを返す。
 func (n *SumRollResult) IsPrimaryExpression() bool {
 	return true
 }
 
-// IsVariableは可変ノードかどうかを返す。
+// IsVariable は可変ノードかどうかを返す。
+// SumRollResultではfalseを返す。
 func (n *SumRollResult) IsVariable() bool {
 	return false
 }
 
-// NewSumRollResultは、新しい加算ロールの結果のノードを返す
+// NewSumRollResult は新しい加算ロール結果のノードを返す。
+//
+// dice: 振られたダイスのスライス。
 func NewSumRollResult(dice []die.Die) *SumRollResult {
 	r := &SumRollResult{
 		Dice: make([]die.Die, len(dice)),

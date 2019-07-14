@@ -4,10 +4,10 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
-// NodeTypeはノードの種類を表す型
+// NodeType はノードの種類を表す型。
 type NodeType int
 
-// Stringはノードの種類を文字列として返す
+// String はノードの種類を文字列として返す。
 func (t NodeType) String() string {
 	if str, ok := nodeTypeString[t]; ok {
 		return str
@@ -39,7 +39,7 @@ const (
 	SUM_ROLL_RESULT_NODE
 )
 
-// ノードの種類とそれを表す文字列との対応
+// ノードの種類とそれを表す文字列との対応。
 var nodeTypeString = map[NodeType]string{
 	UNKNOWN_NODE: "UNKNOWN",
 
@@ -60,29 +60,28 @@ var nodeTypeString = map[NodeType]string{
 	SUM_ROLL_RESULT_NODE:           "SumRollResult",
 }
 
-// 抽象構文木のノードのインターフェース
+// 抽象構文木のノードのインターフェース。
 type Node interface {
-	// Tokenは対応するトークンを返す
+	// Token は対応するトークンを返す。
 	Token() token.Token
-	// Typeはノードの種類を返す
+	// Type はノードの種類を返す。
 	Type() NodeType
-	// SExpはノードのS式を返す
+	// SExp はノードのS式を返す。
 	SExp() string
-	// IsPrimaryExpressionは一次式かどうかを返す
+	// IsPrimaryExpression は一次式かどうかを返す。
 	IsPrimaryExpression() bool
-	// IsVariableは可変ノードかどうかを返す。
-	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、
-	// 実行のたびに値が変わり得るノードのこと。
+	// IsVariable は可変ノードかどうかを返す。
+	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、実行のたびに値が変わり得るノードのこと。
 	IsVariable() bool
 }
 
-// Nodeが共通で持つ要素
+// Node が共通して持つ要素。
 type NodeImpl struct {
-	// トークン
+	// 対応するトークン
 	tok token.Token
 }
 
-// Tokenは対応するトークンを返す
+// Token は対応するトークンを返す。
 func (n *NodeImpl) Token() token.Token {
 	return n.tok
 }

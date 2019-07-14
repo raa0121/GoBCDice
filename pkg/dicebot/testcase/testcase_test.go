@@ -1,6 +1,7 @@
 package testcase
 
 import (
+	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/die"
 	"reflect"
 	"testing"
@@ -35,11 +36,11 @@ rand:4/6,1/6`,
 		gameId: "DiceBot",
 		index:  1,
 		expected: DiceBotTestCase{
-			gameId: "DiceBot",
-			index:  1,
-			input:  []string{"2d6+1-1-2-3-4"},
-			output: "DiceBot : (2D6+1-1-2-3-4) ＞ 5[4,1]+1-1-2-3-4 ＞ -4",
-			dice:   []die.Die{{4, 6}, {1, 6}},
+			GameId: "DiceBot",
+			Index:  1,
+			Input:  []string{"2d6+1-1-2-3-4"},
+			Output: "DiceBot : (2D6+1-1-2-3-4) ＞ 5[4,1]+1-1-2-3-4 ＞ -4",
+			Dice:   []die.Die{{4, 6}, {1, 6}},
 		},
 		err: false,
 	},
@@ -52,11 +53,11 @@ rand:4/6,1/6`,
 		gameId: "DiceBot",
 		index:  2,
 		expected: DiceBotTestCase{
-			gameId: "DiceBot",
-			index:  2,
-			input:  []string{"S2d6"},
-			output: "DiceBot : (2D6) ＞ 5[4,1] ＞ 5###secret dice###",
-			dice:   []die.Die{{4, 6}, {1, 6}},
+			GameId: "DiceBot",
+			Index:  2,
+			Input:  []string{"S2d6"},
+			Output: "DiceBot : (2D6) ＞ 5[4,1] ＞ 5###secret dice###",
+			Dice:   []die.Die{{4, 6}, {1, 6}},
 		},
 		err: false,
 	},
@@ -71,13 +72,13 @@ rand:6/6,6/6,6/6`,
 		gameId: "Satasupe",
 		index:  1,
 		expected: DiceBotTestCase{
-			gameId: "Satasupe",
-			index:  1,
-			input:  []string{"GETSST"},
-			output: `Satasupe : サタスペ作成：ベース部品：「大型の金属製の筒」  アクセサリ部品：「ガスボンベや殺虫剤」
+			GameId: "Satasupe",
+			Index:  1,
+			Input:  []string{"GETSST"},
+			Output: `Satasupe : サタスペ作成：ベース部品：「大型の金属製の筒」  アクセサリ部品：「ガスボンベや殺虫剤」
 部品効果：「命中：8、ダメージ：5、耐久度3、両手」「爆発3」
 完成品：サタスペ  （ダメージ＋5・命中8・射撃、「両手」「爆発3」「サタスペ1」「耐久度3」）`,
-			dice: []die.Die{{6, 6}, {6, 6}, {6, 6}},
+			Dice: []die.Die{{6, 6}, {6, 6}, {6, 6}},
 		},
 		err: false,
 	},
@@ -92,37 +93,39 @@ rand:1/6,3/6`,
 		gameId: "GranCrest",
 		index:  1,
 		expected: DiceBotTestCase{
-			gameId: "GranCrest",
-			index:  1,
-			input:  []string{"CCT"},
-			output: `GranCrest : 国特徴・文化表(13) ＞ 禁欲的
+			GameId: "GranCrest",
+			Index:  1,
+			Input:  []string{"CCT"},
+			Output: `GranCrest : 国特徴・文化表(13) ＞ 禁欲的
 あなたの国民は、道徳を重んじ、常に自分の欲望を制限することが理想的だと考えている。
 食料＋４、資金－１`,
-			dice: []die.Die{{1, 6}, {3, 6}},
+			Dice: []die.Die{{1, 6}, {3, 6}},
 		},
 		err: false,
 	},
 }
 
 func TestParse(t *testing.T) {
-	for i, test := range parseTestCases {
-		actual, err := Parse(test.source, test.gameId, test.index)
+	for _, test := range parseTestCases {
+		t.Run(fmt.Sprintf("%s-%d", test.gameId, test.index), func(t *testing.T) {
+			actual, err := Parse(test.source, test.gameId, test.index)
+			if err != nil {
+				if !test.err {
+					t.Fatalf("got err: %v", err)
+				}
 
-		if err != nil {
-			if !test.err {
-				t.Errorf("#%d:\ngot err: %v", i, err)
+				return
 			}
-			continue
-		}
 
-		if test.err {
-			t.Errorf("#%d:\nshould err", i)
-			continue
-		}
+			if test.err {
+				t.Fatal("should err")
+				return
+			}
 
-		if !reflect.DeepEqual(*actual, test.expected) {
-			t.Errorf("#%d:\ngot:  %v\nwant: %v", i, *actual, test.expected)
-		}
+			if !reflect.DeepEqual(*actual, test.expected) {
+				t.Errorf("got: %+v, want: %+v", *actual, test.expected)
+			}
+		})
 	}
 }
 
@@ -166,24 +169,26 @@ var parseDiceTestCases = []struct {
 }
 
 func TestParseDice(t *testing.T) {
-	for i, test := range parseDiceTestCases {
-		actual, err := ParseDice(test.source)
+	for _, test := range parseDiceTestCases {
+		t.Run(fmt.Sprintf("%q", test.source), func(t *testing.T) {
+			actual, err := ParseDice(test.source)
 
-		if err != nil {
-			if !test.err {
-				t.Errorf("#%d: %q\ngot err: %v", i, test.source, err)
+			if err != nil {
+				if !test.err {
+					t.Fatalf("got err: %v", err)
+				}
+				return
 			}
-			continue
-		}
 
-		if test.err {
-			t.Errorf("#%d: %q\nshould err", i, test.source)
-			continue
-		}
+			if test.err {
+				t.Fatal("should err")
+				return
+			}
 
-		if !reflect.DeepEqual(actual, test.expected) {
-			t.Errorf("#%d: %q\ngot:  %v\nwant: %v", i, test.source, actual, test.expected)
-		}
+			if !reflect.DeepEqual(actual, test.expected) {
+				t.Errorf("got: %+v, want: %+v", actual, test.expected)
+			}
+		})
 	}
 }
 
@@ -195,32 +200,32 @@ var parseFileTestCases = []struct {
 		filename: "testdata/DiceBot.txt",
 		expected: []DiceBotTestCase{
 			{
-				gameId: "DiceBot",
-				index:  1,
-				input:  []string{"2d6+1-1-2-3-4"},
-				output: "DiceBot : (2D6+1-1-2-3-4) ＞ 5[4,1]+1-1-2-3-4 ＞ -4",
-				dice:   []die.Die{{4, 6}, {1, 6}},
+				GameId: "DiceBot",
+				Index:  1,
+				Input:  []string{"2d6+1-1-2-3-4"},
+				Output: "DiceBot : (2D6+1-1-2-3-4) ＞ 5[4,1]+1-1-2-3-4 ＞ -4",
+				Dice:   []die.Die{{4, 6}, {1, 6}},
 			},
 			{
-				gameId: "DiceBot",
-				index:  2,
-				input:  []string{"S2d6"},
-				output: "DiceBot : (2D6) ＞ 5[4,1] ＞ 5###secret dice###",
-				dice:   []die.Die{{4, 6}, {1, 6}},
+				GameId: "DiceBot",
+				Index:  2,
+				Input:  []string{"S2d6"},
+				Output: "DiceBot : (2D6) ＞ 5[4,1] ＞ 5###secret dice###",
+				Dice:   []die.Die{{4, 6}, {1, 6}},
 			},
 			{
-				gameId: "DiceBot",
-				index:  3,
-				input:  []string{"4d10"},
-				output: "4d10 : (4D10) ＞ 18[3,2,5,8] ＞ 18",
-				dice:   []die.Die{{3, 10}, {2, 10}, {5, 10}, {8, 10}},
+				GameId: "DiceBot",
+				Index:  3,
+				Input:  []string{"4d10"},
+				Output: "4d10 : (4D10) ＞ 18[3,2,5,8] ＞ 18",
+				Dice:   []die.Die{{3, 10}, {2, 10}, {5, 10}, {8, 10}},
 			},
 			{
-				gameId: "DiceBot",
-				index:  4,
-				input:  []string{"2R6"},
-				output: "DiceBot : 2R6 ＞ 条件が間違っています。2R6>=5 あるいは 2R6[5] のように振り足し目標値を指定してください。",
-				dice:   []die.Die{},
+				GameId: "DiceBot",
+				Index:  4,
+				Input:  []string{"2R6"},
+				Output: "DiceBot : 2R6 ＞ 条件が間違っています。2R6>=5 あるいは 2R6[5] のように振り足し目標値を指定してください。",
+				Dice:   []die.Die{},
 			},
 		},
 	},
@@ -228,47 +233,51 @@ var parseFileTestCases = []struct {
 		filename: "testdata/multiline.txt",
 		expected: []DiceBotTestCase{
 			{
-				gameId: "multiline",
-				index:  1,
-				input:  []string{"GETSST"},
-				output: `Satasupe : サタスペ作成：ベース部品：「大型の金属製の筒」  アクセサリ部品：「ガスボンベや殺虫剤」
+				GameId: "multiline",
+				Index:  1,
+				Input:  []string{"GETSST"},
+				Output: `Satasupe : サタスペ作成：ベース部品：「大型の金属製の筒」  アクセサリ部品：「ガスボンベや殺虫剤」
 部品効果：「命中：8、ダメージ：5、耐久度3、両手」「爆発3」
 完成品：サタスペ  （ダメージ＋5・命中8・射撃、「両手」「爆発3」「サタスペ1」「耐久度3」）`,
-				dice: []die.Die{{6, 6}, {6, 6}, {6, 6}},
+				Dice: []die.Die{{6, 6}, {6, 6}, {6, 6}},
 			},
 			{
-				gameId: "multiline",
-				index:  2,
-				input:  []string{"CCT"},
-				output: `GranCrest : 国特徴・文化表(13) ＞ 禁欲的
+				GameId: "multiline",
+				Index:  2,
+				Input:  []string{"CCT"},
+				Output: `GranCrest : 国特徴・文化表(13) ＞ 禁欲的
 あなたの国民は、道徳を重んじ、常に自分の欲望を制限することが理想的だと考えている。
 食料＋４、資金－１`,
-				dice: []die.Die{{1, 6}, {3, 6}},
+				Dice: []die.Die{{1, 6}, {3, 6}},
 			},
 		},
 	},
 }
 
 func TestParseFile(t *testing.T) {
-	for i, test := range parseFileTestCases {
-		loadedTestCases, err := ParseFile(test.filename)
+	for _, test := range parseFileTestCases {
+		t.Run(fmt.Sprintf("%q", test.filename), func(t *testing.T) {
+			loadedTestCases, err := ParseFile(test.filename)
 
-		if err != nil {
-			t.Errorf("#%d: %s\ngot err: %v", i, test.filename, err)
-			continue
-		}
-
-		for j, expected := range test.expected {
-			if len(loadedTestCases) <= j {
-				t.Errorf("#%d-%d: %s\n読み込まれたテストケースが不足しています", i, j, test.filename)
-				continue
+			if err != nil {
+				t.Fatalf("got err: %v", err)
+				return
 			}
 
-			actual := *loadedTestCases[j]
+			for j, expected := range test.expected {
+				t.Run(fmt.Sprintf("%s-%d", expected.GameId, expected.Index), func(t *testing.T) {
+					if len(loadedTestCases) <= j {
+						t.Fatal("読み込まれたテストケースが不足しています")
+						return
+					}
 
-			if !reflect.DeepEqual(actual, expected) {
-				t.Errorf("#%d-%d: %s\ngot: %v\nwant: %v", i, j, test.filename, actual, expected)
+					actual := *loadedTestCases[j]
+
+					if !reflect.DeepEqual(actual, expected) {
+						t.Errorf("got: %+v, want: %+v", actual, expected)
+					}
+				})
 			}
-		}
+		})
 	}
 }

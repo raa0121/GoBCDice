@@ -5,22 +5,23 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
-// 加算ロール式のノード
+// 加算ロール式のノード。
+// コマンド。
 type DRollExpr struct {
 	NodeImpl
 	CommandImpl
 }
 
-// DRollExprがNodeを実装していることの確認
+// DRollExpr がNodeを実装していることの確認。
 var _ Node = (*DRollExpr)(nil)
 
-// DRollExprがCommandを実装していることの確認
+// DRollExpr がCommandを実装していることの確認。
 var _ Command = (*DRollExpr)(nil)
 
-// NewDRollExprは新しい計算コマンドを返す
+// NewDRollExpr は新しい加算ロール式のノードを返す。
 //
-// * tok: トークン
-// * expression: 式
+// tok: 対応するトークン,
+// expression: 式。
 func NewDRollExpr(tok token.Token, expression Node) *DRollExpr {
 	return &DRollExpr{
 		CommandImpl: CommandImpl{
@@ -32,12 +33,12 @@ func NewDRollExpr(tok token.Token, expression Node) *DRollExpr {
 	}
 }
 
-// Typeはノードの種類を返す
+// Type はノードの種類を返す。
 func (n *DRollExpr) Type() NodeType {
 	return D_ROLL_EXPR_NODE
 }
 
-// SExpはノードのS式を返す
+// SExp はノードのS式を返す。
 func (n *DRollExpr) SExp() string {
 	return fmt.Sprintf("(DRollExpr %s)", n.Expression().SExp())
 }

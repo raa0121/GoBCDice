@@ -7,7 +7,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
-// EvalVarArgsは可変ノードの引数を評価して確定させる
+// EvalVarArgs は可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 	switch n := node.(type) {
 	case ast.Command:
@@ -21,6 +21,10 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 	return fmt.Errorf("EvalVarArgs not implemented: %s", node.Type())
 }
 
+// evalVarArgsOfVariableExpr は可変ノードの引数を評価して整数に変換する。
+//
+// このメソッドには、DRollなど、実際に引数を評価して整数に変換する必要がある、可変一次式のノードを渡す。
+// このメソッドは、ノードの型に合わせて処理を振り分ける。
 func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
 	switch n := node.(type) {
 	case *ast.DRoll:
@@ -30,6 +34,7 @@ func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
 	return fmt.Errorf("evalVarArgsOfVariableExpr not implemented: %s", node.Type())
 }
 
+// evalVarArgsOfDRoll は加算ロールノードの引数を評価して整数に変換する。
 func (e *Evaluator) evalVarArgsOfDRoll(node *ast.DRoll) error {
 	leftObj, leftErr := e.Eval(node.Left())
 	if leftErr != nil {
@@ -50,6 +55,7 @@ func (e *Evaluator) evalVarArgsOfDRoll(node *ast.DRoll) error {
 	return nil
 }
 
+// evalVarArgsInCommand はコマンドノード内の可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
 	expr := node.Expression()
 	if expr.IsPrimaryExpression() {
@@ -63,6 +69,7 @@ func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
 	return e.EvalVarArgs(expr)
 }
 
+// evalVarArgsInCommand は前置式内の可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) evalVarArgsInPrefixExpression(node ast.PrefixExpression) error {
 	right := node.Right()
 	if right.IsPrimaryExpression() {
@@ -76,6 +83,7 @@ func (e *Evaluator) evalVarArgsInPrefixExpression(node ast.PrefixExpression) err
 	return e.EvalVarArgs(right)
 }
 
+// evalVarArgsInCommand は中置式内の可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) evalVarArgsInInfixExpression(node ast.InfixExpression) error {
 	left := node.Left()
 	var leftErr error

@@ -7,6 +7,32 @@ import (
 	"testing"
 )
 
+func ExampleDiceRoller_RollDice_mT19937() ([]die.Die, error) {
+	dieFeeder := feeder.NewMT19937WithSeedFromTime()
+	dieRoller := New(dieFeeder)
+
+	// 6面ダイスを2個振る
+	dice, err := dieRoller.RollDice(2, 6)
+	if err != nil {
+		return nil, err
+	}
+
+	return dice, nil
+}
+
+func ExampleDiceRoller_RollDice_queue() ([]die.Die, error) {
+	dieFeeder := feeder.NewQueue([]die.Die{{1, 6}, {3, 6}, {5, 6}})
+	dieRoller := New(dieFeeder)
+
+	// 6面ダイスを3個振る
+	dice, err := dieRoller.RollDice(3, 6)
+	if err != nil {
+		return nil, err
+	}
+
+	return dice, nil
+}
+
 func TestDiceRoller_RollDice_Queue(t *testing.T) {
 	testcases := []struct {
 		dice  []die.Die

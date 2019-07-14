@@ -15,17 +15,17 @@ type Result struct {
 	RolledDice []die.Die
 }
 
-// JoinedMessagePartsは、メッセージの部分を結合したものを返す
+// JoinedMessageParts は、メッセージの部分を結合したものを返す。
 func (r *Result) JoinedMessageParts() string {
 	return strings.Join(r.MessageParts, " ＞ ")
 }
 
-// Messageはコマンドの応答メッセージを返す
+// Message はコマンドの応答メッセージを返す。
 func (r *Result) Message() string {
 	return r.GameId + " : " + r.JoinedMessageParts()
 }
 
-// appendMessagePartはメッセージの部分を追加する
+// appendMessagePart はメッセージの部分を追加する。
 func (r *Result) appendMessagePart(message string) {
 	r.MessageParts = append(r.MessageParts, message)
 }

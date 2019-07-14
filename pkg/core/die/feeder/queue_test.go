@@ -7,6 +7,21 @@ import (
 	"testing"
 )
 
+// 供給するダイスを指定する場合の例。
+func Example_queue() {
+	// 供給するダイスを指定する
+	dieFeeder := NewQueue([]die.Die{{1, 6}, {3, 6}, {5, 6}})
+
+	// 6面ダイスを1個振る
+	d, err := dieFeeder.Next(6)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(d.String())
+	// Output: <Die 1/6>
+}
+
 func TestNewEmptyQueue(t *testing.T) {
 	f := NewEmptyQueue()
 

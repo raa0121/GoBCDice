@@ -1,4 +1,10 @@
 %{
+/*
+BCDiceコマンドの構文解析処理のパッケージ。
+
+BCDiceのコマンドはLALR(1)文法で表現できる。
+BCDiceコマンドのLALR(1)構文解析器は、goyaccを使用して生成する。
+*/
 package parser
 
 import (
@@ -258,14 +264,21 @@ int
 
 %%
 
+// 字句解析器をyyParseで使用できるようにするためのラッパー。
 type LexerWrapper struct {
+	// 入力文字列
 	Input string
+	// 現在の桁
 	Column int
+	// 現在のルートノード
 	ast ast.Node
+	// 字句解析器
 	lexer *lexer.Lexer
+	// エラーの内容
 	err string
 }
 
+// トークンの種類とyyParseで使用する定数との対応
 var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.ILLEGAL: ILLEGAL,
 
@@ -297,6 +310,9 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.CHOICE: CHOICE,
 }
 
+// newLexerWrapper は新しい字句解析器ラッパーを作る。
+//
+// input: 入力文字列
 func newLexerWrapper(input string) *LexerWrapper {
 	lw := &LexerWrapper{
 		Input: input,
@@ -306,6 +322,9 @@ func newLexerWrapper(input string) *LexerWrapper {
 	return lw
 }
 
+// Lex は次のトークンを読み込み、対応する定数を返す。
+//
+// 文字列の終端に達した場合は0を返す。
 func (lw *LexerWrapper) Lex(lval *yySymType) int {
 	tok := lw.lexer.NextToken()
 	lw.Column = tok.Column
@@ -319,10 +338,14 @@ func (lw *LexerWrapper) Lex(lval *yySymType) int {
 	return tokenTypeToYYTokenType[tok.Type]
 }
 
+// Error は発生したエラーを記録する。
 func (lw *LexerWrapper) Error(e string) {
 	lw.err = fmt.Sprintf("column %d: %s", lw.Column, e)
 }
 
+// Parse は入力文字列をBCDiceコマンドとして構文解析する。
+// 構文解析に成功した場合は、抽象構文木のルートノードを返す。
+// 構文解析に失敗した場合は、エラーを返す。
 func Parse(input string) (ast.Node, error) {
 	lw := newLexerWrapper(input)
 

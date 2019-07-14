@@ -5,33 +5,36 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
-// 中置演算子のインターフェース
+// 中置式のインターフェース。
 type InfixExpression interface {
 	Node
+
+	// IsInfixExpression は中置式であるかを返す（ダミー関数）。
 	IsInfixExpression() bool
-	// Leftは左のノードを返す
+	// Left は左のノードを返す。
 	Left() Node
-	// SetLeftは左のノードを設定する
+	// SetLeft は左のノードを設定する。
 	SetLeft(l Node)
-	// Operatorは演算子を返す
+	// Operator は演算子を返す。
 	Operator() string
-	// OperatorForSExpはS式で表示する演算子を返す
+	// OperatorForSExp はS式で表示する演算子を返す。
 	OperatorForSExp() string
-	// Rightは右のノードを返す
+	// Right は右のノードを返す。
 	Right() Node
-	// SetRightは右のノードを設定する
+	// SetRight は右のノードを設定する。
 	SetRight(r Node)
-	// Precedenceは演算子の優先順位を返す
+	// Precedence は演算子の優先順位を返す。
 	Precedence() OperatorPrecedenceType
-	// IsLeftAssociativeは左結合性かどうかを返す
+	// IsLeftAssociative は左結合性かどうかを返す。
 	IsLeftAssociative() bool
-	// IsRightAssociativeは右結合性かどうかを返す
+	// IsRightAssociative は右結合性かどうかを返す。
 	IsRightAssociative() bool
 }
 
-// 中置演算子のノードを表す構造体
+// 中置式のノードが共通して持つ要素。
 type InfixExpressionImpl struct {
 	NodeImpl
+
 	// 左のノード
 	left Node
 	// 演算子
@@ -42,70 +45,76 @@ type InfixExpressionImpl struct {
 	right Node
 }
 
-// InfixExpressionがNodeを実装していることの確認
+// InfixExpressionImpl がNodeを実装していることの確認。
 var _ Node = (*InfixExpressionImpl)(nil)
 
-// Typeはノードの種類を返す
+// Type はノードの種類を返す。
 func (n *InfixExpressionImpl) Type() NodeType {
 	return INFIX_EXPRESSION_NODE
 }
 
+// IsInfixExpression は中置式であるかを返す（ダミー関数）。
+// 中置式ではtrueを返す。
 func (n *InfixExpressionImpl) IsInfixExpression() bool {
 	return true
 }
 
-// Leftは左のノードを返す
+// Left は左のノードを返す。
 func (n *InfixExpressionImpl) Left() Node {
 	return n.left
 }
 
-// SetLeftは左のノードを設定する
+// SetLeft は左のノードを設定する。
 func (n *InfixExpressionImpl) SetLeft(l Node) {
 	n.left = l
 }
 
-// Operatorは演算子を返す
+// Operator は演算子を返す。
 func (n *InfixExpressionImpl) Operator() string {
 	return n.operator
 }
 
-// OperatorForSExpはS式で表示する演算子を返す
+// OperatorForSExp はS式で表示する演算子を返す。
 func (n *InfixExpressionImpl) OperatorForSExp() string {
 	return n.operatorForSExp
 }
 
-// Rightは右のノードを返す
+// Right は右のノードを返す。
 func (n *InfixExpressionImpl) Right() Node {
 	return n.right
 }
 
-// SetRightは右のノードを設定する
+// SetRight は右のノードを設定する。
 func (n *InfixExpressionImpl) SetRight(r Node) {
 	n.right = r
 }
 
-// SExpはノードのS式を返す
+// SExp はノードのS式を返す。
 func (n *InfixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s %s)",
 		n.OperatorForSExp(), n.Left().SExp(), n.Right().SExp())
 }
 
-// IsPrimaryExpressionは一次式かどうかを返す
+// IsPrimaryExpression は一次式かどうかを返す。
+// 中置式ではfalseを返す。
 func (n *InfixExpressionImpl) IsPrimaryExpression() bool {
 	return false
 }
 
-// IsVariableは可変ノードかどうかを返す。
+// IsVariable は可変ノードかどうかを返す。
+//
+// 中置式では、左または右のノードが可変ノードならばtrueを返す。
+// 左右の両方のノードが可変ノードでない場合はfalseを返す。
 func (n *InfixExpressionImpl) IsVariable() bool {
 	return n.Left().IsVariable() || n.Right().IsVariable()
 }
 
-// NewInfixExpressionは中置演算子のノードを返す。
-// 評価時とS式とで演算子の表示を変更しなくてもよい場合に使う。
+// NewInfixExpression は新しい中置式のノードを返す。
+// 評価時とS式とで演算子を変更しなくてもよい場合に使う。
 //
-// * left: 左のノード
-// * tok: 対応するトークン
-// * right: 右のノード
+// left: 左のノード,
+// tok: 対応するトークン,
+// right: 右のノード。
 func NewInfixExpression(left Node, tok token.Token, right Node) *InfixExpressionImpl {
 	return &InfixExpressionImpl{
 		NodeImpl: NodeImpl{

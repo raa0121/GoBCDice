@@ -5,6 +5,32 @@ import (
 	"testing"
 )
 
+// ダイス列の整形例。
+func ExampleFormatDice() {
+	dice := []Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}
+	fmt.Println(FormatDice(dice))
+	// Output: 2/4, 3/6, 5/10, 10/20
+}
+
+// ダイス列の整形例（空白なし）。
+func ExampleFormatDiceWithoutSpaces() {
+	dice := []Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}
+	fmt.Println(FormatDiceWithoutSpaces(dice))
+	// Output: 2/4,3/6,5/10,10/20
+}
+
+func ExampleDie_SExp() {
+	d := Die{3, 6}
+	fmt.Println(d.SExp())
+	// Output: (Die 3 6)
+}
+
+func ExampleDie_String() {
+	d := Die{3, 6}
+	fmt.Println(d.String())
+	// Output: <Die 3/6>
+}
+
 func TestFormatDice(t *testing.T) {
 	testcases := []struct {
 		dice     []Die

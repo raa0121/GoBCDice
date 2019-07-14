@@ -1,3 +1,6 @@
+/*
+Ruby版BCDiceのダイスボットテストデータ読み込み処理のパッケージ。
+*/
 package testcase
 
 import (
@@ -10,18 +13,18 @@ import (
 	"strings"
 )
 
-// ダイスボットのテストケースを表す構造体
+// ダイスボットのテストケース。
 type DiceBotTestCase struct {
 	// ゲーム識別子
-	gameId string
+	GameId string
 	// テストケース番号
-	index int
+	Index int
 	// 入力文字列
-	input []string
+	Input []string
 	// 出力文字列
-	output string
+	Output string
 	// 入力するダイス列
-	dice []die.Die
+	Dice []die.Die
 }
 
 var (
@@ -31,8 +34,8 @@ var (
 	diceRe = regexp.MustCompile(`\A\s*(\d+)/(\d+)\s*\z`)
 )
 
-// Parseは、テストケースのソースコードを構文解析してDiceBotTestCaseを作り、
-// それを指すポインタを返す。失敗するとnilを返す。
+// Parse はテストケースのソースコードを構文解析し、その内容のDiceBotTestCaseを構築して返す。
+// 失敗するとnilを返す。
 //
 // gameIdにはゲームの識別子を指定する。
 // indexにはテストケース番号を指定する。
@@ -51,16 +54,15 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 	output := strings.TrimLeft(matches[2], "\n")
 
 	return &DiceBotTestCase{
-		gameId: gameId,
-		index:  index,
-		input:  input,
-		output: output,
-		dice:   dice,
+		GameId: gameId,
+		Index:  index,
+		Input:  input,
+		Output: output,
+		Dice:   dice,
 	}, nil
 }
 
-// ParseDiceはテストケースのソースコード内のダイス表記を解析する
-// 振られたサイコロの情報の配列を返す
+// ParseDice はテストケースのダイス表記を解析し、振られたダイスのスライスを返す。
 func ParseDice(source string) ([]die.Die, error) {
 	dice := []die.Die{}
 
@@ -83,8 +85,7 @@ func ParseDice(source string) ([]die.Die, error) {
 	return dice, nil
 }
 
-// ParseFileはテストケースのソースコードファイルを解析し、
-// DiceBotTestCaseのポインタの配列を返す。
+// ParseFile はテストケースのソースコードファイルを解析し、テストケースのスライスを返す。
 //
 // filenameには、ソースコードファイルのパスを指定する。
 func ParseFile(filename string) ([]*DiceBotTestCase, error) {

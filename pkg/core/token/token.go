@@ -1,3 +1,7 @@
+/*
+BCDiceコマンドのトークンを定義するパッケージ。
+主にlexerパッケージから使われる。
+*/
 package token
 
 import (

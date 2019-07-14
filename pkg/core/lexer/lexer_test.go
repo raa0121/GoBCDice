@@ -6,6 +6,32 @@ import (
 	"testing"
 )
 
+// 字句解析の例。
+// token.EOTが返るまでNextTokenを呼び続け、読み込まれたトークンを出力する。
+func Example() {
+	lexer := New("(2*3-4)d6-1d4+1")
+
+	for tok := lexer.NextToken(); tok.Type != token.EOT; tok = lexer.NextToken() {
+		fmt.Println(tok)
+	}
+	// Output:
+	// <Token ( Literal:"(" Column:1>
+	// <Token INT Literal:"2" Column:2>
+	// <Token * Literal:"*" Column:3>
+	// <Token INT Literal:"3" Column:4>
+	// <Token - Literal:"-" Column:5>
+	// <Token INT Literal:"4" Column:6>
+	// <Token ) Literal:")" Column:7>
+	// <Token D_ROLL Literal:"d" Column:8>
+	// <Token INT Literal:"6" Column:9>
+	// <Token - Literal:"-" Column:10>
+	// <Token INT Literal:"1" Column:11>
+	// <Token D_ROLL Literal:"d" Column:12>
+	// <Token INT Literal:"4" Column:13>
+	// <Token + Literal:"+" Column:14>
+	// <Token INT Literal:"1" Column:15>
+}
+
 type tokenExpectation struct {
 	expectedType    token.TokenType
 	expectedLiteral string

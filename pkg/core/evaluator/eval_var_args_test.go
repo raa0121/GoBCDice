@@ -8,6 +8,31 @@ import (
 	"testing"
 )
 
+// 可変ノードの引数を評価して整数に変換する例。
+func ExampleEvaluator_EvalVarArgs() {
+	// 構文解析する
+	ast, parseErr := parser.Parse("(2*3-4)d6-1d4+1")
+	if parseErr != nil {
+		return
+	}
+
+	fmt.Println("構文解析直後の抽象構文木: " + ast.SExp())
+
+	// 可変ノードの引数を評価して整数に変換する
+	dieFeeder := feeder.NewMT19937WithSeedFromTime()
+	evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
+
+	evalErr := evaluator.EvalVarArgs(ast)
+	if evalErr != nil {
+		return
+	}
+
+	fmt.Println("引数評価後の抽象構文木: " + ast.SExp())
+	// Output:
+	// 構文解析直後の抽象構文木: (DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))
+	// 引数評価後の抽象構文木: (DRollExpr (+ (- (DRoll 2 6) (DRoll 1 4)) 1))
+}
+
 func TestEvalVarArgs(t *testing.T) {
 	testcases := []struct {
 		input    string

@@ -1,3 +1,10 @@
+/*
+抽象構文木の中置表記生成処理のパッケージ。
+
+抽象構文木の中置表記は、BCDiceコマンドの実行結果のメッセージに含まれる。
+中置表記を表示することで、利用者が入力したコマンドが構文解析器に正しく解釈されていることを示すことができる。
+この中置表記は、日常的に数式で使われている、最小限の括弧を含むものとする。
+*/
 package notation
 
 import (
@@ -6,7 +13,7 @@ import (
 	"strings"
 )
 
-// InfixNotationはnodeの中置表記を返す
+// InfixNotation は構文解析木の中置表記を返す。
 func InfixNotation(node ast.Node) (string, error) {
 	switch n := node.(type) {
 	case *ast.DRollExpr:
@@ -28,7 +35,7 @@ func InfixNotation(node ast.Node) (string, error) {
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
 }
 
-// infixNotationOfCalcは加算ロール式の中置表記を返す
+// infixNotationOfCalc は加算ロール式の中置表記を返す。
 func infixNotationOfDRollExpr(node *ast.DRollExpr) (string, error) {
 	expr, err := InfixNotation(node.Expression())
 	if err != nil {
@@ -48,7 +55,7 @@ func infixNotationOfCalc(node *ast.Calc) (string, error) {
 	return fmt.Sprintf("C(%s)", expr), nil
 }
 
-// infixNotationOfPrefixExpressionは前置演算子を使った式の中置表記を返す
+// infixNotationOfPrefixExpression は前置式の中置表記を返す。
 func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) {
 	right := node.Right()
 	rightInfixNotation, rightErr := InfixNotation(right)
@@ -63,12 +70,12 @@ func infixNotationOfPrefixExpression(node ast.PrefixExpression) (string, error) 
 	return node.Operator() + Parenthesize(rightInfixNotation), nil
 }
 
-// parenthesizeChildOfInfixExpressionは、中置演算子の子ノードの中置表記を返す。
+// parenthesizeChildOfInfixExpression は中置式の子ノードの中置表記を返す。
 // 必要な場合は子ノードの中置表記を括弧で囲む。
 //
-// * parent: 中置演算子のノード
-// * child: 中置演算子の子ノード
-// * parentIsAssociative: 中置演算子が子ノードの方向に結合性かどうか
+// parent: 中置式のノード,
+// child: 中置式の子ノード,
+// parentIsAssociative: 中置式が子ノードの方向に結合性かどうか。
 func parenthesizeChildOfInfixExpression(
 	parent ast.InfixExpression,
 	child ast.Node,
@@ -96,12 +103,12 @@ func parenthesizeChildOfInfixExpression(
 	}
 }
 
-// Parenthesizeはsを括弧で囲む
+// Parenthesize は文字列を括弧で囲む。
 func Parenthesize(s string) string {
 	return "(" + s + ")"
 }
 
-// infixNotationOfInfixExpressionは中置演算子を使った式の中置表記を返す
+// infixNotationOfInfixExpression は中置式の中置表記を返す。
 func infixNotationOfInfixExpression(node ast.InfixExpression) (string, error) {
 	left, right, err := infixNotationsOfInfixExpressionChildren(node)
 	if err != nil {
@@ -111,7 +118,8 @@ func infixNotationOfInfixExpression(node ast.InfixExpression) (string, error) {
 	return left + node.Operator() + right, nil
 }
 
-// infixNotationOfDivideは除算の中置表記を返す
+// infixNotationOfDivide は除算の中置表記を返す。
+// 除算では端数処理の方法を除数の後で示す必要があるため、処理が特別になる。
 func infixNotationOfDivide(node ast.Divide) (string, error) {
 	left, right, err := infixNotationsOfInfixExpressionChildren(node)
 	if err != nil {
@@ -121,7 +129,7 @@ func infixNotationOfDivide(node ast.Divide) (string, error) {
 	return left + "/" + right + node.RoundingMethod().String(), nil
 }
 
-// infixNotationsOfInfixExpressionChildrenは中置演算子を使った式の中置表記を返す
+// infixNotationsOfInfixExpressionChildren は中置式の左右の子ノードの中置表記を返す。
 func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression) (string, string, error) {
 	var leftInfixNotation string
 	var leftErr error
@@ -155,7 +163,7 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression) (string, 
 	return leftInfixNotation, rightInfixNotation, nil
 }
 
-// infixNotationOfSumRollResultは加算ロール結果の中置表記を返す
+// infixNotationOfSumRollResult は加算ロール結果の中置表記を返す。
 func infixNotationOfSumRollResult(node *ast.SumRollResult) (string, error) {
 	dieValueStrs := []string{}
 

@@ -1,3 +1,6 @@
+/*
+BCDiceコマンドの字句解析処理のパッケージ。
+*/
 package lexer
 
 import (
@@ -5,7 +8,7 @@ import (
 	"strings"
 )
 
-// 字句解析器を表す構造体
+// 字句解析器を表す構造体。
 type Lexer struct {
 	// 入力文字列
 	input []rune
@@ -17,7 +20,8 @@ type Lexer struct {
 	ch rune
 }
 
-// Newは新しいLexerを構築して返す
+// New は新しいLexerを構築して返す。
+// inputには入力する文字列を指定する。
 func New(input string) *Lexer {
 	l := &Lexer{input: []rune(input)}
 	l.readChar()
@@ -25,6 +29,7 @@ func New(input string) *Lexer {
 	return l
 }
 
+// 1文字のトークンに対応するトークンの種類
 var oneCharTokenType = map[rune]token.TokenType{
 	'+': token.PLUS,
 	'-': token.MINUS,
@@ -39,7 +44,7 @@ var oneCharTokenType = map[rune]token.TokenType{
 	']': token.R_BRACKET,
 }
 
-// NextTokenは次のトークンを返す
+// NextToken は次のトークンを返す。
 func (l *Lexer) NextToken() token.Token {
 	// トークンが何文字目で発見されたか
 	// 利用者に示すものなので、1-indexed
@@ -95,12 +100,12 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
-// inputStrはinputを文字列に変換して返す
+// inputStr はinputを文字列に変換して返す。
 func (l *Lexer) inputStr() string {
 	return string(l.input)
 }
 
-// readCharは文字を読み込む
+// readChar は文字を読み込む。
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		// 入力文字列の終端に達した
@@ -114,7 +119,7 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
-// peekCharは読み込む位置にある文字を返す。
+// peekChar は読み込む位置にある文字を返す。
 // ただし、読み込み位置は次に進めない。
 func (l *Lexer) peekChar(step int) rune {
 	posToPeek := l.readPosition + step - 1
@@ -126,17 +131,18 @@ func (l *Lexer) peekChar(step int) rune {
 	return l.input[posToPeek]
 }
 
-// setPositionは、読み込み位置をposに設定する
+// setPosition は、読み込み位置をposに設定する
 func (l *Lexer) setPosition(pos int) {
 	l.position = pos
 	l.readPosition = pos + 1
 }
 
-// newTokenは新しいトークンを返す
+// newToken は新しいトークンを返す
 //
-// tokenTypeにはトークンの種類を指定する
-// chには文字を指定する。返り値のLiteralではstringに変換される。
-// columnにはトークンが何文字目で発見されたかを指定する
+// tokenTypeにはトークンの種類を指定する。
+// chには文字を指定する。
+// 返り値のLiteralではstringに変換される。
+// columnにはトークンが何文字目で発見されたかを指定する。
 func newToken(tokenType token.TokenType, ch rune, column int) token.Token {
 	return token.Token{
 		Type:    tokenType,
@@ -145,12 +151,12 @@ func newToken(tokenType token.TokenType, ch rune, column int) token.Token {
 	}
 }
 
-// charTestは、文字の種類が条件を満たしているか調べる関数の型
+// charTestは、文字の種類が条件を満たしているか調べる関数の型。
 type charTest func(rune) bool
 
-// readCharsWhileは、条件を満たしている間文字を読み込み続ける
+// readCharsWhile は、条件を満たしている間文字を読み込み続ける。
 //
-// testには、文字の種類が条件を満たしているか調べる関数を指定する
+// testには、文字の種類が条件を満たしているか調べる関数を指定する。
 func (l *Lexer) readCharsWhile(test charTest) string {
 	position := l.position
 
@@ -161,19 +167,19 @@ func (l *Lexer) readCharsWhile(test charTest) string {
 	return string(l.input[position:l.position])
 }
 
-// readIdentifierは識別子を読み込んで返す
+// readIdentifier は識別子を読み込んで返す。
 func (l *Lexer) readIdentifier() string {
 	return l.readCharsWhile(isLetter)
 }
 
-// readNumberは数値を読み込んで返す
+// readNumber は数値を読み込んで返す。
 func (l *Lexer) readNumber() string {
 	return l.readCharsWhile(isDigit)
 }
 
-// tryReadDotsはランダム数値埋め込みの "..." の読み込みを試す
-// "..." があれば、literalでリテラルを、okでtrueを返す
-// "..." でなければ、okでfalseを返す
+// tryReadDotsは ランダム数値埋め込みの "..." の読み込みを試す。
+// "..." があれば、literalでリテラルを、okでtrueを返す。
+// "..." でなければ、okでfalseを返す。
 func (l *Lexer) tryReadDots() (literal string, ok bool) {
 	ch0 := l.ch
 
@@ -192,13 +198,13 @@ func (l *Lexer) tryReadDots() (literal string, ok bool) {
 	return (string(ch0) + string(ch1) + string(ch2)), true
 }
 
-// isLetterはchがアルファベットかどうかを返す
+// isLetter はchがアルファベットかどうかを返す。
 func isLetter(ch rune) bool {
 	return (ch >= 'a' && ch <= 'z') ||
 		(ch >= 'A' && ch <= 'Z')
 }
 
-// isDigitはchが数字かどうかを返す
+// isDigit はchが数字かどうかを返す。
 func isDigit(ch rune) bool {
 	return ch >= '0' && ch <= '9'
 }

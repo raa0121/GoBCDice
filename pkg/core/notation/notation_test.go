@@ -6,6 +6,75 @@ import (
 	"testing"
 )
 
+// 加算ロール式の中置表記の例。
+func ExampleInfixNotation_sumRoll() {
+	// 構文解析する
+	ast, parseErr := parser.Parse("(2*3-4)d6-1d4+1")
+	if parseErr != nil {
+		return
+	}
+
+	// 中置表記を生成する
+	infixNotation, notationErr := InfixNotation(ast)
+	if notationErr != nil {
+		return
+	}
+
+	// 中置表記を出力する
+	fmt.Println(infixNotation)
+	// Output: (2*3-4)D6-1D4+1
+}
+
+func ExampleParenthesize() {
+	parenthesized := Parenthesize("1+2")
+	fmt.Println(parenthesized)
+	// Output: (1+2)
+}
+
+// 演算子の優先順位を考慮した中置表記の生成例。
+// "C((1-(2*3))/4)" を入力した場合：
+// 演算子の優先順位が "-" < "*" であるため、"2*3" には括弧は不要。
+// 演算子の優先順位が "-" < "/" であるため、"/" の左側には括弧が必要。
+func ExampleInfixNotation_operatorPrecedence() {
+	// 構文解析する
+	ast, parseErr := parser.Parse("C((1-(2*3))/4)")
+	if parseErr != nil {
+		return
+	}
+
+	// 中置表記を生成する
+	infixNotation, notationErr := InfixNotation(ast)
+	if notationErr != nil {
+		return
+	}
+
+	// 中置表記を出力する
+	fmt.Println(infixNotation)
+	// Output: C((1-2*3)/4)
+}
+
+// 演算子の結合性を考慮した中置表記の生成例。
+// "C(1+(2-(3-4)))" を入力した場合：
+// "+" は右結合性であるため、"(2-(3-4))" の部分全体には括弧は不要。
+// "-" は右結合性でないため、"-(3-4)" では括弧が必要。
+func ExampleInfixNotation_associativity() {
+	// 構文解析する
+	ast, parseErr := parser.Parse("C(1+(2-(3-4)))")
+	if parseErr != nil {
+		return
+	}
+
+	// 中置表記を生成する
+	infixNotation, notationErr := InfixNotation(ast)
+	if notationErr != nil {
+		return
+	}
+
+	// 中置表記を出力する
+	fmt.Println(infixNotation)
+	// Output: C(1+2-(3-4))
+}
+
 // TestInfixNotationはノードの中置表記をテストする
 func TestInfixNotation(t *testing.T) {
 	testcase := []struct {

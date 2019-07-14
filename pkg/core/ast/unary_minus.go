@@ -4,26 +4,27 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
-// 単項マイナスのノード
+// 単項マイナスのノード。
+// 前置式。
 type UnaryMinus struct {
 	PrefixExpressionImpl
 }
 
-// UnaryMinusがNodeを実装していることの確認
+// UnaryMinus がNodeを実装していることの確認。
 var _ Node = (*UnaryMinus)(nil)
 
-// UnaryMinusがInfixExpressionを実装していることの確認
+// UnaryMinus がPrefixExpressionを実装していることの確認。
 var _ PrefixExpression = (*UnaryMinus)(nil)
 
-// Typeはノードの種類を返す
+// Type はノードの種類を返す。
 func (n *UnaryMinus) Type() NodeType {
 	return UNARY_MINUS_NODE
 }
 
-// NewUnaryMinusは、新しい単項マイナスのノードを返す
+// NewUnaryMinus は新しい単項マイナスのノードを返す。
 //
-// * tok: トークン
-// * right: 右のノード
+// tok: 対応するトークン,
+// right: 右のノード。
 func NewUnaryMinus(tok token.Token, right Node) *UnaryMinus {
 	return &UnaryMinus{
 		PrefixExpressionImpl: *NewPrefixExpression(tok, right),

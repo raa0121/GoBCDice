@@ -5,6 +5,20 @@ import (
 	"testing"
 )
 
+// 構文解析の例。
+func Example() {
+	// 構文解析する
+	ast, err := Parse("(2*3-4)d6-1d4+1")
+	if err != nil {
+		return
+	}
+
+	// 得られた抽象構文木のS式を出力する
+	fmt.Println(ast.SExp())
+	// Output:
+	// (DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))
+}
+
 func TestParse(t *testing.T) {
 	testCases := []struct {
 		input        string

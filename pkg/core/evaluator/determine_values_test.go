@@ -9,6 +9,32 @@ import (
 	"testing"
 )
 
+// 可変ノードの値を決定する例。
+func ExampleEvaluator_DetermineValues() {
+	ast, parseErr := parser.Parse("2d6*3-1d6+1")
+	if parseErr != nil {
+		return
+	}
+
+	fmt.Println("構文解析直後の抽象構文木: " + ast.SExp())
+
+	// 可変ノードの値を決定する
+	dieFeeder := feeder.NewQueue([]die.Die{{6, 6}, {2, 6}, {3, 6}})
+	evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
+
+	err := evaluator.DetermineValues(ast)
+	if err != nil {
+		return
+	}
+
+	fmt.Println("ダイスロール結果: " + die.FormatDice(evaluator.RolledDice()))
+	fmt.Println("値決定後の抽象構文木: " + ast.SExp())
+	// Output:
+	// 構文解析直後の抽象構文木: (DRollExpr (+ (- (* (DRoll 2 6) 3) (DRoll 1 6)) 1))
+	// ダイスロール結果: 6/6, 2/6, 3/6
+	// 値決定後の抽象構文木: (DRollExpr (+ (- (* (SumRollResult (Die 6 6) (Die 2 6)) 3) (SumRollResult (Die 3 6))) 1))
+}
+
 func TestDetermineValues(t *testing.T) {
 	testcases := []struct {
 		input    string
