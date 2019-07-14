@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/raa0121/GoBCDice/pkg/core/die"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"strings"
 )
 
@@ -11,7 +11,7 @@ type SumRollResult struct {
 	NodeImpl
 
 	// 振られたダイスの配列
-	Dice []die.Die
+	Dice []dice.Die
 }
 
 // SumRollResult がNodeを実装していることの確認。
@@ -58,13 +58,13 @@ func (n *SumRollResult) IsVariable() bool {
 
 // NewSumRollResult は新しい加算ロール結果のノードを返す。
 //
-// dice: 振られたダイスのスライス。
-func NewSumRollResult(dice []die.Die) *SumRollResult {
+// rolledDice: 振られたダイスのスライス。
+func NewSumRollResult(rolledDice []dice.Die) *SumRollResult {
 	r := &SumRollResult{
-		Dice: make([]die.Die, len(dice)),
+		Dice: make([]dice.Die, len(rolledDice)),
 	}
 
-	copy(r.Dice, dice)
+	copy(r.Dice, rolledDice)
 
 	return r
 }

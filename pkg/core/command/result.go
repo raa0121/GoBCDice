@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/raa0121/GoBCDice/pkg/core/die"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"strings"
 )
 
@@ -12,7 +12,7 @@ type Result struct {
 	// メッセージの部分の配列
 	MessageParts []string
 	// 振られたダイス
-	RolledDice []die.Die
+	RolledDice []dice.Die
 }
 
 // JoinedMessageParts は、メッセージの部分を結合したものを返す。

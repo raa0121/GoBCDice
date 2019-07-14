@@ -1,4 +1,4 @@
-package die
+package dice
 
 import (
 	"fmt"
@@ -7,15 +7,15 @@ import (
 
 // ダイス列の整形例。
 func ExampleFormatDice() {
-	dice := []Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}
-	fmt.Println(FormatDice(dice))
+	ds := []Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}
+	fmt.Println(FormatDice(ds))
 	// Output: 2/4, 3/6, 5/10, 10/20
 }
 
 // ダイス列の整形例（空白なし）。
 func ExampleFormatDiceWithoutSpaces() {
-	dice := []Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}
-	fmt.Println(FormatDiceWithoutSpaces(dice))
+	ds := []Die{{2, 4}, {3, 6}, {5, 10}, {10, 20}}
+	fmt.Println(FormatDiceWithoutSpaces(ds))
 	// Output: 2/4,3/6,5/10,10/20
 }
 
@@ -51,11 +51,11 @@ func TestFormatDice(t *testing.T) {
 	}
 
 	for _, test := range testcases {
-		dice := test.dice
+		ds := test.dice
 		expected := test.expected
 
-		t.Run(fmt.Sprintf("%v", dice), func(t *testing.T) {
-			actual := FormatDice(dice)
+		t.Run(fmt.Sprintf("%v", ds), func(t *testing.T) {
+			actual := FormatDice(ds)
 
 			if actual != expected {
 				t.Fatalf("got %v, want %v", actual, expected)
@@ -84,11 +84,11 @@ func TestFormatDiceWithoutSpace(t *testing.T) {
 	}
 
 	for _, test := range testcases {
-		dice := test.dice
+		ds := test.dice
 		expected := test.expected
 
-		t.Run(fmt.Sprintf("%v", dice), func(t *testing.T) {
-			actual := FormatDiceWithoutSpaces(dice)
+		t.Run(fmt.Sprintf("%v", ds), func(t *testing.T) {
+			actual := FormatDiceWithoutSpaces(ds)
 
 			if actual != expected {
 				t.Fatalf("got %v, want %v", actual, expected)

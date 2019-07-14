@@ -2,8 +2,8 @@ package evaluator
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/die/feeder"
-	"github.com/raa0121/GoBCDice/pkg/core/die/roller"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"testing"
 )

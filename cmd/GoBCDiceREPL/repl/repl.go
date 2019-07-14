@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/command"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
-	"github.com/raa0121/GoBCDice/pkg/core/die/feeder"
-	"github.com/raa0121/GoBCDice/pkg/core/die/roller"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/core/lexer"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
@@ -247,10 +247,10 @@ func eval(r *REPL, c *Command, input string) {
 
 	// ダイスロール結果を指定していた場合は、評価後にそれを復元する
 	if r.dieFeeder.CanSpecifyDie() {
-		dice := r.dieFeeder.(*feeder.Queue).Dice()
+		ds := r.dieFeeder.(*feeder.Queue).Dice()
 		defer func() {
 			f := r.dieFeeder.(*feeder.Queue)
-			f.Set(dice)
+			f.Set(ds)
 		}()
 	}
 
@@ -279,23 +279,23 @@ func rollDice(r *REPL, c *Command, input string) {
 
 	// ダイスロール結果を指定していた場合は、評価後にそれを復元する
 	if r.dieFeeder.CanSpecifyDie() {
-		dice := r.dieFeeder.(*feeder.Queue).Dice()
+		ds := r.dieFeeder.(*feeder.Queue).Dice()
 		defer func() {
 			f := r.dieFeeder.(*feeder.Queue)
-			f.Set(dice)
+			f.Set(ds)
 		}()
 	}
 
 	num, _ := strconv.Atoi(matches[1])
 	sides, _ := strconv.Atoi(matches[2])
 
-	dice, err := r.diceRoller.RollDice(num, sides)
+	rolledDice, err := r.diceRoller.RollDice(num, sides)
 	if err != nil {
 		fmt.Fprintln(r.out, err)
 		return
 	}
 
-	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, die.FormatDice(dice))
+	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, dice.FormatDice(rolledDice))
 }
 
 // setDieFeederは、ダイス供給機を設定する。
@@ -331,14 +331,14 @@ func setDiceQueue(r *REPL, c *Command, input string) {
 		return
 	}
 
-	dice, err := testcase.ParseDice(input)
+	ds, err := testcase.ParseDice(input)
 	if err != nil {
 		fmt.Fprintln(r.out, err)
 		return
 	}
 
 	f := r.dieFeeder.(*feeder.Queue)
-	f.Set(dice)
+	f.Set(ds)
 
 	fmt.Fprintln(r.out, "OK")
 }

@@ -1,7 +1,7 @@
 /*
 ダイスの内部表現のパッケージ。
 */
-package die
+package dice
 
 import (
 	"fmt"

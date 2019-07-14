@@ -1,77 +1,77 @@
 package roller
 
 import (
-	"github.com/raa0121/GoBCDice/pkg/core/die"
-	"github.com/raa0121/GoBCDice/pkg/core/die/feeder"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"reflect"
 	"testing"
 )
 
-func ExampleDiceRoller_RollDice_mT19937() ([]die.Die, error) {
+func ExampleDiceRoller_RollDice_mT19937() ([]dice.Die, error) {
 	dieFeeder := feeder.NewMT19937WithSeedFromTime()
 	dieRoller := New(dieFeeder)
 
 	// 6面ダイスを2個振る
-	dice, err := dieRoller.RollDice(2, 6)
+	rolledDice, err := dieRoller.RollDice(2, 6)
 	if err != nil {
 		return nil, err
 	}
 
-	return dice, nil
+	return rolledDice, nil
 }
 
-func ExampleDiceRoller_RollDice_queue() ([]die.Die, error) {
-	dieFeeder := feeder.NewQueue([]die.Die{{1, 6}, {3, 6}, {5, 6}})
+func ExampleDiceRoller_RollDice_queue() ([]dice.Die, error) {
+	dieFeeder := feeder.NewQueue([]dice.Die{{1, 6}, {3, 6}, {5, 6}})
 	dieRoller := New(dieFeeder)
 
 	// 6面ダイスを3個振る
-	dice, err := dieRoller.RollDice(3, 6)
+	rolledDice, err := dieRoller.RollDice(3, 6)
 	if err != nil {
 		return nil, err
 	}
 
-	return dice, nil
+	return rolledDice, nil
 }
 
 func TestDiceRoller_RollDice_Queue(t *testing.T) {
 	testcases := []struct {
-		dice  []die.Die
+		dice  []dice.Die
 		num   int
 		sides int
 		err   bool
 	}{
 		{
-			dice:  []die.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}},
+			dice:  []dice.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}},
 			num:   6,
 			sides: 6,
 			err:   false,
 		},
 		{
-			dice:  []die.Die{{1, 4}, {2, 4}, {3, 4}, {4, 4}},
+			dice:  []dice.Die{{1, 4}, {2, 4}, {3, 4}, {4, 4}},
 			num:   3,
 			sides: 4,
 			err:   false,
 		},
 		{
-			dice:  []die.Die{{1, 6}, {2, 6}, {3, 6}},
+			dice:  []dice.Die{{1, 6}, {2, 6}, {3, 6}},
 			num:   4,
 			sides: 6,
 			err:   true,
 		},
 		{
-			dice:  []die.Die{},
+			dice:  []dice.Die{},
 			num:   0,
 			sides: 6,
 			err:   true,
 		},
 		{
-			dice:  []die.Die{},
+			dice:  []dice.Die{},
 			num:   -1,
 			sides: 6,
 			err:   true,
 		},
 		{
-			dice:  []die.Die{{1, -6}},
+			dice:  []dice.Die{{1, -6}},
 			num:   1,
 			sides: -6,
 			err:   true,
@@ -117,13 +117,13 @@ func TestDiceRoller_RollDice_MT19937(t *testing.T) {
 	dr := New(f)
 
 	for i, num := range nums {
-		dice, err := dr.RollDice(num, 6)
+		rolledDice, err := dr.RollDice(num, 6)
 		if err != nil {
 			t.Errorf("#%d: got err: %s", i, err)
 			continue
 		}
 
-		if actual := len(dice); actual != num {
+		if actual := len(rolledDice); actual != num {
 			t.Errorf("#%d: wrong number of dice: got %d dice, want %d dice",
 				i, actual, num)
 		}

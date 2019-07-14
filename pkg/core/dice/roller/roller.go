@@ -6,8 +6,8 @@ package roller
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
-	"github.com/raa0121/GoBCDice/pkg/core/die/feeder"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 )
 
 // ダイスローラーを表す構造体。
@@ -34,7 +34,7 @@ func (dr *DiceRoller) DieFeeder() feeder.DieFeeder {
 //
 // num、sidesともに正の整数でなければならない。
 // この条件が満たされていなかった場合は、エラーを返す。
-func (dr *DiceRoller) RollDice(num int, sides int) ([]die.Die, error) {
+func (dr *DiceRoller) RollDice(num int, sides int) ([]dice.Die, error) {
 	if sides < 1 {
 		return nil, fmt.Errorf("ダイスの面数が少なすぎます: %d", sides)
 	}
@@ -43,7 +43,7 @@ func (dr *DiceRoller) RollDice(num int, sides int) ([]die.Die, error) {
 		return nil, fmt.Errorf("振るダイス数が少なすぎます: %d", num)
 	}
 
-	dice := []die.Die{}
+	rolledDice := []dice.Die{}
 
 	for i := 0; i < num; i++ {
 		d, err := dr.feeder.Next(sides)
@@ -51,8 +51,8 @@ func (dr *DiceRoller) RollDice(num int, sides int) ([]die.Die, error) {
 			return nil, err
 		}
 
-		dice = append(dice, d)
+		rolledDice = append(rolledDice, d)
 	}
 
-	return dice, nil
+	return rolledDice, nil
 }

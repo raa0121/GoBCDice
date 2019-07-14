@@ -2,9 +2,9 @@ package evaluator
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
-	"github.com/raa0121/GoBCDice/pkg/core/die/feeder"
-	"github.com/raa0121/GoBCDice/pkg/core/die/roller"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"reflect"
@@ -22,7 +22,7 @@ func ExampleEvaluator_Eval() {
 	fmt.Println("抽象構文木: " + ast.SExp())
 
 	// ノードを評価する
-	dieFeeder := feeder.NewQueue([]die.Die{{6, 6}, {2, 6}, {3, 6}})
+	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {2, 6}, {3, 6}})
 	evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
 	obj, evalErr := evaluator.Eval(ast)
@@ -30,7 +30,7 @@ func ExampleEvaluator_Eval() {
 		return
 	}
 
-	fmt.Println("ダイスロール結果: " + die.FormatDice(evaluator.RolledDice()))
+	fmt.Println("ダイスロール結果: " + dice.FormatDice(evaluator.RolledDice()))
 	fmt.Println("評価結果: " + obj.Inspect())
 	// Output:
 	// 抽象構文木: (DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))
@@ -120,122 +120,122 @@ func TestEvalDRollExpr(t *testing.T) {
 	testcases := []struct {
 		input    string
 		expected int
-		dice     []die.Die
+		dice     []dice.Die
 	}{
 		{
 			input:    "2D6",
 			expected: 8,
-			dice:     []die.Die{{5, 6}, {3, 6}},
+			dice:     []dice.Die{{5, 6}, {3, 6}},
 		},
 		{
 			input:    "2D4",
 			expected: 3,
-			dice:     []die.Die{{1, 4}, {2, 4}},
+			dice:     []dice.Die{{1, 4}, {2, 4}},
 		},
 		{
 			input:    "2D6+1",
 			expected: 9,
-			dice:     []die.Die{{2, 6}, {6, 6}},
+			dice:     []dice.Die{{2, 6}, {6, 6}},
 		},
 		{
 			input:    "1+2D6",
 			expected: 8,
-			dice:     []die.Die{{4, 6}, {3, 6}},
+			dice:     []dice.Die{{4, 6}, {3, 6}},
 		},
 		{
 			input:    "2d6+1-1-2-3-4",
 			expected: -2,
-			dice:     []die.Die{{1, 6}, {6, 6}},
+			dice:     []dice.Die{{1, 6}, {6, 6}},
 		},
 		{
 			input:    "2D6+4D10",
 			expected: 30,
-			dice:     []die.Die{{5, 6}, {4, 6}, {1, 10}, {9, 10}, {7, 10}, {4, 10}},
+			dice:     []dice.Die{{5, 6}, {4, 6}, {1, 10}, {9, 10}, {7, 10}, {4, 10}},
 		},
 		{
 			input:    "2d6*3",
 			expected: 18,
-			dice:     []die.Die{{2, 6}, {4, 6}},
+			dice:     []dice.Die{{2, 6}, {4, 6}},
 		},
 		{
 			input:    "2d10+3-4",
 			expected: 7,
-			dice:     []die.Die{{3, 10}, {5, 10}},
+			dice:     []dice.Die{{3, 10}, {5, 10}},
 		},
 		{
 			input:    "2d10+3*4",
 			expected: 20,
-			dice:     []die.Die{{3, 10}, {5, 10}},
+			dice:     []dice.Die{{3, 10}, {5, 10}},
 		},
 		{
 			input:    "2d6*3-1d6+1",
 			expected: 22,
-			dice:     []die.Die{{6, 6}, {2, 6}, {3, 6}},
+			dice:     []dice.Die{{6, 6}, {2, 6}, {3, 6}},
 		},
 		{
 			input:    "(2+3)d6-1+3d6+2",
 			expected: 31,
-			dice:     []die.Die{{2, 6}, {3, 6}, {1, 6}, {5, 6}, {6, 6}, {5, 6}, {4, 6}, {4, 6}},
+			dice:     []dice.Die{{2, 6}, {3, 6}, {1, 6}, {5, 6}, {6, 6}, {5, 6}, {4, 6}, {4, 6}},
 		},
 		{
 			input:    "(2*3-4)d6-1d4+1",
 			expected: 10,
-			dice:     []die.Die{{6, 6}, {5, 6}, {2, 4}},
+			dice:     []dice.Die{{6, 6}, {5, 6}, {2, 4}},
 		},
 		{
 			input:    "((2+3)*4/3)d6*2+5",
 			expected: 53,
-			dice:     []die.Die{{6, 6}, {5, 6}, {6, 6}, {2, 6}, {1, 6}, {4, 6}},
+			dice:     []dice.Die{{6, 6}, {5, 6}, {6, 6}, {2, 6}, {1, 6}, {4, 6}},
 		},
 		{
 			input:    "1D6/2",
 			expected: 0,
-			dice:     []die.Die{{1, 6}},
+			dice:     []dice.Die{{1, 6}},
 		},
 		{
 			input:    "3D6/2",
 			expected: 3,
-			dice:     []die.Die{{1, 6}, {2, 6}, {4, 6}},
+			dice:     []dice.Die{{1, 6}, {2, 6}, {4, 6}},
 		},
 		{
 			input:    "3D6/2+1D6",
 			expected: 8,
-			dice:     []die.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
+			dice:     []dice.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
 		},
 		{
 			input:    "3D6+1D6/2",
 			expected: 9,
-			dice:     []die.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
+			dice:     []dice.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
 		},
 		{
 			input:    "3D6+1D6/2U",
 			expected: 10,
-			dice:     []die.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
+			dice:     []dice.Die{{1, 6}, {2, 6}, {4, 6}, {5, 6}},
 		},
 		{
 			input:    "5D6/10",
 			expected: 2,
-			dice:     []die.Die{{6, 6}, {6, 6}, {6, 6}, {6, 6}, {5, 6}},
+			dice:     []dice.Die{{6, 6}, {6, 6}, {6, 6}, {6, 6}, {5, 6}},
 		},
 		{
 			input:    "3D6/2U",
 			expected: 4,
-			dice:     []die.Die{{1, 6}, {2, 6}, {4, 6}},
+			dice:     []dice.Die{{1, 6}, {2, 6}, {4, 6}},
 		},
 		{
 			input:    "5D6/10u",
 			expected: 3,
-			dice:     []die.Die{{6, 6}, {6, 6}, {6, 6}, {2, 6}, {1, 6}},
+			dice:     []dice.Die{{6, 6}, {6, 6}, {6, 6}, {2, 6}, {1, 6}},
 		},
 		{
 			input:    "1D100/10R",
 			expected: 6,
-			dice:     []die.Die{{55, 100}},
+			dice:     []dice.Die{{55, 100}},
 		},
 		{
 			input:    "1D100/10r",
 			expected: 5,
-			dice:     []die.Die{{54, 100}},
+			dice:     []dice.Die{{54, 100}},
 		},
 	}
 

@@ -15,8 +15,8 @@ package evaluator
 import (
 	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
-	"github.com/raa0121/GoBCDice/pkg/core/die/roller"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
 	"math"
 )
@@ -39,7 +39,7 @@ func NewEvaluator(diceRoller *roller.DiceRoller, env *Environment) *Evaluator {
 }
 
 // RolledDice はダイスロール結果を返す。
-func (e *Evaluator) RolledDice() []die.Die {
+func (e *Evaluator) RolledDice() []dice.Die {
 	return e.env.RolledDice()
 }
 
@@ -209,7 +209,7 @@ func (e *Evaluator) evalSumRoll(
 
 // rollDice は、sides個の面を持つダイスをnum個振り、その結果を返す。
 // また、ダイスロールの結果を記録する。
-func (e *Evaluator) rollDice(num int, sides int) ([]die.Die, error) {
+func (e *Evaluator) rollDice(num int, sides int) ([]dice.Die, error) {
 	rolledDice, err := e.diceRoller.RollDice(num, sides)
 	if err != nil {
 		return nil, err

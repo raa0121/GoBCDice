@@ -2,7 +2,7 @@ package feeder
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"reflect"
 	"testing"
 )
@@ -10,7 +10,7 @@ import (
 // 供給するダイスを指定する場合の例。
 func Example_queue() {
 	// 供給するダイスを指定する
-	dieFeeder := NewQueue([]die.Die{{1, 6}, {3, 6}, {5, 6}})
+	dieFeeder := NewQueue([]dice.Die{{1, 6}, {3, 6}, {5, 6}})
 
 	// 6面ダイスを1個振る
 	d, err := dieFeeder.Next(6)
@@ -31,7 +31,7 @@ func TestNewEmptyQueue(t *testing.T) {
 }
 
 func TestQueue_CanSpecifyDie(t *testing.T) {
-	f := NewQueue([]die.Die{})
+	f := NewQueue([]dice.Die{})
 
 	if !f.CanSpecifyDie() {
 		t.Fatalf("Queueはダイスを指定できてなければならない")
@@ -39,22 +39,22 @@ func TestQueue_CanSpecifyDie(t *testing.T) {
 }
 
 func TestQueue_Dice_ShouldCopyDice(t *testing.T) {
-	testcases := [][]die.Die{
+	testcases := [][]dice.Die{
 		{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}},
 		{{5, 6}, {4, 6}, {1, 10}, {9, 10}, {7, 10}, {4, 10}},
 	}
 
-	for _, dice := range testcases {
-		t.Run(fmt.Sprintf("[%v]", die.FormatDiceWithoutSpaces(dice)), func(t *testing.T) {
-			f := NewQueue(dice)
+	for _, ds := range testcases {
+		t.Run("["+dice.FormatDiceWithoutSpaces(ds)+"]", func(t *testing.T) {
+			f := NewQueue(ds)
 
 			diceFromQueue := f.Dice()
-			diceFromQueue[0] = die.Die{99, 100}
+			diceFromQueue[0] = dice.Die{99, 100}
 
 			for i, d := range f.Dice() {
-				if !reflect.DeepEqual(d, dice[i]) {
+				if !reflect.DeepEqual(d, ds[i]) {
 					t.Errorf("Dice() の結果が変わった: got %v, want %v",
-						f.Dice(), dice)
+						f.Dice(), ds)
 					continue
 				}
 			}
@@ -63,18 +63,18 @@ func TestQueue_Dice_ShouldCopyDice(t *testing.T) {
 }
 
 func TestQueue_Next(t *testing.T) {
-	testcases := [][]die.Die{
+	testcases := [][]dice.Die{
 		{{2, 6}},
 		{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}},
 		{{2, 4}, {3, 6}, {5, 10}, {10, 20}},
 	}
 
-	for _, dice := range testcases {
-		t.Run(fmt.Sprintf("[%s]", die.FormatDiceWithoutSpaces(dice)), func(t *testing.T) {
-			f := NewQueue(dice)
+	for _, ds := range testcases {
+		t.Run(fmt.Sprintf("[%s]", dice.FormatDiceWithoutSpaces(ds)), func(t *testing.T) {
+			f := NewQueue(ds)
 
 			gotErr := false
-			for _, expectedDie := range dice {
+			for _, expectedDie := range ds {
 				if gotErr {
 					return
 				}
@@ -103,16 +103,16 @@ func TestQueue_Next(t *testing.T) {
 }
 
 func TestQueue_Append(t *testing.T) {
-	dice := []die.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}}
+	ds := []dice.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}}
 
-	f := NewQueue(dice[0:2])
+	f := NewQueue(ds[0:2])
 	if f.Remaining() != 2 {
 		t.Fatalf("キューに正しくダイスが入っていません")
 	}
 
-	f.Append(dice[2:6])
+	f.Append(ds[2:6])
 
-	for _, expected := range dice {
+	for _, expected := range ds {
 		t.Run(expected.String(), func(t *testing.T) {
 			actual, err := f.Next(6)
 			if err != nil {
@@ -132,7 +132,7 @@ func TestQueue_Append(t *testing.T) {
 }
 
 func TestQueue_Clear(t *testing.T) {
-	f := NewQueue([]die.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}})
+	f := NewQueue([]dice.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}})
 
 	if f.Remaining() != 6 {
 		t.Fatalf("キューに正しくダイスが入っていません")
@@ -146,16 +146,16 @@ func TestQueue_Clear(t *testing.T) {
 }
 
 func TestQueue_Set(t *testing.T) {
-	dice := []die.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}}
+	ds := []dice.Die{{1, 6}, {2, 6}, {3, 6}, {4, 6}, {5, 6}, {6, 6}}
 
-	f := NewQueue(dice[0:2])
+	f := NewQueue(ds[0:2])
 	if f.Remaining() != 2 {
 		t.Fatalf("キューに正しくダイスが入っていません")
 	}
 
-	f.Set(dice[2:6])
+	f.Set(ds[2:6])
 
-	for _, expected := range dice[2:6] {
+	for _, expected := range ds[2:6] {
 		t.Run(expected.String(), func(t *testing.T) {
 			actual, err := f.Next(6)
 			if err != nil {

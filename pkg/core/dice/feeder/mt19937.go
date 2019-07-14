@@ -1,7 +1,7 @@
 package feeder
 
 import (
-	"github.com/raa0121/GoBCDice/pkg/core/die"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/seehuhn/mt19937"
 	"math/rand"
 	"time"
@@ -48,8 +48,8 @@ func (f *MT19937) Seed() int64 {
 // Next はランダムな値のダイスを1つ供給する。
 //
 // sides: ダイスの面の数
-func (f *MT19937) Next(sides int) (die.Die, error) {
-	d := die.Die{
+func (f *MT19937) Next(sides int) (dice.Die, error) {
+	d := dice.Die{
 		Sides: sides,
 		Value: 1 + f.rng.Intn(sides),
 	}

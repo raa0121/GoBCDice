@@ -5,7 +5,7 @@ package testcase
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"io/ioutil"
 	"path"
 	"regexp"
@@ -24,7 +24,7 @@ type DiceBotTestCase struct {
 	// 出力文字列
 	Output string
 	// 入力するダイス列
-	Dice []die.Die
+	Dice []dice.Die
 }
 
 var (
@@ -45,7 +45,7 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 		return nil, fmt.Errorf("Parse: %s#%d: テストケース構文エラー", gameId, index)
 	}
 
-	dice, err := ParseDice(matches[3])
+	ds, err := ParseDice(matches[3])
 	if err != nil {
 		return nil, err
 	}
@@ -58,16 +58,16 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 		Index:  index,
 		Input:  input,
 		Output: output,
-		Dice:   dice,
+		Dice:   ds,
 	}, nil
 }
 
 // ParseDice はテストケースのダイス表記を解析し、振られたダイスのスライスを返す。
-func ParseDice(source string) ([]die.Die, error) {
-	dice := []die.Die{}
+func ParseDice(source string) ([]dice.Die, error) {
+	rolledDice := []dice.Die{}
 
 	if source == "" {
-		return dice, nil
+		return rolledDice, nil
 	}
 
 	diceStrs := strings.Split(source, ",")
@@ -79,10 +79,10 @@ func ParseDice(source string) ([]die.Die, error) {
 
 		Value, _ := strconv.Atoi(matches[1])
 		Sides, _ := strconv.Atoi(matches[2])
-		dice = append(dice, die.Die{Value, Sides})
+		rolledDice = append(rolledDice, dice.Die{Value, Sides})
 	}
 
-	return dice, nil
+	return rolledDice, nil
 }
 
 // ParseFile はテストケースのソースコードファイルを解析し、テストケースのスライスを返す。

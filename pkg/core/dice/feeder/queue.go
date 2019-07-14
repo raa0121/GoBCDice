@@ -2,12 +2,12 @@ package feeder
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/die"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 )
 
 // 指定したダイスを取り出せる、キュー型ダイス供給機の構造体。
 type Queue struct {
-	queue []die.Die
+	queue []dice.Die
 }
 
 // QueueがFeederインターフェースを実装しているかの確認
@@ -15,17 +15,17 @@ var _ DieFeeder = (*Queue)(nil)
 
 // NewQueue はキュー型ダイス供給機を返す。
 //
-// dice: 供給するダイスのスライス
-func NewQueue(dice []die.Die) *Queue {
-	f := &Queue{queue: []die.Die{}}
-	f.Append(dice)
+// d: 供給するダイスのスライス
+func NewQueue(d []dice.Die) *Queue {
+	f := &Queue{queue: []dice.Die{}}
+	f.Append(d)
 
 	return f
 }
 
 // NewEmptyQueue は、空のキュー型ダイス供給機を返す。
 func NewEmptyQueue() *Queue {
-	return NewQueue([]die.Die{})
+	return NewQueue([]dice.Die{})
 }
 
 // CanSpecifyDie は、供給されるダイスを指定できるかを返す。
@@ -35,21 +35,18 @@ func (f *Queue) CanSpecifyDie() bool {
 }
 
 // Dice は、現在のキューの内容をコピーして返す。
-func (f *Queue) Dice() []die.Die {
-	dice := []die.Die{}
+func (f *Queue) Dice() []dice.Die {
+	copiedDice := make([]dice.Die, len(f.queue))
+	copy(copiedDice, f.queue)
 
-	for _, d := range f.queue {
-		dice = append(dice, d)
-	}
-
-	return dice
+	return copiedDice
 }
 
 // Next はキューからダイスを1つ取り出して供給する。
 // キューが空だった場合はエラーを返す。
-func (f *Queue) Next(_ int) (die.Die, error) {
+func (f *Queue) Next(_ int) (dice.Die, error) {
 	if f.IsEmpty() {
-		return die.Die{}, fmt.Errorf("取り出せるダイスがありません")
+		return dice.Die{}, fmt.Errorf("取り出せるダイスがありません")
 	}
 
 	// キューからダイスを取り出す
@@ -60,12 +57,12 @@ func (f *Queue) Next(_ int) (die.Die, error) {
 }
 
 // Push はダイスをキューに追加する。
-func (f *Queue) Push(d die.Die) {
+func (f *Queue) Push(d dice.Die) {
 	f.queue = append(f.queue, d)
 }
 
 // Append は複数のダイスをキューの末尾に追加する。
-func (f *Queue) Append(dice []die.Die) {
+func (f *Queue) Append(dice []dice.Die) {
 	for _, d := range dice {
 		f.Push(d)
 	}
@@ -73,13 +70,13 @@ func (f *Queue) Append(dice []die.Die) {
 
 // Clear はキューを空にする。
 func (f *Queue) Clear() {
-	f.queue = []die.Die{}
+	f.queue = []dice.Die{}
 }
 
 // Set は指定されたダイスをキューに配置する。
-func (f *Queue) Set(dice []die.Die) {
-	f.Clear()
-	f.Append(dice)
+func (f *Queue) Set(d []dice.Die) {
+	f.queue = make([]dice.Die, len(d))
+	copy(f.queue, d)
 }
 
 // Remaining は残りのダイスの数を返す。
