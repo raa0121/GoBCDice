@@ -136,11 +136,15 @@ func (e *Evaluator) evalInfixExpression(
 	}
 
 	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
-		return e.evalIntegerInfixExpression(
-			node.Operator(),
-			left.(*object.Integer),
-			right.(*object.Integer),
-		)
+		leftInteger := left.(*object.Integer)
+		rightInteger := right.(*object.Integer)
+
+		switch n := node.(type) {
+		case ast.Divide:
+			return e.evalIntegerDivide(n, leftInteger, rightInteger)
+		default:
+			return e.evalIntegerInfixExpression(n.Operator(), leftInteger, rightInteger)
+		}
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s %s %s",
@@ -163,27 +167,46 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		return &object.Integer{Value: leftValue - rightValue}, nil
 	case "*":
 		return &object.Integer{Value: leftValue * rightValue}, nil
-	case "/":
-		// 除算（小数点以下切り捨て）
-		return &object.Integer{Value: leftValue / rightValue}, nil
-	case "/U":
-		{
-			// 除算（小数点以下切り上げ）
-			resultFloat := math.Ceil(float64(leftValue) / float64(rightValue))
-			return &object.Integer{Value: int(resultFloat)}, nil
-		}
-	case "/R":
-		{
-			// 除算（小数点以下四捨五入）
-			resultFloat := math.Round(float64(leftValue) / float64(rightValue))
-			return &object.Integer{Value: int(resultFloat)}, nil
-		}
 	case "D":
 		return e.evalSumRoll(left, right)
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s %s %s",
 		left.Type(), operator, right.Type())
+}
+
+// evalIntegerDivide は除算を評価する。
+func (e *Evaluator) evalIntegerDivide(
+	divide ast.Divide,
+	left *object.Integer,
+	right *object.Integer,
+) (object.Object, error) {
+	leftValue := left.Value
+	rightValue := right.Value
+
+	if rightValue == 0 {
+		return nil, fmt.Errorf("%d divided by zero", leftValue)
+	}
+
+	switch divide.RoundingMethod() {
+	case ast.ROUNDING_METHOD_ROUND_DOWN:
+		// 除算（小数点以下切り捨て）
+		return &object.Integer{Value: leftValue / rightValue}, nil
+	case ast.ROUNDING_METHOD_ROUND:
+		{
+			// 除算（小数点以下四捨五入）
+			resultFloat := math.Round(float64(leftValue) / float64(rightValue))
+			return &object.Integer{Value: int(resultFloat)}, nil
+		}
+	case ast.ROUNDING_METHOD_ROUND_UP:
+		{
+			// 除算（小数点以下切り上げ）
+			resultFloat := math.Ceil(float64(leftValue) / float64(rightValue))
+			return &object.Integer{Value: int(resultFloat)}, nil
+		}
+	default:
+		return nil, fmt.Errorf("evalIntegerDivide: unknown rounding method")
+	}
 }
 
 // evalSumRoll は加算ロールを評価する。
