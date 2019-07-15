@@ -16,7 +16,7 @@ import (
 // ダイスボットのテストケース。
 type DiceBotTestCase struct {
 	// ゲーム識別子
-	GameId string
+	GameID string
 	// テストケース番号
 	Index int
 	// 入力文字列
@@ -37,12 +37,12 @@ var (
 // Parse はテストケースのソースコードを構文解析し、その内容のDiceBotTestCaseを構築して返す。
 // 失敗するとnilを返す。
 //
-// gameIdにはゲームの識別子を指定する。
+// gameIDにはゲームの識別子を指定する。
 // indexにはテストケース番号を指定する。
-func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
+func Parse(source string, gameID string, index int) (*DiceBotTestCase, error) {
 	matches := sourceRe.FindStringSubmatch(source)
 	if matches == nil {
-		return nil, fmt.Errorf("Parse: %s#%d: テストケース構文エラー", gameId, index)
+		return nil, fmt.Errorf("Parse: %s#%d: テストケース構文エラー", gameID, index)
 	}
 
 	ds, err := ParseDice(matches[3])
@@ -54,7 +54,7 @@ func Parse(source string, gameId string, index int) (*DiceBotTestCase, error) {
 	output := strings.TrimLeft(matches[2], "\n")
 
 	return &DiceBotTestCase{
-		GameId: gameId,
+		GameID: gameID,
 		Index:  index,
 		Input:  input,
 		Output: output,
@@ -95,7 +95,7 @@ func ParseFile(filename string) ([]*DiceBotTestCase, error) {
 	}
 
 	basename := path.Base(filename)
-	gameId := strings.TrimSuffix(basename, path.Ext(basename))
+	gameID := strings.TrimSuffix(basename, path.Ext(basename))
 
 	content := strings.TrimRight(string(contentBytes), "\n")
 	testCaseSources := strings.Split(content, "\n============================\n")
@@ -104,7 +104,7 @@ func ParseFile(filename string) ([]*DiceBotTestCase, error) {
 	for i, source := range testCaseSources {
 		index := i + 1
 
-		testCase, err := Parse(source, gameId, index)
+		testCase, err := Parse(source, gameID, index)
 		if err != nil {
 			return nil, err
 		}

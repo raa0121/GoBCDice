@@ -16,18 +16,18 @@ import (
 // Execute は指定されたコマンドを実行する。
 //
 // commandNode: コマンドのノード,
-// gameId: ゲーム識別子,
+// gameID: ゲーム識別子,
 // evaluator: 評価器。
 func Execute(
 	commandNode ast.Command,
-	gameId string,
+	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
 	switch c := commandNode.(type) {
 	case *ast.Calc:
-		return executeCalc(c, gameId, evaluator)
+		return executeCalc(c, gameID, evaluator)
 	case *ast.DRollExpr:
-		return executeDRollExpr(c, gameId, evaluator)
+		return executeDRollExpr(c, gameID, evaluator)
 	}
 
 	return nil, fmt.Errorf("command execution not implemented: %s", commandNode.Type())
@@ -36,11 +36,11 @@ func Execute(
 // executeCalc は計算を実行する。
 func executeCalc(
 	node *ast.Calc,
-	gameId string,
+	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
 	result := &Result{
-		GameId: gameId,
+		GameID: gameID,
 	}
 
 	// 抽象構文木を中置表記に変換する
@@ -66,11 +66,11 @@ func executeCalc(
 // executeDRollExpr は加算ロールを実行する。
 func executeDRollExpr(
 	node *ast.DRollExpr,
-	gameId string,
+	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
 	result := &Result{
-		GameId: gameId,
+		GameID: gameID,
 	}
 
 	// 加算ロールなどの可変ノードの引数を評価して整数に変換する

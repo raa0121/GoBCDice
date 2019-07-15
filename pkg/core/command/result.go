@@ -8,7 +8,7 @@ import (
 // コマンドの実行結果の構造体
 type Result struct {
 	// ゲーム識別子
-	GameId string
+	GameID string
 	// メッセージの部分の配列
 	MessageParts []string
 	// 振られたダイス
@@ -22,7 +22,7 @@ func (r *Result) JoinedMessageParts() string {
 
 // Message はコマンドの応答メッセージを返す。
 func (r *Result) Message() string {
-	return r.GameId + " : " + r.JoinedMessageParts()
+	return r.GameID + " : " + r.JoinedMessageParts()
 }
 
 // appendMessagePart はメッセージの部分を追加する。
