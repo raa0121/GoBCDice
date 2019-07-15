@@ -15,7 +15,7 @@ func ExampleInfixNotation_sumRoll() {
 	}
 
 	// 中置表記を生成する
-	infixNotation, notationErr := InfixNotation(ast)
+	infixNotation, notationErr := InfixNotation(ast, true)
 	if notationErr != nil {
 		return
 	}
@@ -43,7 +43,7 @@ func ExampleInfixNotation_operatorPrecedence() {
 	}
 
 	// 中置表記を生成する
-	infixNotation, notationErr := InfixNotation(ast)
+	infixNotation, notationErr := InfixNotation(ast, true)
 	if notationErr != nil {
 		return
 	}
@@ -65,7 +65,7 @@ func ExampleInfixNotation_associativity() {
 	}
 
 	// 中置表記を生成する
-	infixNotation, notationErr := InfixNotation(ast)
+	infixNotation, notationErr := InfixNotation(ast, true)
 	if notationErr != nil {
 		return
 	}
@@ -411,6 +411,9 @@ func TestInfixNotation(t *testing.T) {
 		{"C(1/2r)", "C(1/2R)"},
 		{"C(100/(1+2)u)", "C(100/(1+2)U)"},
 		{"C(100/(1+2)r)", "C(100/(1+2)R)"},
+		{"C(-1+-2*-3--4)", "C(-1+(-2)*(-3)-(-4))"},
+		{"C(-1+(-2-3)*-4)", "C(-1+(-2-3)*(-4))"},
+		{"C((-1+-2)-3*-4)", "C(-1+(-2)-3*(-4))"},
 		{"2D6", "2D6"},
 		{"12D60", "12D60"},
 		{"-2D6", "-2D6"},
@@ -459,7 +462,7 @@ func TestInfixNotation(t *testing.T) {
 				return
 			}
 
-			actual, notationErr := InfixNotation(ast)
+			actual, notationErr := InfixNotation(ast, true)
 			if notationErr != nil {
 				t.Fatalf("中置表記生成エラー: %s", notationErr)
 				return

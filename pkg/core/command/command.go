@@ -44,7 +44,7 @@ func executeCalc(
 	}
 
 	// 抽象構文木を中置表記に変換する
-	infixNotation, notationErr := notation.InfixNotation(node)
+	infixNotation, notationErr := notation.InfixNotation(node, true)
 	if notationErr != nil {
 		return nil, notationErr
 	}
@@ -109,7 +109,7 @@ func evalVarArgs(node ast.Node, evaluator *evaluator.Evaluator) (string, error) 
 		return "", evalErr
 	}
 
-	infixNotation, infixNotationErr := notation.InfixNotation(node)
+	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
 	if infixNotationErr != nil {
 		return "", infixNotationErr
 	}
@@ -125,7 +125,7 @@ func determineValues(node ast.Node, evaluator *evaluator.Evaluator) (string, err
 		return "", determineValuesErr
 	}
 
-	infixNotation, infixNotationErr := notation.InfixNotation(node)
+	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
 	if infixNotationErr != nil {
 		return "", infixNotationErr
 	}
