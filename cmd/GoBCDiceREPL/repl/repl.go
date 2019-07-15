@@ -3,12 +3,10 @@ package repl
 import (
 	"bufio"
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/ast"
-	"github.com/raa0121/GoBCDice/pkg/core/command"
+	"github.com/raa0121/GoBCDice/pkg/bcdice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
-	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/core/lexer"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"github.com/raa0121/GoBCDice/pkg/core/token"
@@ -33,6 +31,7 @@ const (
 	COMMAND_ROLL           = "roll"
 	COMMAND_SET_DIE_FEEDER = "set-die-feeder"
 	COMMAND_SET_DICE_QUEUE = "set-dice-queue"
+	COMMAND_SET_GAME       = "set-game"
 
 	COMMAND_HELP = "help"
 )
@@ -65,11 +64,13 @@ var (
 	tailSpacesRe = regexp.MustCompile(`\s+\z`)
 )
 
+// REPLで使用するデータを格納する構造体。
 type REPL struct {
 	in         io.Reader
 	out        io.Writer
 	dieFeeder  feeder.DieFeeder
 	diceRoller *roller.DiceRoller
+	bcDice     *bcdice.BCDice
 }
 
 // init はパッケージを初期化する。
@@ -98,6 +99,12 @@ func init() {
 			Usage:       "." + COMMAND_ROLL + " 振る数 面の数",
 			Description: "ダイスロールを行い、出目を出力します",
 			Handler:     rollDice,
+		},
+		{
+			Name:        COMMAND_SET_GAME,
+			Usage:       "." + COMMAND_SET_GAME + " ゲーム識別子",
+			Description: "指定されたゲームシステムのダイスボットを使用するように設定します",
+			Handler:     setGame,
 		},
 		{
 			Name:        COMMAND_SET_DIE_FEEDER,
@@ -131,12 +138,14 @@ func init() {
 // outにその結果を出力する。
 func New(in io.Reader, out io.Writer) *REPL {
 	f := feeder.NewMT19937WithSeedFromTime()
+	r := roller.New(f)
 
 	return &REPL{
 		in:         in,
 		out:        out,
 		dieFeeder:  f,
-		diceRoller: roller.New(f),
+		diceRoller: r,
+		bcDice:     bcdice.New(f),
 	}
 }
 
@@ -182,12 +191,12 @@ func (r *REPL) executeDefaultCommand(input string) {
 	eval(r, commandMap[COMMAND_EVAL], input)
 }
 
-// printCommandUsageは、コマンドcの使用法を出力する
+// printCommandUsage は、コマンドcの使用法を出力する。
 func (r *REPL) printCommandUsage(c *Command) {
 	fmt.Fprintf(r.out, "使用法: %s\n", c.Usage)
 }
 
-// printTokensは、inputを字句解析し、得られたトークン列を出力する
+// printTokens は、inputを字句解析し、得られたトークン列を出力する。
 func printTokens(r *REPL, c *Command, input string) {
 	if input == "" {
 		r.printCommandUsage(c)
@@ -209,7 +218,7 @@ func printTokens(r *REPL, c *Command, input string) {
 	}
 }
 
-// printSExpは、inputを構文解析し、得られたASTをS式の形で出力する
+// printSExp は、inputを構文解析し、得られたASTをS式の形で出力する。
 func printSExp(r *REPL, c *Command, input string) {
 	if input == "" {
 		r.printCommandUsage(c)
@@ -225,23 +234,11 @@ func printSExp(r *REPL, c *Command, input string) {
 	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, ast.SExp())
 }
 
-// evalは、inputを構文解析して評価し、その結果を出力する。
+// eval はinputを構文解析して評価し、その結果を出力する。
 // ダイスロールが行われた場合、その結果も出力する。
 func eval(r *REPL, c *Command, input string) {
 	if input == "" {
 		r.printCommandUsage(c)
-		return
-	}
-
-	node, parseErr := parser.Parse(input)
-	if parseErr != nil {
-		fmt.Fprintf(r.out, "構文エラー: %s\n", parseErr)
-		return
-	}
-
-	commandNode, nodeIsCommandNode := node.(ast.Command)
-	if !nodeIsCommandNode {
-		fmt.Fprintln(r.out, "実行可能なコマンドではありません")
 		return
 	}
 
@@ -254,12 +251,9 @@ func eval(r *REPL, c *Command, input string) {
 		}()
 	}
 
-	evaluator := evaluator.NewEvaluator(
-		r.diceRoller, evaluator.NewEnvironment())
-
-	result, execErr := command.Execute(commandNode, "DiceBot", evaluator)
-	if execErr != nil {
-		fmt.Fprintln(r.out, execErr)
+	result, err := r.bcDice.ExecuteCommand(input)
+	if err != nil {
+		fmt.Fprintln(r.out, err)
 		return
 	}
 
@@ -268,7 +262,7 @@ func eval(r *REPL, c *Command, input string) {
 
 var rollDiceRe = regexp.MustCompile(`\A(\d+)\s+(\d+)\z`)
 
-// rollDiceは、inputで指定されたダイスロールを行う。
+// rollDice はinputで指定されたダイスロールを行う。
 // inputは、「振る数 面数」の形の文字列とする。
 func rollDice(r *REPL, c *Command, input string) {
 	matches := rollDiceRe.FindStringSubmatch(input)
@@ -298,7 +292,24 @@ func rollDice(r *REPL, c *Command, input string) {
 	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, dice.FormatDice(rolledDice))
 }
 
-// setDieFeederは、ダイス供給機を設定する。
+// setGame は指定されたゲームシステムのダイスボットを使用するように設定する。
+func setGame(r *REPL, c *Command, input string) {
+	if input == "" {
+		// ゲームシステムが指定されていなかった場合、現在のゲーム識別子を出力する
+		fmt.Fprintln(r.out, r.bcDice.DiceBot.GameID())
+		return
+	}
+
+	err := r.bcDice.SetDiceBotByGameID(input)
+	if err != nil {
+		fmt.Fprintln(r.out, err)
+		return
+	}
+
+	fmt.Fprintln(r.out, "OK")
+}
+
+// setDieFeeder は、ダイス供給機を設定する。
 // inputには以下を指定できる。
 //
 // * "queue": 出目を指定する。
@@ -319,11 +330,12 @@ func setDieFeeder(r *REPL, c *Command, input string) {
 
 	r.dieFeeder = f
 	r.diceRoller = roller.New(f)
+	r.bcDice.SetDieFeeder(f)
 
 	fmt.Fprintln(r.out, "OK")
 }
 
-// setDiceQueueは、ダイスロールで取り出されるダイスの列を設定する。
+// setDiceQueue は、ダイスロールで取り出されるダイスの列を設定する。
 // inputは "値/面数, 値/面数, ..." という形にする。
 func setDiceQueue(r *REPL, c *Command, input string) {
 	if !r.dieFeeder.CanSpecifyDie() {
@@ -343,7 +355,7 @@ func setDiceQueue(r *REPL, c *Command, input string) {
 	fmt.Fprintln(r.out, "OK")
 }
 
-// printHelpは、利用できるコマンドの使用法と説明を出力する
+// printHelp は、利用できるコマンドの使用法と説明を出力する
 func printHelp(r *REPL, _ *Command, _ string) {
 	for _, c := range commands {
 		fmt.Fprintf(r.out, "%s\n    %s\n", c.Usage, c.Description)
