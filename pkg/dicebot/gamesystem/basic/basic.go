@@ -7,6 +7,11 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/dicebot"
 )
 
+const (
+	// 基本的なダイスボットのゲーム識別子
+	GAME_ID = "DiceBot"
+)
+
 // 基本的なダイスボット。
 type Basic struct {
 }

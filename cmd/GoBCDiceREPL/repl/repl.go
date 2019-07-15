@@ -10,6 +10,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/lexer"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"github.com/raa0121/GoBCDice/pkg/core/token"
+	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
 	"github.com/raa0121/GoBCDice/pkg/dicebot/testcase"
 	"io"
 	"regexp"
@@ -22,8 +23,6 @@ const (
 	PROMPT = ">> "
 	// 結果の初めに出力する文字列
 	RESULT_HEADER = "=> "
-	// 結果の2行目以降でのインデント用の文字列
-	RESULT_INDENT = "   "
 
 	COMMAND_TOKEN          = "token"
 	COMMAND_AST            = "ast"
@@ -32,6 +31,7 @@ const (
 	COMMAND_SET_DIE_FEEDER = "set-die-feeder"
 	COMMAND_SET_DICE_QUEUE = "set-dice-queue"
 	COMMAND_SET_GAME       = "set-game"
+	COMMAND_LIST_GAMES     = "list-games"
 
 	COMMAND_HELP = "help"
 )
@@ -105,6 +105,12 @@ func init() {
 			Usage:       "." + COMMAND_SET_GAME + " ゲーム識別子",
 			Description: "指定されたゲームシステムのダイスボットを使用するように設定します",
 			Handler:     setGame,
+		},
+		{
+			Name:        COMMAND_LIST_GAMES,
+			Usage:       "." + COMMAND_LIST_GAMES,
+			Description: "利用可能なゲームシステムの識別子の一覧を出力します",
+			Handler:     listGames,
 		},
 		{
 			Name:        COMMAND_SET_DIE_FEEDER,
@@ -204,17 +210,8 @@ func printTokens(r *REPL, c *Command, input string) {
 	}
 
 	l := lexer.New(input)
-
-	first := true
 	for tok := l.NextToken(); tok.Type != token.EOT; tok = l.NextToken() {
-		header := RESULT_INDENT
-		if first {
-			header = RESULT_HEADER
-		}
-
-		fmt.Fprintf(r.out, "%s%s\n", header, tok)
-
-		first = false
+		fmt.Fprintln(r.out, tok)
 	}
 }
 
@@ -307,6 +304,14 @@ func setGame(r *REPL, c *Command, input string) {
 	}
 
 	fmt.Fprintln(r.out, "OK")
+}
+
+// listGames は利用可能なゲームシステムの識別子の一覧を出力する。
+func listGames(r *REPL, c *Command, input string) {
+	gameIDs := dicebotlist.AvailableGameIDs(true)
+	for _, gameID := range gameIDs {
+		fmt.Fprintln(r.out, gameID)
+	}
 }
 
 // setDieFeeder は、ダイス供給機を設定する。
