@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"io/ioutil"
-	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -37,8 +36,8 @@ var (
 // Parse はテストケースのソースコードを構文解析し、その内容のDiceBotTestCaseを構築して返す。
 // 失敗するとnilを返す。
 //
-// gameIDにはゲームの識別子を指定する。
-// indexにはテストケース番号を指定する。
+// gameID: にはゲーム識別子,
+// index: テストケース番号。
 func Parse(source string, gameID string, index int) (*DiceBotTestCase, error) {
 	matches := sourceRe.FindStringSubmatch(source)
 	if matches == nil {
@@ -85,17 +84,15 @@ func ParseDice(source string) ([]dice.Die, error) {
 	return rolledDice, nil
 }
 
-// ParseFile はテストケースのソースコードファイルを解析し、テストケースのスライスを返す。
+// ParseFile はテストデータファイルを解析し、テストケースのスライスを返す。
 //
-// filenameには、ソースコードファイルのパスを指定する。
-func ParseFile(filename string) ([]*DiceBotTestCase, error) {
+// filename: テストデータファイルのパス,
+// gameID: ゲーム識別子。
+func ParseFile(filename string, gameID string) ([]*DiceBotTestCase, error) {
 	contentBytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-
-	basename := path.Base(filename)
-	gameID := strings.TrimSuffix(basename, path.Ext(basename))
 
 	content := strings.TrimRight(string(contentBytes), "\n")
 	testCaseSources := strings.Split(content, "\n============================\n")

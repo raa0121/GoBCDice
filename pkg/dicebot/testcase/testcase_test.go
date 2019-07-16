@@ -194,10 +194,12 @@ func TestParseDice(t *testing.T) {
 
 var parseFileTestCases = []struct {
 	filename string
+	gameID   string
 	expected []DiceBotTestCase
 }{
 	{
 		filename: "testdata/DiceBot.txt",
+		gameID:   "DiceBot",
 		expected: []DiceBotTestCase{
 			{
 				GameID: "DiceBot",
@@ -231,6 +233,7 @@ var parseFileTestCases = []struct {
 	},
 	{
 		filename: "testdata/multiline.txt",
+		gameID:   "multiline",
 		expected: []DiceBotTestCase{
 			{
 				GameID: "multiline",
@@ -257,7 +260,7 @@ var parseFileTestCases = []struct {
 func TestParseFile(t *testing.T) {
 	for _, test := range parseFileTestCases {
 		t.Run(fmt.Sprintf("%q", test.filename), func(t *testing.T) {
-			loadedTestCases, err := ParseFile(test.filename)
+			loadedTestCases, err := ParseFile(test.filename, test.gameID)
 
 			if err != nil {
 				t.Fatalf("got err: %v", err)

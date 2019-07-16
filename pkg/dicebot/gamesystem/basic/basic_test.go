@@ -6,12 +6,13 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/dicebot/testcase"
+	"path/filepath"
 	"testing"
 )
 
 func TestExecuteCommand(t *testing.T) {
-	testDataPath := "testdata/DiceBot.txt"
-	testcases, loadErr := testcase.ParseFile(testDataPath)
+	testDataPath := filepath.Join("testdata", "DiceBot.txt")
+	testcases, loadErr := testcase.ParseFile(testDataPath, "DiceBot")
 	if loadErr != nil {
 		t.Fatalf("%s を読み込めません: %s", testDataPath, loadErr)
 		return
