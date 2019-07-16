@@ -14,6 +14,17 @@ import (
 )
 
 // InfixNotation は構文解析木の中置表記を返す。
+//
+// node: 構文解析木のルートノード,
+// walkingToLeft: 左側への探索を続けているか。
+//
+// walkingToLeft は、単項マイナスを括弧で囲むかどうかの決定に使われる。
+// 括弧で囲まれた範囲のルートノードから連続して左側を調べていき、
+// 最左端が単項マイナスであれば括弧で囲まないように、そうでなければ
+// 括弧で囲むようにしている。
+// この最左端かどうかの判定にwalkingToLeftを使っている。
+// ルートノードに対してこの関数を呼び出すときはwalkingToLeftをtrueに
+// 設定し、右側の中置表記を求める際にはfalseを設定する。
 func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
 	case *ast.DRollExpr:
@@ -58,13 +69,21 @@ func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
 // infixNotationOfPrefixExpression は前置式の中置表記を返す。
 func infixNotationOfPrefixExpression(node ast.PrefixExpression, walkingToLeft bool) (string, error) {
 	right := node.Right()
-	rightInfixNotation, rightErr := InfixNotation(right, walkingToLeft)
-	if rightErr != nil {
-		return "", rightErr
-	}
 
 	if right.IsPrimaryExpression() {
+		// 一次式の場合は括弧で囲まない
+		rightInfixNotation, err := InfixNotation(right, walkingToLeft)
+		if err != nil {
+			return "", err
+		}
+
 		return node.Operator() + rightInfixNotation, nil
+	}
+
+	// 一次式でない場合は括弧で囲む
+	rightInfixNotation, err := InfixNotation(right, true)
+	if err != nil {
+		return "", err
 	}
 
 	return node.Operator() + Parenthesize(rightInfixNotation), nil
