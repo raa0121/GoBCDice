@@ -11,7 +11,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
-	"github.com/raa0121/GoBCDice/pkg/dicebot/testcase"
+	dicebottesting "github.com/raa0121/GoBCDice/pkg/dicebot/testing"
 	"io"
 	"regexp"
 	"strconv"
@@ -348,7 +348,7 @@ func setDiceQueue(r *REPL, c *Command, input string) {
 		return
 	}
 
-	ds, err := testcase.ParseDice(input)
+	ds, err := dicebottesting.ParseDice(input)
 	if err != nil {
 		fmt.Fprintln(r.out, err)
 		return

@@ -1,3 +1,6 @@
+/*
+ダイスボットの基本機能のパッケージ。
+*/
 package basic
 
 import (
@@ -53,6 +56,8 @@ func (b *Basic) Usage() string {
 }
 
 // ExecuteCommand は指定されたコマンドを実行する。
+//
+// 基本のダイスボットには特別なコマンドが存在しないため、必ずエラーを返す。
 func (b *Basic) ExecuteCommand(
 	_ string,
 	_ *evaluator.Evaluator,

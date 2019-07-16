@@ -1,4 +1,4 @@
-package testcase
+package testing
 
 import (
 	"fmt"

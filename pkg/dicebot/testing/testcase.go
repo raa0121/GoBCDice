@@ -1,7 +1,4 @@
-/*
-Ruby版BCDiceのダイスボットテストデータ読み込み処理のパッケージ。
-*/
-package testcase
+package testing
 
 import (
 	"fmt"
