@@ -25,6 +25,7 @@ func TestParse(t *testing.T) {
 		expectedSExp string
 		err          bool
 	}{
+		// 計算コマンド
 		{"C(1)", "(Calc 1)", false},
 		{"C(42)", "(Calc 42)", false},
 		{"C(-1)", "(Calc (- 1))", false},
@@ -59,11 +60,17 @@ func TestParse(t *testing.T) {
 		{"C(-(1+2))", "(Calc (- (+ 1 2)))", false},
 		{"C(+(1+2))", "(Calc (+ 1 2))", false},
 		{"CC(1)", "", true},
-		{"C([1...3])", "(Calc (Rand 1 3))", false},
-		{"C([1...3]*2)", "(Calc (* (Rand 1 3) 2))", false},
-		{"C([(1+2)...(4+5)])", "(Calc (Rand (+ 1 2) (+ 4 5)))", false},
+
+		// 計算コマンド内でのランダム数値は無効にする
+		{"C([1...3])", "", true},
+		{"C([1...3]*2)", "", true},
+		{"C([(1+2)...(4+5)])", "", true},
+
+		// ランダム数値取り出しの構文エラー
 		{"C([1+2...4-5])", "", true},
 		{"C([1...2...3])", "", true},
+
+		// 加算ロール
 		{"2D6", "(DRollExpr (DRoll 2 6))", false},
 		{"2D6D6", "", true},
 		{"12D60", "(DRollExpr (DRoll 12 60))", false},
@@ -122,10 +129,17 @@ func TestParse(t *testing.T) {
 		{"2d(1+5)", "(DRollExpr (DRoll 2 (+ 1 5)))", false},
 		{"(8/2)D(4+6)", "(DRollExpr (DRoll (/ 8 2) (+ 4 6)))", false},
 		{"(2-1)d(8/2)*(1+1)d(3*4/2)+2*3", "(DRollExpr (+ (* (DRoll (- 2 1) (/ 8 2)) (DRoll (+ 1 1) (/ (* 3 4) 2))) (* 2 3)))", false},
+
+		// ランダム数値取り出しを含む加算ロール
 		{"[1...5]D6", "(DRollExpr (DRoll (Rand 1 5) 6))", false},
 		{"([2...4]+2)D10", "(DRollExpr (DRoll (+ (Rand 2 4) 2) 10))", false},
 		{"[(2+3)...8]D6", "(DRollExpr (DRoll (Rand (+ 2 3) 8) 6))", false},
 		{"[5...(7+1)]D6", "(DRollExpr (DRoll (Rand 5 (+ 7 1)) 6))", false},
+		{"2d[1...5]", "(DRollExpr (DRoll 2 (Rand 1 5)))", false},
+		{"2d([2...4]+2)", "(DRollExpr (DRoll 2 (+ (Rand 2 4) 2)))", false},
+		{"2d[(2+3)...8]", "(DRollExpr (DRoll 2 (Rand (+ 2 3) 8)))", false},
+		{"2d[5...(7+1)]", "(DRollExpr (DRoll 2 (Rand 5 (+ 7 1))))", false},
+		{"([1...4]+1)d([2...4]+2)-1", "(DRollExpr (- (DRoll (+ (Rand 1 4) 1) (+ (Rand 2 4) 2)) 1))", false},
 	}
 
 	for _, test := range testCases {

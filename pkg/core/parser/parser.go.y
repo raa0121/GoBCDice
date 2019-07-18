@@ -53,6 +53,7 @@ import (
 
 %type<expr> command
 %type<expr> int_expr
+%type<expr> int_rand_expr
 %type<expr> d_roll_expr
 %type<expr> d_roll
 %type<expr> rand
@@ -80,7 +81,6 @@ command
 
 int_expr
 	: int
-	| rand
 	| L_PAREN int_expr R_PAREN
 	{
 		$$ = $2
@@ -114,6 +114,46 @@ int_expr
 		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
 	}
 	| int_expr SLASH int_expr R
+	{
+		$$ = ast.NewDivideWithRounding($1, $2, $3)
+	}
+
+int_rand_expr
+	: int
+	| rand
+	| L_PAREN int_rand_expr R_PAREN
+	{
+		$$ = $2
+	}
+	| MINUS int_rand_expr %prec UMINUS
+	{
+		$$ = ast.NewUnaryMinus($1, $2)
+	}
+	| PLUS int_rand_expr %prec UPLUS
+	{
+		$$ = $2
+	}
+	| int_rand_expr PLUS int_rand_expr
+	{
+		$$ = ast.NewAdd($1, $2, $3)
+	}
+	| int_rand_expr MINUS int_rand_expr
+	{
+		$$ = ast.NewSubtract($1, $2, $3)
+	}
+	| int_rand_expr ASTERISK int_rand_expr
+	{
+		$$ = ast.NewMultiply($1, $2, $3)
+	}
+	| int_rand_expr SLASH int_rand_expr
+	{
+		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
+	}
+	| int_rand_expr SLASH int_rand_expr U
+	{
+		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
+	}
+	| int_rand_expr SLASH int_rand_expr R
 	{
 		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
@@ -156,51 +196,51 @@ d_roll_expr
 	{
 		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
-	| int_expr PLUS d_roll_expr
+	| int_rand_expr PLUS d_roll_expr
 	{
 		$$ = ast.NewAdd($1, $2, $3)
 	}
-	| int_expr MINUS d_roll_expr
+	| int_rand_expr MINUS d_roll_expr
 	{
 		$$ = ast.NewSubtract($1, $2, $3)
 	}
-	| int_expr ASTERISK d_roll_expr
+	| int_rand_expr ASTERISK d_roll_expr
 	{
 		$$ = ast.NewMultiply($1, $2, $3)
 	}
-	| int_expr SLASH d_roll_expr
+	| int_rand_expr SLASH d_roll_expr
 	{
 		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
 	}
-	| int_expr SLASH d_roll_expr U
+	| int_rand_expr SLASH d_roll_expr U
 	{
 		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
 	}
-	| int_expr SLASH d_roll_expr R
+	| int_rand_expr SLASH d_roll_expr R
 	{
 		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
-	| d_roll_expr PLUS int_expr
+	| d_roll_expr PLUS int_rand_expr
 	{
 		$$ = ast.NewAdd($1, $2, $3)
 	}
-	| d_roll_expr MINUS int_expr
+	| d_roll_expr MINUS int_rand_expr
 	{
 		$$ = ast.NewSubtract($1, $2, $3)
 	}
-	| d_roll_expr ASTERISK int_expr
+	| d_roll_expr ASTERISK int_rand_expr
 	{
 		$$ = ast.NewMultiply($1, $2, $3)
 	}
-	| d_roll_expr SLASH int_expr
+	| d_roll_expr SLASH int_rand_expr
 	{
 		$$ = ast.NewDivideWithRoundingDown($1, $2, $3)
 	}
-	| d_roll_expr SLASH int_expr U
+	| d_roll_expr SLASH int_rand_expr U
 	{
 		$$ = ast.NewDivideWithRoundingUp($1, $2, $3)
 	}
-	| d_roll_expr SLASH int_expr R
+	| d_roll_expr SLASH int_rand_expr R
 	{
 		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
@@ -222,15 +262,15 @@ d_roll
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
-	| L_PAREN int_expr R_PAREN D_ROLL int
+	| L_PAREN int_rand_expr R_PAREN D_ROLL int
 	{
 		$$ = ast.NewDRoll($2, $4, $5)
 	}
-	| int D_ROLL L_PAREN int_expr R_PAREN
+	| int D_ROLL L_PAREN int_rand_expr R_PAREN
 	{
 		$$ = ast.NewDRoll($1, $2, $4)
 	}
-	| L_PAREN int_expr R_PAREN D_ROLL L_PAREN int_expr R_PAREN
+	| L_PAREN int_rand_expr R_PAREN D_ROLL L_PAREN int_rand_expr R_PAREN
 	{
 		$$ = ast.NewDRoll($2, $4, $6)
 	}
