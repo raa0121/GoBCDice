@@ -19,12 +19,8 @@ func NewEnvironment() *Environment {
 // RolledDice は記録されたダイスロール結果を返す。
 func (e *Environment) RolledDice() []dice.Die {
 	// ダイスロール結果のコピー先
-	dice := []dice.Die{}
-
-	for _, d := range e.rolledDice {
-		newDie := d
-		dice = append(dice, newDie)
-	}
+	dice := make([]dice.Die, len(e.rolledDice))
+	copy(dice, e.rolledDice)
 
 	return dice
 }

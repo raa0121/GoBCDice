@@ -42,7 +42,7 @@ func (e *Evaluator) determineValueOfDRoll(node *ast.DRoll) (*ast.SumRollResult, 
 	numVal := num.Value
 	sidesVal := sides.Value
 
-	rolledDice, rollDiceErr := e.rollDice(numVal, sidesVal)
+	rolledDice, rollDiceErr := e.RollDice(numVal, sidesVal)
 	if rollDiceErr != nil {
 		return nil, rollDiceErr
 	}

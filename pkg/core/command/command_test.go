@@ -8,6 +8,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
+	"reflect"
 	"testing"
 )
 
@@ -238,6 +239,51 @@ func TestExecuteDRollExpr(t *testing.T) {
 			expected: "DiceBot : (1D100/10R) ＞ 54[54]/10R ＞ 5",
 			dice:     []dice.Die{{54, 100}},
 		},
+		{
+			input:    "[1...5]D6",
+			expected: "DiceBot : (4D6) ＞ 15[5,3,4,3] ＞ 15",
+			dice:     []dice.Die{{4, 5}, {5, 6}, {3, 6}, {4, 6}, {3, 6}},
+		},
+		{
+			input:    "([2...4]+2)D10",
+			expected: "DiceBot : (6D10) ＞ 29[8,7,2,1,6,5] ＞ 29",
+			dice:     []dice.Die{{3, 3}, {8, 10}, {7, 10}, {2, 10}, {1, 10}, {6, 10}, {5, 10}},
+		},
+		{
+			input:    "[(2+3)...8]D6",
+			expected: "DiceBot : (5D6) ＞ 14[1,2,4,6,1] ＞ 14",
+			dice:     []dice.Die{{1, 4}, {1, 6}, {2, 6}, {4, 6}, {6, 6}, {1, 6}},
+		},
+		{
+			input:    "[5...(7+1)]D6",
+			expected: "DiceBot : (5D6) ＞ 14[1,2,4,6,1] ＞ 14",
+			dice:     []dice.Die{{1, 4}, {1, 6}, {2, 6}, {4, 6}, {6, 6}, {1, 6}},
+		},
+		{
+			input:    "2d[1...5]",
+			expected: "DiceBot : (2D2) ＞ 3[1,2] ＞ 3",
+			dice:     []dice.Die{{2, 5}, {1, 2}, {2, 2}},
+		},
+		{
+			input:    "2d([2...4]+2)",
+			expected: "DiceBot : (2D5) ＞ 7[4,3] ＞ 7",
+			dice:     []dice.Die{{2, 3}, {4, 5}, {3, 5}},
+		},
+		{
+			input:    "2d[(2+3)...8]",
+			expected: "DiceBot : (2D8) ＞ 10[3,7] ＞ 10",
+			dice:     []dice.Die{{4, 4}, {3, 8}, {7, 8}},
+		},
+		{
+			input:    "2d[5...(7+1)]",
+			expected: "DiceBot : (2D8) ＞ 10[3,7] ＞ 10",
+			dice:     []dice.Die{{4, 4}, {3, 8}, {7, 8}},
+		},
+		{
+			input:    "([1...4]+1)d([2...4]+2)-1",
+			expected: "DiceBot : (3D6-1) ＞ 14[5,5,4]-1 ＞ 13",
+			dice:     []dice.Die{{2, 4}, {3, 3}, {5, 6}, {5, 6}, {4, 6}},
+		},
 	}
 
 	for _, test := range testcases {
@@ -266,9 +312,14 @@ func TestExecuteDRollExpr(t *testing.T) {
 				return
 			}
 
-			actual := r.Message()
-			if actual != test.expected {
-				t.Errorf("got %q, want %q", actual, test.expected)
+			actualMessage := r.Message()
+			if actualMessage != test.expected {
+				t.Errorf("結果のメッセージが異なる: got %q, want %q", actualMessage, test.expected)
+			}
+
+			if !reflect.DeepEqual(r.RolledDice, test.dice) {
+				t.Errorf("ダイスロール結果が異なる: got [%s], want [%s]",
+					dice.FormatDice(r.RolledDice), dice.FormatDice(test.dice))
 			}
 		})
 	}

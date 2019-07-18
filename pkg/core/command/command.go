@@ -93,6 +93,8 @@ func executeDRollExpr(
 		return nil, evalErr
 	}
 
+	result.RolledDice = evaluator.RolledDice()
+
 	// 結果のメッセージを作る
 	result.appendMessagePart(notation.Parenthesize(infixNotationOfNodeWithEvaluatedVarArgs))
 	result.appendMessagePart(infixNotationOfNodeWithDeterminedValues)

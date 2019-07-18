@@ -169,6 +169,8 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		return &object.Integer{Value: leftValue * rightValue}, nil
 	case "D":
 		return e.evalSumRoll(left, right)
+	case "...":
+		return e.evalRandomNumber(left, right)
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s %s %s",
@@ -217,7 +219,7 @@ func (e *Evaluator) evalSumRoll(
 	numVal := num.Value
 	sidesVal := sides.Value
 
-	rolledDice, err := e.rollDice(numVal, sidesVal)
+	rolledDice, err := e.RollDice(numVal, sidesVal)
 	if err != nil {
 		return nil, err
 	}
@@ -230,9 +232,37 @@ func (e *Evaluator) evalSumRoll(
 	return &object.Integer{Value: sum}, nil
 }
 
-// rollDice は、sides個の面を持つダイスをnum個振り、その結果を返す。
+// evalRandomNumber はランダム数値取り出しを評価する。
+func (e *Evaluator) evalRandomNumber(
+	min *object.Integer,
+	max *object.Integer,
+) (object.Object, error) {
+	minValue := min.Value
+	maxValue := max.Value
+
+	if minValue >= maxValue {
+		return nil,
+			fmt.Errorf(
+				"evalRandomNumber: min (%d) must be less than max (%d)",
+				minValue,
+				maxValue,
+			)
+	}
+
+	randRange := maxValue - minValue + 1
+	rolledDice, err := e.RollDice(1, randRange)
+	if err != nil {
+		return nil, err
+	}
+
+	resultValue := (minValue - 1) + rolledDice[0].Value
+
+	return &object.Integer{Value: resultValue}, nil
+}
+
+// RollDice は、sides個の面を持つダイスをnum個振り、その結果を返す。
 // また、ダイスロールの結果を記録する。
-func (e *Evaluator) rollDice(num int, sides int) ([]dice.Die, error) {
+func (e *Evaluator) RollDice(num int, sides int) ([]dice.Die, error) {
 	rolledDice, err := e.diceRoller.RollDice(num, sides)
 	if err != nil {
 		return nil, err

@@ -237,6 +237,51 @@ func TestEvalDRollExpr(t *testing.T) {
 			expected: 5,
 			dice:     []dice.Die{{54, 100}},
 		},
+		{
+			input:    "[1...5]D6",
+			expected: 15,
+			dice:     []dice.Die{{4, 5}, {5, 6}, {3, 6}, {4, 6}, {3, 6}},
+		},
+		{
+			input:    "([2...4]+2)D10",
+			expected: 29,
+			dice:     []dice.Die{{3, 3}, {8, 10}, {7, 10}, {2, 10}, {1, 10}, {6, 10}, {5, 10}},
+		},
+		{
+			input:    "[(2+3)...8]D6",
+			expected: 14,
+			dice:     []dice.Die{{1, 4}, {1, 6}, {2, 6}, {4, 6}, {6, 6}, {1, 6}},
+		},
+		{
+			input:    "[5...(7+1)]D6",
+			expected: 14,
+			dice:     []dice.Die{{1, 4}, {1, 6}, {2, 6}, {4, 6}, {6, 6}, {1, 6}},
+		},
+		{
+			input:    "2d[1...5]",
+			expected: 3,
+			dice:     []dice.Die{{2, 5}, {1, 2}, {2, 2}},
+		},
+		{
+			input:    "2d([2...4]+2)",
+			expected: 7,
+			dice:     []dice.Die{{2, 3}, {4, 5}, {3, 5}},
+		},
+		{
+			input:    "2d[(2+3)...8]",
+			expected: 10,
+			dice:     []dice.Die{{4, 4}, {3, 8}, {7, 8}},
+		},
+		{
+			input:    "2d[5...(7+1)]",
+			expected: 10,
+			dice:     []dice.Die{{4, 4}, {3, 8}, {7, 8}},
+		},
+		{
+			input:    "([1...4]+1)d([2...4]+2)-1",
+			expected: 13,
+			dice:     []dice.Die{{2, 4}, {3, 3}, {5, 6}, {5, 6}, {4, 6}},
+		},
 	}
 
 	for _, test := range testcases {
