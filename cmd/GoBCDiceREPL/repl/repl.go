@@ -1,8 +1,8 @@
 package repl
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/chzyer/readline"
 	"github.com/raa0121/GoBCDice/pkg/bcdice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
@@ -19,10 +19,16 @@ import (
 )
 
 const (
+	ESC_BOLD   = "\033[1m"
+	ESC_RESET  = "\033[0m"
+	ESC_RED    = "\033[31m"
+	ESC_YELLOW = "\033[33m"
+	ESC_CYAN   = "\033[36m"
+
 	// REPLのプロンプト
-	PROMPT = ">> "
+	PROMPT = ESC_YELLOW + ">>" + ESC_RESET + " "
 	// 結果の初めに出力する文字列
-	RESULT_HEADER = "=> "
+	RESULT_HEADER = ESC_CYAN + "=>" + ESC_RESET + " "
 
 	COMMAND_TOKEN          = "token"
 	COMMAND_AST            = "ast"
@@ -44,12 +50,23 @@ type CommandHandler func(r *REPL, c *Command, input string)
 type Command struct {
 	// コマンド名
 	Name string
-	// 使用法
-	Usage string
+	// 引数の説明
+	ArgsDescription string
 	// 解説
 	Description string
 	// コマンドハンドラ
 	Handler CommandHandler
+}
+
+// Usage はコマンドの使用方法の説明を返す。
+func (c *Command) Usage() string {
+	commandPart := "." + c.Name
+
+	if c.ArgsDescription == "" {
+		return commandPart
+	}
+
+	return commandPart + " " + c.ArgsDescription
 }
 
 var (
@@ -77,56 +94,54 @@ type REPL struct {
 func init() {
 	commands = []Command{
 		{
-			Name:        COMMAND_TOKEN,
-			Usage:       "." + COMMAND_TOKEN + " BCDiceコマンド",
-			Description: "入力されたBCDiceコマンドのトークンを出力します",
-			Handler:     printTokens,
+			Name:            COMMAND_TOKEN,
+			ArgsDescription: "BCDiceコマンド",
+			Description:     "入力されたBCDiceコマンドのトークンを出力します",
+			Handler:         printTokens,
 		},
 		{
-			Name:        COMMAND_AST,
-			Usage:       "." + COMMAND_AST + " BCDiceコマンド",
-			Description: "入力されたBCDiceコマンドのASTをS式の形で出力します",
-			Handler:     printSExp,
+			Name:            COMMAND_AST,
+			ArgsDescription: "BCDiceコマンド",
+			Description:     "入力されたBCDiceコマンドのASTをS式の形で出力します",
+			Handler:         printSExp,
 		},
 		{
-			Name:        COMMAND_EVAL,
-			Usage:       "." + COMMAND_EVAL + " BCDiceコマンド",
-			Description: "入力されたBCDiceコマンドを評価します",
-			Handler:     eval,
+			Name:            COMMAND_EVAL,
+			ArgsDescription: "BCDiceコマンド",
+			Description:     "入力されたBCDiceコマンドを評価します",
+			Handler:         eval,
 		},
 		{
-			Name:        COMMAND_ROLL,
-			Usage:       "." + COMMAND_ROLL + " 振る数 面の数",
-			Description: "ダイスロールを行い、出目を出力します",
-			Handler:     rollDice,
+			Name:            COMMAND_ROLL,
+			ArgsDescription: "振る数 面の数",
+			Description:     "ダイスロールを行い、出目を出力します",
+			Handler:         rollDice,
 		},
 		{
-			Name:        COMMAND_SET_GAME,
-			Usage:       "." + COMMAND_SET_GAME + " ゲーム識別子",
-			Description: "指定されたゲームシステムのダイスボットを使用するように設定します",
-			Handler:     setGame,
+			Name:            COMMAND_SET_GAME,
+			ArgsDescription: "ゲーム識別子",
+			Description:     "指定されたゲームシステムのダイスボットを使用するように設定します",
+			Handler:         setGame,
 		},
 		{
 			Name:        COMMAND_LIST_GAMES,
-			Usage:       "." + COMMAND_LIST_GAMES,
 			Description: "利用可能なゲームシステムの識別子の一覧を出力します",
 			Handler:     listGames,
 		},
 		{
-			Name:        COMMAND_SET_DIE_FEEDER,
-			Usage:       "." + COMMAND_SET_DIE_FEEDER + " queue/mt",
-			Description: "ダイスの供給方法を設定します - queue: 手動指定、mt: ランダム",
-			Handler:     setDieFeeder,
+			Name:            COMMAND_SET_DIE_FEEDER,
+			ArgsDescription: "queue/mt",
+			Description:     "ダイスの供給方法を設定します - queue: 手動指定、mt: ランダム",
+			Handler:         setDieFeeder,
 		},
 		{
-			Name:        COMMAND_SET_DICE_QUEUE,
-			Usage:       "." + COMMAND_SET_DICE_QUEUE + " [値/面数[, 値/面数]...]",
-			Description: "ダイスロール時に取り出されるダイスの列を設定します",
-			Handler:     setDiceQueue,
+			Name:            COMMAND_SET_DICE_QUEUE,
+			ArgsDescription: "[値/面数[, 値/面数]...]",
+			Description:     "ダイスロール時に取り出されるダイスの列を設定します",
+			Handler:         setDiceQueue,
 		},
 		{
 			Name:        COMMAND_HELP,
-			Usage:       "." + COMMAND_HELP,
 			Description: "利用できるコマンドの使用法と説明を出力します",
 			Handler:     printHelp,
 		},
@@ -155,19 +170,45 @@ func New(in io.Reader, out io.Writer) *REPL {
 	}
 }
 
+// filterInput はreadlineでブロックする文字かどうかを判定する
+func filterInput(r rune) (rune, bool) {
+	switch r {
+	// ^Z をブロックする
+	// 現在は^Zを押すと動作がおかしくなるため
+	case readline.CharCtrlZ:
+		return r, false
+	}
+	return r, true
+}
+
 // Start はREPLを開始する。
 func (r *REPL) Start() {
-	scanner := bufio.NewScanner(r.in)
+	l, err := readline.NewEx(&readline.Config{
+		Prompt:              PROMPT,
+		HistoryFile:         "GoBCDiceREPL_history.txt",
+		InterruptPrompt:     "^C",
+		EOFPrompt:           "exit",
+		FuncFilterInputRune: filterInput,
+	})
+	if err != nil {
+		r.printError(err)
+		return
+	}
+	defer l.Close()
 
 	for {
-		fmt.Printf("\n%s", PROMPT)
+		line, readlineErr := l.Readline()
 
-		scanned := scanner.Scan()
-		if !scanned {
-			return
+		switch readlineErr {
+		case io.EOF:
+			// ^D が押されたら修了する
+			break
+		case readline.ErrInterrupt:
+			// ^C が押されたら次の読み込みに移る
+			continue
 		}
 
-		line := scanner.Text()
+		line = strings.TrimSpace(line)
 
 		if line == ".q" || line == ".quit" {
 			break
@@ -199,7 +240,17 @@ func (r *REPL) executeDefaultCommand(input string) {
 
 // printCommandUsage は、コマンドcの使用法を出力する。
 func (r *REPL) printCommandUsage(c *Command) {
-	fmt.Fprintf(r.out, "使用法: %s\n", c.Usage)
+	fmt.Fprintf(r.out, "使用法: %s\n", c.Usage())
+}
+
+// printOK はコマンドの実行に成功した旨のメッセージを出力する。
+func (r *REPL) printOK() {
+	fmt.Fprintln(r.out, ESC_CYAN+"OK"+ESC_RESET)
+}
+
+// printError はエラーメッセージを強調して出力する。
+func (r *REPL) printError(err error) {
+	fmt.Fprintln(r.out, ESC_RED+err.Error()+ESC_RESET)
 }
 
 // printTokens は、inputを字句解析し、得られたトークン列を出力する。
@@ -224,7 +275,7 @@ func printSExp(r *REPL, c *Command, input string) {
 
 	ast, err := parser.Parse(input)
 	if err != nil {
-		fmt.Fprintln(r.out, err)
+		r.printError(err)
 		return
 	}
 
@@ -250,7 +301,7 @@ func eval(r *REPL, c *Command, input string) {
 
 	result, err := r.bcDice.ExecuteCommand(input)
 	if err != nil {
-		fmt.Fprintln(r.out, err)
+		r.printError(err)
 		return
 	}
 
@@ -282,7 +333,7 @@ func rollDice(r *REPL, c *Command, input string) {
 
 	rolledDice, err := r.diceRoller.RollDice(num, sides)
 	if err != nil {
-		fmt.Fprintln(r.out, err)
+		r.printError(err)
 		return
 	}
 
@@ -299,11 +350,11 @@ func setGame(r *REPL, c *Command, input string) {
 
 	err := r.bcDice.SetDiceBotByGameID(input)
 	if err != nil {
-		fmt.Fprintln(r.out, err)
+		r.printError(err)
 		return
 	}
 
-	fmt.Fprintln(r.out, "OK")
+	r.printOK()
 }
 
 // listGames は利用可能なゲームシステムの識別子の一覧を出力する。
@@ -337,32 +388,38 @@ func setDieFeeder(r *REPL, c *Command, input string) {
 	r.diceRoller = roller.New(f)
 	r.bcDice.SetDieFeeder(f)
 
-	fmt.Fprintln(r.out, "OK")
+	r.printOK()
 }
 
 // setDiceQueue は、ダイスロールで取り出されるダイスの列を設定する。
 // inputは "値/面数, 値/面数, ..." という形にする。
 func setDiceQueue(r *REPL, c *Command, input string) {
 	if !r.dieFeeder.CanSpecifyDie() {
-		fmt.Fprintln(r.out, "現在のダイス供給方法では、取り出されるダイスの列を設定できません")
+		r.printError(fmt.Errorf("現在のダイス供給方法では、取り出されるダイスの列を設定できません"))
 		return
 	}
 
 	ds, err := dicebottesting.ParseDice(input)
 	if err != nil {
-		fmt.Fprintln(r.out, err)
+		r.printError(err)
 		return
 	}
 
 	f := r.dieFeeder.(*feeder.Queue)
 	f.Set(ds)
 
-	fmt.Fprintln(r.out, "OK")
+	r.printOK()
 }
 
 // printHelp は、利用できるコマンドの使用法と説明を出力する
 func printHelp(r *REPL, _ *Command, _ string) {
 	for _, c := range commands {
-		fmt.Fprintf(r.out, "%s\n    %s\n", c.Usage, c.Description)
+		fmt.Fprint(r.out, ESC_BOLD+"."+c.Name+ESC_RESET)
+		if c.ArgsDescription != "" {
+			fmt.Fprint(r.out, " "+c.ArgsDescription)
+		}
+		fmt.Fprintln(r.out, "")
+
+		fmt.Fprintln(r.out, "    "+c.Description)
 	}
 }
