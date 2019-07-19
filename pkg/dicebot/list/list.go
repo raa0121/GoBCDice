@@ -34,14 +34,18 @@ func AvailableGameIDs(includeBasicDiceBot bool) []string {
 		gameIDs = append(gameIDs, k)
 	}
 
-	if includeBasicDiceBot {
-		gameIDs = append(gameIDs, basic.GAME_ID)
-	}
-
 	gameIDsStrSlice := sort.StringSlice(gameIDs)
 	sort.Sort(gameIDsStrSlice)
 
-	return gameIDs
+	if !includeBasicDiceBot {
+		return gameIDs
+	}
+
+	gameIDsWithBasicDiceBot := make([]string, 1, len(gameIDs)+1)
+	gameIDsWithBasicDiceBot[0] = basic.GAME_ID
+	gameIDsWithBasicDiceBot = append(gameIDsWithBasicDiceBot, gameIDs...)
+
+	return gameIDsWithBasicDiceBot
 }
 
 // ゲーム識別子とダイスボットのコンストラクタとの対応

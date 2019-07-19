@@ -40,6 +40,7 @@ const (
 	COMMAND_LIST_GAMES     = "list-games"
 
 	COMMAND_HELP = "help"
+	COMMAND_QUIT = "quit"
 )
 
 // コマンドハンドラの型。
@@ -56,6 +57,8 @@ type Command struct {
 	Description string
 	// コマンドハンドラ
 	Handler CommandHandler
+	// 自動補完の候補
+	Completers []readline.PrefixCompleterInterface
 }
 
 // Usage はコマンドの使用方法の説明を返す。
@@ -85,9 +88,11 @@ var (
 type REPL struct {
 	in         io.Reader
 	out        io.Writer
+	terminated bool
 	dieFeeder  feeder.DieFeeder
 	diceRoller *roller.DiceRoller
 	bcDice     *bcdice.BCDice
+	completer  *readline.PrefixCompleter
 }
 
 // init はパッケージを初期化する。
@@ -130,9 +135,13 @@ func init() {
 		},
 		{
 			Name:            COMMAND_SET_DIE_FEEDER,
-			ArgsDescription: "queue/mt",
-			Description:     "ダイスの供給方法を設定します - queue: 手動指定、mt: ランダム",
+			ArgsDescription: "mt/queue",
+			Description:     "ダイスの供給方法を設定します - mt: ランダム、queue: 手動指定",
 			Handler:         setDieFeeder,
+			Completers: []readline.PrefixCompleterInterface{
+				readline.PcItem("mt"),
+				readline.PcItem("queue"),
+			},
 		},
 		{
 			Name:            COMMAND_SET_DICE_QUEUE,
@@ -145,11 +154,24 @@ func init() {
 			Description: "利用できるコマンドの使用法と説明を出力します",
 			Handler:     printHelp,
 		},
+		{
+			Name:        COMMAND_QUIT,
+			Description: "GoBCDiceREPLを終了します",
+			Handler:     terminateREPL,
+		},
 	}
 
 	for i, _ := range commands {
 		c := &commands[i]
 		commandMap[c.Name] = c
+	}
+
+	commandSetGame := commandMap[COMMAND_SET_GAME]
+	for _, gameId := range dicebotlist.AvailableGameIDs(true) {
+		commandSetGame.Completers = append(
+			commandSetGame.Completers,
+			readline.PcItem(gameId),
+		)
 	}
 }
 
@@ -161,12 +183,19 @@ func New(in io.Reader, out io.Writer) *REPL {
 	f := feeder.NewMT19937WithSeedFromTime()
 	r := roller.New(f)
 
+	completers := make([]readline.PrefixCompleterInterface, 0, len(commands))
+	for _, c := range commands {
+		completers = append(completers, readline.PcItem("."+c.Name, c.Completers...))
+	}
+
 	return &REPL{
 		in:         in,
 		out:        out,
+		terminated: false,
 		dieFeeder:  f,
 		diceRoller: r,
 		bcDice:     bcdice.New(f),
+		completer:  readline.NewPrefixCompleter(completers...),
 	}
 }
 
@@ -189,6 +218,7 @@ func (r *REPL) Start() {
 		InterruptPrompt:     "^C",
 		EOFPrompt:           "exit",
 		FuncFilterInputRune: filterInput,
+		AutoComplete:        r.completer,
 	})
 	if err != nil {
 		r.printError(err)
@@ -196,7 +226,7 @@ func (r *REPL) Start() {
 	}
 	defer l.Close()
 
-	for {
+	for !r.terminated {
 		line, readlineErr := l.Readline()
 
 		switch readlineErr {
@@ -210,7 +240,8 @@ func (r *REPL) Start() {
 
 		line = strings.TrimSpace(line)
 
-		if line == ".q" || line == ".quit" {
+		// REPL終了の ".q" のみ特別扱い
+		if line == ".q" {
 			break
 		}
 
@@ -422,4 +453,9 @@ func printHelp(r *REPL, _ *Command, _ string) {
 
 		fmt.Fprintln(r.out, "    "+c.Description)
 	}
+}
+
+// terminateREPL はREPLを終了させる
+func terminateREPL(r *REPL, _ *Command, _ string) {
+	r.terminated = true
 }
