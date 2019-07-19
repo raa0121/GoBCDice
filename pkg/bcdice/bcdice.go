@@ -60,8 +60,8 @@ var commandFirstPartRe = regexp.MustCompile(`\A([^\s]*)(\s.*)?`)
 
 // ExecuteCommand は指定されたコマンドを実行する。
 func (b *BCDice) ExecuteCommand(c string) (*command.Result, error) {
-	separeted := commandFirstPartRe.FindStringSubmatch(c)
-	firstPart := separeted[1]
+	separated := commandFirstPartRe.FindStringSubmatch(c)
+	firstPart := separated[1]
 
 	{
 		result, err := b.ExecuteDiceBotCommand(firstPart)
