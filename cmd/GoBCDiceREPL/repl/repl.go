@@ -19,11 +19,16 @@ import (
 )
 
 const (
-	ESC_BOLD   = "\033[1m"
-	ESC_RESET  = "\033[0m"
-	ESC_RED    = "\033[31m"
+	// 書式設定をリセットするエスケープシーケンス
+	ESC_RESET = "\033[0m"
+	// 太字にするエスケープシーケンス
+	ESC_BOLD = "\033[1m"
+	// 文字色を赤色にするエスケープシーケンス
+	ESC_RED = "\033[31m"
+	// 文字色を黄色にするエスケープシーケンス
 	ESC_YELLOW = "\033[33m"
-	ESC_CYAN   = "\033[36m"
+	// 文字色をシアンにするエスケープシーケンス
+	ESC_CYAN = "\033[36m"
 
 	// REPLのプロンプト
 	PROMPT = ESC_YELLOW + ">>" + ESC_RESET + " "
@@ -226,6 +231,8 @@ func (r *REPL) Start() {
 	}
 	defer l.Close()
 
+	r.printWelcomeMessage()
+
 	for !r.terminated {
 		line, readlineErr := l.Readline()
 
@@ -272,6 +279,15 @@ func (r *REPL) executeDefaultCommand(input string) {
 // printCommandUsage は、コマンドcの使用法を出力する。
 func (r *REPL) printCommandUsage(c *Command) {
 	fmt.Fprintf(r.out, "使用法: %s\n", c.Usage())
+}
+
+// printWelcomeMessage は起動時の歓迎メッセージを出力する。
+func (r *REPL) printWelcomeMessage() {
+	fmt.Fprintln(r.out, ESC_BOLD+"GoBCDice REPL"+ESC_RESET)
+	fmt.Fprintln(r.out, "\n* BCDiceコマンドを入力すると、その評価結果を出力します")
+	fmt.Fprintln(r.out, "* \".help\" と入力すると、利用できるコマンドの使用法と説明を出力します")
+	fmt.Fprintln(r.out, "* \".q\" または \".quit\" と入力すると終了します")
+	fmt.Fprintln(r.out, "")
 }
 
 // printOK はコマンドの実行に成功した旨のメッセージを出力する。
