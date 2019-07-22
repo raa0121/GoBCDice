@@ -1,0 +1,11 @@
+build: off
+
+environment:
+  GOPATH: c:\gopath
+  GO111MODULE: on
+  PATH: C:\msys64\mingw64\bin;%PATH%
+
+stack: go 1.12.3
+
+test_script:
+  - go test ./...
