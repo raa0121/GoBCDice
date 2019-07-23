@@ -36,8 +36,6 @@ var oneCharTokenType = map[rune]token.TokenType{
 	'*': token.ASTERISK,
 	'/': token.SLASH,
 	'=': token.EQ,
-	'<': token.LT,
-	'>': token.GT,
 	'(': token.L_PAREN,
 	')': token.R_PAREN,
 	'[': token.L_BRACKET,
@@ -57,7 +55,7 @@ func (l *Lexer) NextToken() token.Token {
 	} else {
 		switch l.ch {
 		case '.':
-			if literal, ok := l.tryReadDots(); ok {
+			if literal, ok := l.tryRead(".."); ok {
 				tok.Type = token.DOTS
 				tok.Literal = literal
 				tok.Column = column
@@ -66,6 +64,34 @@ func (l *Lexer) NextToken() token.Token {
 			}
 
 			tok = newToken(token.ILLEGAL, l.ch, column)
+		case '<':
+			if literal, ok := l.tryRead("="); ok {
+				tok.Type = token.LTEQ
+				tok.Literal = literal
+				tok.Column = column
+
+				return tok
+			}
+
+			if literal, ok := l.tryRead(">"); ok {
+				tok.Type = token.DIAMOND
+				tok.Literal = literal
+				tok.Column = column
+
+				return tok
+			}
+
+			tok = newToken(token.LT, l.ch, column)
+		case '>':
+			if literal, ok := l.tryRead("="); ok {
+				tok.Type = token.GTEQ
+				tok.Literal = literal
+				tok.Column = column
+
+				return tok
+			}
+
+			tok = newToken(token.GT, l.ch, column)
 		case 0:
 			tok.Type = token.EOT
 			tok.Literal = ""
@@ -177,25 +203,26 @@ func (l *Lexer) readNumber() string {
 	return l.readCharsWhile(isDigit)
 }
 
-// tryReadDotsは ランダム数値埋め込みの "..." の読み込みを試す。
-// "..." があれば、literalでリテラルを、okでtrueを返す。
-// "..." でなければ、okでfalseを返す。
-func (l *Lexer) tryReadDots() (literal string, ok bool) {
-	ch0 := l.ch
+// tryRead は文字列expectedの読み込みを試す。
+// expected を読み込めた場合、literalでリテラルを、okでtrueを返す。
+// 読み込めなかった場合、okでfalseを返す。
+func (l *Lexer) tryRead(expected string) (literal string, ok bool) {
+	expectedChars := []rune(expected)
+	n := len(expectedChars)
 
-	if l.peekChar(1) != '.' || l.peekChar(2) != '.' {
-		return string(l.ch), false
+	for i := 0; i < n; i++ {
+		if l.peekChar(i+1) != expectedChars[i] {
+			return string(l.ch), false
+		}
 	}
 
-	l.readChar()
-	ch1 := l.ch
+	chars := make([]rune, n+1)
+	for i := 0; i < n+1; i++ {
+		chars[i] = l.ch
+		l.readChar()
+	}
 
-	l.readChar()
-	ch2 := l.ch
-
-	l.readChar()
-
-	return (string(ch0) + string(ch1) + string(ch2)), true
+	return string(chars), true
 }
 
 // isLetter はchがアルファベットかどうかを返す。
