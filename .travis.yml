@@ -6,7 +6,6 @@ os:
 dist: bionic
 go:
   - 1.12.x
-  - master
 env: GO111MODULE=on
 script: go test ./pkg/...
 
@@ -20,21 +19,8 @@ jobs:
       before_script: scripts/install_prerequisites_linux.sh
       script: make
     - stage: build
-      os: linux
-      dist: bionic
-      go: master
-      env: GO111MODULE=on
-      before_script: scripts/install_prerequisites_linux.sh
-      script: make
-    - stage: build
       os: osx
       go: 1.12.x
-      env: GO111MODULE=on
-      before_script: scripts/install_prerequisites_osx.sh
-      script: make
-    - stage: build
-      os: osx
-      go: master
       env: GO111MODULE=on
       before_script: scripts/install_prerequisites_osx.sh
       script: make
