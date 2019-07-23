@@ -8,4 +8,10 @@ environment:
 stack: go 1.12.3
 
 test_script:
-  - go test ./...
+  - go test -race -coverprofile=coverage.txt -covermode=atomic ./pkg/...
+
+after_test:
+  - ps: |
+      $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
+      Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
+      bash codecov.sh -t 3f455cbc-75ca-4ab2-a50a-8e37557bb938
