@@ -11,6 +11,7 @@ before_test:
   - SET GO111MODULE=off
   - go get -u github.com/ory/go-acc
   - SET GO111MODULE=on
+  - go get ./pkg/...
 
 test_script:
   - C:\gopath\bin\go-acc ./pkg/... -- -race
