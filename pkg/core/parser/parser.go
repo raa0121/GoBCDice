@@ -21,7 +21,7 @@ import (
 type yySymType struct {
 	yys   int
 	token token.Token
-	expr  ast.Node
+	node  ast.Node
 }
 
 type yyXError struct {
@@ -29,85 +29,98 @@ type yyXError struct {
 }
 
 const (
-	yyDefault = 57370
+	yyDefault = 57373
 	yyEofCode = 57344
 	ASTERISK  = 57351
-	B_ROLL    = 57361
-	CALC      = 57366
-	CHOICE    = 57367
-	DOTS      = 57365
-	D_ROLL    = 57360
+	B_ROLL    = 57364
+	CALC      = 57369
+	CHOICE    = 57370
+	DIAMOND   = 57358
+	DOTS      = 57368
+	D_ROLL    = 57363
 	EQ        = 57353
 	GT        = 57355
+	GTEQ      = 57357
 	IDENT     = 57347
 	ILLEGAL   = 57346
 	INT       = 57348
 	LT        = 57354
-	L_BRACKET = 57358
-	L_PAREN   = 57356
+	LTEQ      = 57356
+	L_BRACKET = 57361
+	L_PAREN   = 57359
 	MINUS     = 57350
 	PLUS      = 57349
-	R         = 57362
-	R_BRACKET = 57359
-	R_PAREN   = 57357
-	SECRET    = 57364
+	R         = 57365
+	R_BRACKET = 57362
+	R_PAREN   = 57360
+	SECRET    = 57367
 	SLASH     = 57352
-	U         = 57363
-	UMINUS    = 57369
-	UPLUS     = 57368
+	U         = 57366
+	UMINUS    = 57372
+	UPLUS     = 57371
 	yyErrCode = 57345
 
 	yyMaxDepth = 200
-	yyTabOfs   = -58
+	yyTabOfs   = -65
 )
 
 var (
 	yyPrec = map[int]int{
-		PLUS:     0,
-		MINUS:    0,
-		ASTERISK: 1,
-		SLASH:    1,
-		D_ROLL:   2,
-		DOTS:     3,
-		UPLUS:    4,
-		UMINUS:   4,
+		EQ:       0,
+		LT:       0,
+		GT:       0,
+		LTEQ:     0,
+		GTEQ:     0,
+		DIAMOND:  0,
+		PLUS:     1,
+		MINUS:    1,
+		ASTERISK: 2,
+		SLASH:    2,
+		D_ROLL:   3,
+		DOTS:     4,
+		UPLUS:    5,
+		UMINUS:   5,
 	}
 
 	yyXLAT = map[int]int{
-		57350: 0,  // MINUS (108x)
-		57349: 1,  // PLUS (108x)
-		57351: 2,  // ASTERISK (76x)
-		57352: 3,  // SLASH (76x)
-		57357: 4,  // R_PAREN (74x)
-		57362: 5,  // R (64x)
-		57363: 6,  // U (64x)
-		57344: 7,  // $end (48x)
-		57348: 8,  // INT (38x)
-		57374: 9,  // int (38x)
-		57356: 10, // L_PAREN (38x)
-		57358: 11, // L_BRACKET (23x)
-		57377: 12, // rand (23x)
-		57376: 13, // int_rand_expr (21x)
-		57372: 14, // d_roll (12x)
-		57373: 15, // d_roll_expr (12x)
-		57375: 16, // int_expr (11x)
-		57360: 17, // D_ROLL (8x)
-		57359: 18, // R_BRACKET (5x)
-		57365: 19, // DOTS (3x)
-		57366: 20, // CALC (1x)
-		57371: 21, // command (1x)
-		57370: 22, // $default (0x)
-		57361: 23, // B_ROLL (0x)
-		57367: 24, // CHOICE (0x)
-		57353: 25, // EQ (0x)
-		57345: 26, // error (0x)
-		57355: 27, // GT (0x)
-		57347: 28, // IDENT (0x)
-		57346: 29, // ILLEGAL (0x)
-		57354: 30, // LT (0x)
-		57364: 31, // SECRET (0x)
-		57369: 32, // UMINUS (0x)
-		57368: 33, // UPLUS (0x)
+		57350: 0,  // MINUS (120x)
+		57349: 1,  // PLUS (120x)
+		57351: 2,  // ASTERISK (82x)
+		57352: 3,  // SLASH (82x)
+		57360: 4,  // R_PAREN (74x)
+		57344: 5,  // $end (65x)
+		57365: 6,  // R (64x)
+		57366: 7,  // U (64x)
+		57358: 8,  // DIAMOND (46x)
+		57353: 9,  // EQ (46x)
+		57355: 10, // GT (46x)
+		57357: 11, // GTEQ (46x)
+		57354: 12, // LT (46x)
+		57356: 13, // LTEQ (46x)
+		57378: 14, // int (44x)
+		57348: 15, // INT (44x)
+		57359: 16, // L_PAREN (44x)
+		57361: 17, // L_BRACKET (23x)
+		57381: 18, // rand (23x)
+		57380: 19, // int_rand_expr (21x)
+		57379: 20, // int_expr (17x)
+		57375: 21, // d_roll (12x)
+		57377: 22, // d_roll_expr (12x)
+		57363: 23, // D_ROLL (8x)
+		57362: 24, // R_BRACKET (5x)
+		57368: 25, // DOTS (3x)
+		57369: 26, // CALC (1x)
+		57374: 27, // command (1x)
+		57376: 28, // d_roll_comp (1x)
+		57373: 29, // $default (0x)
+		57364: 30, // B_ROLL (0x)
+		57370: 31, // CHOICE (0x)
+		57345: 32, // error (0x)
+		57347: 33, // IDENT (0x)
+		57346: 34, // ILLEGAL (0x)
+		57367: 35, // SECRET (0x)
+		57372: 36, // UMINUS (0x)
+		57371: 37, // UPLUS (0x)
 	}
 
 	yySymNames = []string{
@@ -116,32 +129,36 @@ var (
 		"ASTERISK",
 		"SLASH",
 		"R_PAREN",
+		"$end",
 		"R",
 		"U",
-		"$end",
-		"INT",
+		"DIAMOND",
+		"EQ",
+		"GT",
+		"GTEQ",
+		"LT",
+		"LTEQ",
 		"int",
+		"INT",
 		"L_PAREN",
 		"L_BRACKET",
 		"rand",
 		"int_rand_expr",
+		"int_expr",
 		"d_roll",
 		"d_roll_expr",
-		"int_expr",
 		"D_ROLL",
 		"R_BRACKET",
 		"DOTS",
 		"CALC",
 		"command",
+		"d_roll_comp",
 		"$default",
 		"B_ROLL",
 		"CHOICE",
-		"EQ",
 		"error",
-		"GT",
 		"IDENT",
 		"ILLEGAL",
-		"LT",
 		"SECRET",
 		"UMINUS",
 		"UPLUS",
@@ -151,216 +168,239 @@ var (
 
 	yyReductions = map[int]struct{ xsym, components int }{
 		0:  {0, 1},
-		1:  {21, 1},
-		2:  {21, 4},
-		3:  {16, 1},
-		4:  {16, 3},
-		5:  {16, 2},
-		6:  {16, 2},
-		7:  {16, 3},
-		8:  {16, 3},
-		9:  {16, 3},
-		10: {16, 3},
-		11: {16, 4},
-		12: {16, 4},
-		13: {13, 1},
-		14: {13, 1},
-		15: {13, 3},
-		16: {13, 2},
-		17: {13, 2},
-		18: {13, 3},
-		19: {13, 3},
-		20: {13, 3},
-		21: {13, 3},
-		22: {13, 4},
-		23: {13, 4},
-		24: {15, 1},
-		25: {15, 3},
-		26: {15, 2},
-		27: {15, 2},
-		28: {15, 3},
-		29: {15, 3},
-		30: {15, 3},
-		31: {15, 3},
-		32: {15, 4},
-		33: {15, 4},
-		34: {15, 3},
-		35: {15, 3},
-		36: {15, 3},
-		37: {15, 3},
-		38: {15, 4},
-		39: {15, 4},
-		40: {15, 3},
-		41: {15, 3},
-		42: {15, 3},
-		43: {15, 3},
-		44: {15, 4},
-		45: {15, 4},
-		46: {14, 3},
-		47: {14, 3},
-		48: {14, 3},
-		49: {14, 3},
-		50: {14, 5},
-		51: {14, 5},
-		52: {14, 7},
-		53: {12, 5},
-		54: {12, 7},
-		55: {12, 7},
-		56: {12, 9},
-		57: {9, 1},
+		1:  {27, 1},
+		2:  {27, 1},
+		3:  {27, 4},
+		4:  {20, 1},
+		5:  {20, 3},
+		6:  {20, 2},
+		7:  {20, 2},
+		8:  {20, 3},
+		9:  {20, 3},
+		10: {20, 3},
+		11: {20, 3},
+		12: {20, 4},
+		13: {20, 4},
+		14: {19, 1},
+		15: {19, 1},
+		16: {19, 3},
+		17: {19, 2},
+		18: {19, 2},
+		19: {19, 3},
+		20: {19, 3},
+		21: {19, 3},
+		22: {19, 3},
+		23: {19, 4},
+		24: {19, 4},
+		25: {22, 1},
+		26: {22, 3},
+		27: {22, 2},
+		28: {22, 2},
+		29: {22, 3},
+		30: {22, 3},
+		31: {22, 3},
+		32: {22, 3},
+		33: {22, 4},
+		34: {22, 4},
+		35: {22, 3},
+		36: {22, 3},
+		37: {22, 3},
+		38: {22, 3},
+		39: {22, 4},
+		40: {22, 4},
+		41: {22, 3},
+		42: {22, 3},
+		43: {22, 3},
+		44: {22, 3},
+		45: {22, 4},
+		46: {22, 4},
+		47: {28, 3},
+		48: {28, 3},
+		49: {28, 3},
+		50: {28, 3},
+		51: {28, 3},
+		52: {28, 3},
+		53: {21, 3},
+		54: {21, 3},
+		55: {21, 3},
+		56: {21, 3},
+		57: {21, 5},
+		58: {21, 5},
+		59: {21, 7},
+		60: {18, 5},
+		61: {18, 7},
+		62: {18, 7},
+		63: {18, 9},
+		64: {14, 1},
 	}
 
 	yyXErrors = map[yyXError]string{}
 
-	yyParseTab = [123][]uint16{
+	yyParseTab = [136][]uint16{
 		// 0
-		{65, 66, 8: 70, 62, 64, 69, 63, 67, 68, 60, 20: 61, 59},
-		{7: 58},
-		{114, 113, 115, 116, 7: 57},
-		{10: 178},
-		{45, 45, 45, 45, 45, 45, 45, 45, 17: 172},
+		{73, 74, 14: 70, 78, 72, 77, 71, 75, 21: 76, 67, 26: 69, 66, 68},
+		{5: 65},
+		{122, 121, 123, 124, 5: 64, 8: 194, 189, 191, 193, 190, 192},
+		{5: 63},
+		{16: 186},
 		// 5
-		{44, 44, 44, 44, 44, 44, 44, 44, 17: 169},
-		{65, 66, 8: 70, 62, 64, 69, 63, 143, 68, 144},
-		{65, 66, 8: 70, 62, 64, 69, 63, 141, 68, 142},
-		{65, 66, 8: 70, 62, 64, 69, 63, 139, 68, 140},
-		{108, 107, 109, 110},
+		{51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 51, 23: 180},
+		{50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 23: 177},
+		{73, 74, 14: 70, 78, 72, 77, 71, 151, 21: 76, 152},
+		{73, 74, 14: 70, 78, 72, 77, 71, 149, 21: 76, 150},
+		{73, 74, 14: 70, 78, 72, 77, 71, 147, 21: 76, 148},
 		// 10
-		{34, 34, 34, 34, 34, 34, 34, 34},
-		{8: 70, 71, 72},
-		{1, 1, 1, 1, 1, 1, 1, 1, 17: 1, 1, 1},
-		{19: 100},
-		{75, 76, 8: 70, 73, 74, 16: 77},
+		{116, 115, 117, 118},
+		{40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40},
+		{14: 79, 78, 80},
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 23: 1, 1, 1},
+		{25: 108},
 		// 15
-		{55, 55, 55, 55, 55, 55, 55},
-		{75, 76, 8: 70, 73, 74, 16: 98},
-		{75, 76, 8: 70, 73, 74, 16: 97},
-		{75, 76, 8: 70, 73, 74, 16: 96},
-		{79, 78, 80, 81, 82},
+		{83, 84, 14: 81, 78, 82, 20: 85},
+		{61, 61, 61, 61, 61, 61, 61, 61},
+		{83, 84, 14: 81, 78, 82, 20: 106},
+		{83, 84, 14: 81, 78, 82, 20: 105},
+		{83, 84, 14: 81, 78, 82, 20: 104},
 		// 20
-		{75, 76, 8: 70, 73, 74, 16: 95},
-		{75, 76, 8: 70, 73, 74, 16: 94},
-		{75, 76, 8: 70, 73, 74, 16: 93},
-		{75, 76, 8: 70, 73, 74, 16: 90},
-		{19: 83},
+		{87, 86, 88, 89, 90},
+		{83, 84, 14: 81, 78, 82, 20: 103},
+		{83, 84, 14: 81, 78, 82, 20: 102},
+		{83, 84, 14: 81, 78, 82, 20: 101},
+		{83, 84, 14: 81, 78, 82, 20: 98},
 		// 25
-		{8: 70, 84, 85},
-		{18: 89},
-		{75, 76, 8: 70, 73, 74, 16: 86},
-		{79, 78, 80, 81, 87},
-		{18: 88},
+		{25: 91},
+		{14: 92, 78, 93},
+		{24: 97},
+		{83, 84, 14: 81, 78, 82, 20: 94},
+		{87, 86, 88, 89, 95},
 		// 30
-		{2, 2, 2, 2, 2, 2, 2, 2, 17: 2},
-		{4, 4, 4, 4, 4, 4, 4, 4, 17: 4},
-		{48, 48, 48, 48, 48, 92, 91},
-		{47, 47, 47, 47, 47, 47, 47},
-		{46, 46, 46, 46, 46, 46, 46},
+		{24: 96},
+		{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 23: 2},
+		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 23: 4},
+		{54, 54, 54, 54, 54, 54, 100, 99},
+		{53, 53, 53, 53, 53, 53, 53, 53},
 		// 35
-		{49, 49, 49, 49, 49, 49, 49},
-		{50, 50, 80, 81, 50, 50, 50},
-		{51, 51, 80, 81, 51, 51, 51},
-		{52, 52, 52, 52, 52, 52, 52},
-		{53, 53, 53, 53, 53, 53, 53},
+		{52, 52, 52, 52, 52, 52, 52, 52},
+		{55, 55, 55, 55, 55, 55, 55, 55},
+		{56, 56, 88, 89, 56, 56, 56, 56},
+		{57, 57, 88, 89, 57, 57, 57, 57},
+		{58, 58, 58, 58, 58, 58, 58, 58},
 		// 40
-		{79, 78, 80, 81, 99},
-		{54, 54, 54, 54, 54, 54, 54},
-		{8: 70, 101, 102},
-		{18: 106},
-		{75, 76, 8: 70, 73, 74, 16: 103},
+		{59, 59, 59, 59, 59, 59, 59, 59},
+		{87, 86, 88, 89, 107},
+		{60, 60, 60, 60, 60, 60, 60, 60},
+		{14: 109, 78, 110},
+		{24: 114},
 		// 45
-		{79, 78, 80, 81, 104},
-		{18: 105},
-		{3, 3, 3, 3, 3, 3, 3, 3, 17: 3},
-		{5, 5, 5, 5, 5, 5, 5, 5, 17: 5},
-		{65, 66, 8: 70, 62, 64, 69, 63, 137, 68, 138},
+		{83, 84, 14: 81, 78, 82, 20: 111},
+		{87, 86, 88, 89, 112},
+		{24: 113},
+		{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 23: 3},
+		{5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 23: 5},
 		// 50
-		{65, 66, 8: 70, 62, 64, 69, 63, 135, 68, 136},
-		{65, 66, 8: 70, 62, 64, 69, 63, 133, 68, 134},
-		{65, 66, 8: 70, 62, 64, 69, 63, 111, 68, 112},
-		{37, 37, 37, 37, 37, 132, 131, 37},
-		{21, 21, 21, 21, 21, 118, 117, 21},
+		{73, 74, 14: 70, 78, 72, 77, 71, 145, 21: 76, 146},
+		{73, 74, 14: 70, 78, 72, 77, 71, 143, 21: 76, 144},
+		{73, 74, 14: 70, 78, 72, 77, 71, 141, 21: 76, 142},
+		{73, 74, 14: 70, 78, 72, 77, 71, 119, 21: 76, 120},
+		{43, 43, 43, 43, 43, 43, 140, 139, 43, 43, 43, 43, 43, 43},
 		// 55
-		{65, 66, 8: 70, 62, 64, 69, 63, 129, 68, 130},
-		{65, 66, 8: 70, 62, 64, 69, 63, 127, 68, 128},
-		{65, 66, 8: 70, 62, 64, 69, 63, 125, 68, 126},
-		{65, 66, 8: 70, 62, 64, 69, 63, 119, 68, 120},
-		{20, 20, 20, 20, 20, 20, 20, 20},
+		{27, 27, 27, 27, 27, 27, 126, 125, 27, 27, 27, 27, 27, 27},
+		{73, 74, 14: 70, 78, 72, 77, 71, 137, 21: 76, 138},
+		{73, 74, 14: 70, 78, 72, 77, 71, 135, 21: 76, 136},
+		{73, 74, 14: 70, 78, 72, 77, 71, 133, 21: 76, 134},
+		{73, 74, 14: 70, 78, 72, 77, 71, 127, 21: 76, 128},
 		// 60
-		{19, 19, 19, 19, 19, 19, 19, 19},
-		{15, 15, 15, 15, 15, 124, 123, 15},
-		{27, 27, 27, 27, 27, 122, 121, 27},
-		{26, 26, 26, 26, 26, 26, 26, 26},
-		{25, 25, 25, 25, 25, 25, 25, 25},
+		{26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26},
+		{25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25},
+		{21, 21, 21, 21, 21, 21, 132, 131, 21, 21, 21, 21, 21, 21},
+		{33, 33, 33, 33, 33, 33, 130, 129, 33, 33, 33, 33, 33, 33},
+		{32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32},
 		// 65
-		{14, 14, 14, 14, 14, 14, 14, 14},
-		{13, 13, 13, 13, 13, 13, 13, 13},
-		{16, 16, 16, 16, 16, 16, 16, 16},
-		{28, 28, 28, 28, 28, 28, 28, 28},
-		{17, 17, 109, 110, 17, 17, 17, 17},
+		{31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31},
+		{20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20},
+		{19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19},
+		{22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22},
+		{34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34},
 		// 70
-		{29, 29, 115, 116, 29, 29, 29, 29},
-		{18, 18, 109, 110, 18, 18, 18, 18},
-		{30, 30, 115, 116, 30, 30, 30, 30},
-		{36, 36, 36, 36, 36, 36, 36, 36},
-		{35, 35, 35, 35, 35, 35, 35, 35},
+		{23, 23, 117, 118, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23},
+		{35, 35, 123, 124, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35},
+		{24, 24, 117, 118, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24},
+		{36, 36, 123, 124, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36},
+		{42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42},
 		// 75
-		{38, 38, 38, 38, 38, 38, 38, 38},
-		{22, 22, 22, 22, 22, 22, 22, 22},
-		{39, 39, 109, 110, 39, 39, 39, 39},
-		{23, 23, 115, 116, 23, 23, 23, 23},
-		{40, 40, 109, 110, 40, 40, 40, 40},
+		{41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41},
+		{44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44},
+		{28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28},
+		{45, 45, 117, 118, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45},
+		{29, 29, 123, 124, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29},
 		// 80
-		{24, 24, 115, 116, 24, 24, 24, 24},
-		{41, 41, 41, 41, 41, 41, 41, 41},
-		{31, 31, 31, 31, 31, 31, 31, 31},
-		{42, 42, 42, 42, 42, 42, 42, 42},
-		{32, 32, 32, 32, 32, 32, 32, 32},
+		{46, 46, 117, 118, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46},
+		{30, 30, 123, 124, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30},
+		{47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47},
+		{37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37},
+		{48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48},
 		// 85
-		{108, 107, 109, 110, 146},
-		{114, 113, 115, 116, 145},
-		{33, 33, 33, 33, 33, 33, 33, 33},
-		{43, 43, 43, 43, 43, 43, 43, 43, 17: 147},
-		{8: 70, 148, 149},
+		{38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38},
+		{116, 115, 117, 118, 154},
+		{122, 121, 123, 124, 153},
+		{39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39},
+		{49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 23: 155},
 		// 90
-		{8, 8, 8, 8, 8, 8, 8, 8},
-		{153, 154, 8: 70, 150, 152, 69, 151, 155},
-		{45, 45, 45, 45, 45, 45, 45},
-		{44, 44, 44, 44, 44, 44, 44},
-		{153, 154, 8: 70, 150, 152, 69, 151, 167},
+		{14: 156, 78, 157},
+		{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+		{161, 162, 14: 158, 78, 160, 77, 159, 163},
+		{51, 51, 51, 51, 51, 6: 51, 51},
+		{50, 50, 50, 50, 50, 6: 50, 50},
 		// 95
-		{153, 154, 8: 70, 150, 152, 69, 151, 166},
-		{153, 154, 8: 70, 150, 152, 69, 151, 165},
-		{157, 156, 158, 159, 160},
-		{153, 154, 8: 70, 150, 152, 69, 151, 164},
-		{153, 154, 8: 70, 150, 152, 69, 151, 163},
+		{161, 162, 14: 158, 78, 160, 77, 159, 175},
+		{161, 162, 14: 158, 78, 160, 77, 159, 174},
+		{161, 162, 14: 158, 78, 160, 77, 159, 173},
+		{165, 164, 166, 167, 168},
+		{161, 162, 14: 158, 78, 160, 77, 159, 172},
 		// 100
-		{153, 154, 8: 70, 150, 152, 69, 151, 162},
-		{153, 154, 8: 70, 150, 152, 69, 151, 161},
-		{6, 6, 6, 6, 6, 6, 6, 6},
-		{37, 37, 37, 37, 37, 132, 131},
-		{38, 38, 38, 38, 38, 38, 38},
+		{161, 162, 14: 158, 78, 160, 77, 159, 171},
+		{161, 162, 14: 158, 78, 160, 77, 159, 170},
+		{161, 162, 14: 158, 78, 160, 77, 159, 169},
+		{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+		{43, 43, 43, 43, 43, 6: 140, 139},
 		// 105
-		{39, 39, 158, 159, 39, 39, 39},
-		{40, 40, 158, 159, 40, 40, 40},
-		{41, 41, 41, 41, 41, 41, 41},
-		{42, 42, 42, 42, 42, 42, 42},
-		{157, 156, 158, 159, 168},
+		{44, 44, 44, 44, 44, 6: 44, 44},
+		{45, 45, 166, 167, 45, 6: 45, 45},
+		{46, 46, 166, 167, 46, 6: 46, 46},
+		{47, 47, 47, 47, 47, 6: 47, 47},
+		{48, 48, 48, 48, 48, 6: 48, 48},
 		// 110
-		{43, 43, 43, 43, 43, 43, 43},
-		{8: 70, 170, 11: 69, 171},
-		{11, 11, 11, 11, 11, 11, 11, 11},
-		{9, 9, 9, 9, 9, 9, 9, 9},
-		{8: 70, 173, 175, 69, 174},
+		{165, 164, 166, 167, 176},
+		{49, 49, 49, 49, 49, 6: 49, 49},
+		{14: 178, 78, 17: 77, 179},
+		{11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11},
+		{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
 		// 115
-		{12, 12, 12, 12, 12, 12, 12, 12},
-		{10, 10, 10, 10, 10, 10, 10, 10},
-		{153, 154, 8: 70, 150, 152, 69, 151, 176},
-		{157, 156, 158, 159, 177},
-		{7, 7, 7, 7, 7, 7, 7, 7},
+		{14: 181, 78, 183, 77, 182},
+		{12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12},
+		{10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+		{161, 162, 14: 158, 78, 160, 77, 159, 184},
+		{165, 164, 166, 167, 185},
 		// 120
-		{75, 76, 8: 70, 73, 74, 16: 179},
-		{79, 78, 80, 81, 180},
-		{7: 56},
+		{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+		{83, 84, 14: 81, 78, 82, 20: 187},
+		{87, 86, 88, 89, 188},
+		{5: 62},
+		{83, 84, 14: 81, 78, 82, 20: 200},
+		// 125
+		{83, 84, 14: 81, 78, 82, 20: 199},
+		{83, 84, 14: 81, 78, 82, 20: 198},
+		{83, 84, 14: 81, 78, 82, 20: 197},
+		{83, 84, 14: 81, 78, 82, 20: 196},
+		{83, 84, 14: 81, 78, 82, 20: 195},
+		// 130
+		{87, 86, 88, 89, 5: 13},
+		{87, 86, 88, 89, 5: 14},
+		{87, 86, 88, 89, 5: 15},
+		{87, 86, 88, 89, 5: 16},
+		{87, 86, 88, 89, 5: 17},
+		// 135
+		{87, 86, 88, 89, 5: 18},
 	}
 )
 
@@ -401,7 +441,7 @@ func yylex1(yylex yyLexer, lval *yySymType) (n int) {
 }
 
 func yyParse(yylex yyLexer) int {
-	const yyError = 26
+	const yyError = 32
 
 	yyEx, _ := yylex.(yyLexerEx)
 	var yyn int
@@ -591,220 +631,249 @@ yynewstate:
 	switch r {
 	case 1:
 		{
-			yyVAL.expr = ast.NewDRollExpr(yyS[yypt-0].expr.Token(), yyS[yypt-0].expr)
-			yylex.(*LexerWrapper).ast = yyVAL.expr
+			yyVAL.node = ast.NewDRollExpr(yyS[yypt-0].node.Token(), yyS[yypt-0].node)
+			yylex.(*LexerWrapper).ast = yyVAL.node
 		}
 	case 2:
 		{
-			yyVAL.expr = ast.NewCalc(yyS[yypt-3].token, yyS[yypt-1].expr)
-			yylex.(*LexerWrapper).ast = yyVAL.expr
+			yyVAL.node = ast.NewDRollComp(yyS[yypt-0].node.Token(), yyS[yypt-0].node)
+			yylex.(*LexerWrapper).ast = yyVAL.node
 		}
-	case 4:
+	case 3:
 		{
-			yyVAL.expr = yyS[yypt-1].expr
+			yyVAL.node = ast.NewCalc(yyS[yypt-3].token, yyS[yypt-1].node)
+			yylex.(*LexerWrapper).ast = yyVAL.node
 		}
 	case 5:
 		{
-			yyVAL.expr = ast.NewUnaryMinus(yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = yyS[yypt-1].node
 		}
 	case 6:
 		{
-			yyVAL.expr = yyS[yypt-0].expr
+			yyVAL.node = ast.NewUnaryMinus(yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 7:
 		{
-			yyVAL.expr = ast.NewAdd(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = yyS[yypt-0].node
 		}
 	case 8:
 		{
-			yyVAL.expr = ast.NewSubtract(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewAdd(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 9:
 		{
-			yyVAL.expr = ast.NewMultiply(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewSubtract(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 10:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingDown(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewMultiply(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 11:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingUp(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingDown(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 12:
 		{
-			yyVAL.expr = ast.NewDivideWithRounding(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingUp(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
-	case 15:
+	case 13:
 		{
-			yyVAL.expr = yyS[yypt-1].expr
+			yyVAL.node = ast.NewDivideWithRounding(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 16:
 		{
-			yyVAL.expr = ast.NewUnaryMinus(yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = yyS[yypt-1].node
 		}
 	case 17:
 		{
-			yyVAL.expr = yyS[yypt-0].expr
+			yyVAL.node = ast.NewUnaryMinus(yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 18:
 		{
-			yyVAL.expr = ast.NewAdd(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = yyS[yypt-0].node
 		}
 	case 19:
 		{
-			yyVAL.expr = ast.NewSubtract(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewAdd(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 20:
 		{
-			yyVAL.expr = ast.NewMultiply(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewSubtract(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 21:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingDown(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewMultiply(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 22:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingUp(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingDown(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 23:
 		{
-			yyVAL.expr = ast.NewDivideWithRounding(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingUp(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
-	case 25:
+	case 24:
 		{
-			yyVAL.expr = yyS[yypt-1].expr
+			yyVAL.node = ast.NewDivideWithRounding(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 26:
 		{
-			yyVAL.expr = ast.NewUnaryMinus(yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = yyS[yypt-1].node
 		}
 	case 27:
 		{
-			yyVAL.expr = yyS[yypt-0].expr
+			yyVAL.node = ast.NewUnaryMinus(yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 28:
 		{
-			yyVAL.expr = ast.NewAdd(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = yyS[yypt-0].node
 		}
 	case 29:
 		{
-			yyVAL.expr = ast.NewSubtract(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewAdd(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 30:
 		{
-			yyVAL.expr = ast.NewMultiply(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewSubtract(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 31:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingDown(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewMultiply(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 32:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingUp(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingDown(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 33:
 		{
-			yyVAL.expr = ast.NewDivideWithRounding(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingUp(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 34:
 		{
-			yyVAL.expr = ast.NewAdd(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewDivideWithRounding(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 35:
 		{
-			yyVAL.expr = ast.NewSubtract(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewAdd(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 36:
 		{
-			yyVAL.expr = ast.NewMultiply(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewSubtract(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 37:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingDown(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewMultiply(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 38:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingUp(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingDown(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 39:
 		{
-			yyVAL.expr = ast.NewDivideWithRounding(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingUp(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 40:
 		{
-			yyVAL.expr = ast.NewAdd(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewDivideWithRounding(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 41:
 		{
-			yyVAL.expr = ast.NewSubtract(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewAdd(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 42:
 		{
-			yyVAL.expr = ast.NewMultiply(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewSubtract(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 43:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingDown(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewMultiply(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 44:
 		{
-			yyVAL.expr = ast.NewDivideWithRoundingUp(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingDown(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 45:
 		{
-			yyVAL.expr = ast.NewDivideWithRounding(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDivideWithRoundingUp(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 46:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewDivideWithRounding(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
 		}
 	case 47:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewCompare(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 48:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewCompare(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 49:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-2].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewCompare(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 50:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-3].expr, yyS[yypt-1].token, yyS[yypt-0].expr)
+			yyVAL.node = ast.NewCompare(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 51:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-4].expr, yyS[yypt-3].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewCompare(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 52:
 		{
-			yyVAL.expr = ast.NewDRoll(yyS[yypt-5].expr, yyS[yypt-3].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewCompare(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 53:
 		{
-			yyVAL.expr = ast.NewRandomNumber(yyS[yypt-3].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDRoll(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 54:
 		{
-			yyVAL.expr = ast.NewRandomNumber(yyS[yypt-4].expr, yyS[yypt-2].token, yyS[yypt-1].expr)
+			yyVAL.node = ast.NewDRoll(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 55:
 		{
-			yyVAL.expr = ast.NewRandomNumber(yyS[yypt-5].expr, yyS[yypt-4].token, yyS[yypt-2].expr)
+			yyVAL.node = ast.NewDRoll(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 56:
 		{
-			yyVAL.expr = ast.NewRandomNumber(yyS[yypt-6].expr, yyS[yypt-4].token, yyS[yypt-2].expr)
+			yyVAL.node = ast.NewDRoll(yyS[yypt-2].node, yyS[yypt-1].token, yyS[yypt-0].node)
 		}
 	case 57:
+		{
+			yyVAL.node = ast.NewDRoll(yyS[yypt-3].node, yyS[yypt-1].token, yyS[yypt-0].node)
+		}
+	case 58:
+		{
+			yyVAL.node = ast.NewDRoll(yyS[yypt-4].node, yyS[yypt-3].token, yyS[yypt-1].node)
+		}
+	case 59:
+		{
+			yyVAL.node = ast.NewDRoll(yyS[yypt-5].node, yyS[yypt-3].token, yyS[yypt-1].node)
+		}
+	case 60:
+		{
+			yyVAL.node = ast.NewRandomNumber(yyS[yypt-3].node, yyS[yypt-2].token, yyS[yypt-1].node)
+		}
+	case 61:
+		{
+			yyVAL.node = ast.NewRandomNumber(yyS[yypt-4].node, yyS[yypt-2].token, yyS[yypt-1].node)
+		}
+	case 62:
+		{
+			yyVAL.node = ast.NewRandomNumber(yyS[yypt-5].node, yyS[yypt-4].token, yyS[yypt-2].node)
+		}
+	case 63:
+		{
+			yyVAL.node = ast.NewRandomNumber(yyS[yypt-6].node, yyS[yypt-4].token, yyS[yypt-2].node)
+		}
+	case 64:
 		{
 			// TODO: 整数が大きすぎるときなどのエラー処理が必要
 			value, _ := strconv.Atoi(yyS[yypt-0].token.Literal)
 
-			yyVAL.expr = ast.NewInt(value, yyS[yypt-0].token)
+			yyVAL.node = ast.NewInt(value, yyS[yypt-0].token)
 		}
 
 	}
@@ -841,9 +910,12 @@ var tokenTypeToYYTokenType = map[token.TokenType]int{
 	token.ASTERISK: ASTERISK,
 	token.SLASH:    SLASH,
 
-	token.EQ: EQ,
-	token.LT: LT,
-	token.GT: GT,
+	token.EQ:      EQ,
+	token.LT:      LT,
+	token.GT:      GT,
+	token.LTEQ:    LTEQ,
+	token.GTEQ:    GTEQ,
+	token.DIAMOND: DIAMOND,
 
 	token.L_PAREN:   L_PAREN,
 	token.R_PAREN:   R_PAREN,
@@ -886,7 +958,12 @@ func (lw *LexerWrapper) Lex(lval *yySymType) int {
 
 	lval.token = tok
 
-	return tokenTypeToYYTokenType[tok.Type]
+	yyTokenType, ok := tokenTypeToYYTokenType[tok.Type]
+	if !ok {
+		return ILLEGAL
+	}
+
+	return yyTokenType
 }
 
 // Error は発生したエラーを記録する。

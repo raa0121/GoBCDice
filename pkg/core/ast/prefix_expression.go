@@ -69,7 +69,15 @@ func (n *PrefixExpressionImpl) SetRight(r Node) {
 
 // SExp はノードのS式を返す。
 func (n *PrefixExpressionImpl) SExp() string {
-	return fmt.Sprintf("(%s %s)", n.OperatorForSExp(), n.Right().SExp())
+	var rightSExp string
+
+	if n.Right() == nil {
+		rightSExp = "nil"
+	} else {
+		rightSExp = n.Right().SExp()
+	}
+
+	return fmt.Sprintf("(%s %s)", n.OperatorForSExp(), rightSExp)
 }
 
 // IsPrimaryExpression は一次式かどうかを返す。

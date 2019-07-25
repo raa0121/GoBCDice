@@ -91,8 +91,23 @@ func (n *InfixExpressionImpl) SetRight(r Node) {
 
 // SExp はノードのS式を返す。
 func (n *InfixExpressionImpl) SExp() string {
+	var leftSExp string
+	var rightSExp string
+
+	if n.Left() == nil {
+		leftSExp = "nil"
+	} else {
+		leftSExp = n.Left().SExp()
+	}
+
+	if n.Right() == nil {
+		rightSExp = "nil"
+	} else {
+		rightSExp = n.Right().SExp()
+	}
+
 	return fmt.Sprintf("(%s %s %s)",
-		n.OperatorForSExp(), n.Left().SExp(), n.Right().SExp())
+		n.OperatorForSExp(), leftSExp, rightSExp)
 }
 
 // IsPrimaryExpression は一次式かどうかを返す。

@@ -19,7 +19,7 @@ import (
 
 %union{
 	token token.Token
-	expr ast.Node
+	node ast.Node
 }
 
 %token<token> ILLEGAL
@@ -35,6 +35,9 @@ import (
 %token<token> EQ
 %token<token> LT
 %token<token> GT
+%token<token> LTEQ
+%token<token> GTEQ
+%token<token> DIAMOND
 
 %token<token> L_PAREN
 %token<token> R_PAREN
@@ -51,14 +54,16 @@ import (
 %token<token> CALC
 %token<token> CHOICE
 
-%type<expr> command
-%type<expr> int_expr
-%type<expr> int_rand_expr
-%type<expr> d_roll_expr
-%type<expr> d_roll
-%type<expr> rand
-%type<expr> int
+%type<node> command
+%type<node> int_expr
+%type<node> int_rand_expr
+%type<node> d_roll_expr
+%type<node> d_roll_comp
+%type<node> d_roll
+%type<node> rand
+%type<node> int
 
+%nonassoc EQ, LT, GT, LTEQ, GTEQ, DIAMOND
 %left PLUS, MINUS
 %left ASTERISK, SLASH
 %nonassoc D_ROLL
@@ -71,6 +76,11 @@ command
 	: d_roll_expr
 	{
 		$$ = ast.NewDRollExpr($1.Token(), $1)
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| d_roll_comp
+	{
+		$$ = ast.NewDRollComp($1.Token(), $1)
 		yylex.(*LexerWrapper).ast = $$
 	}
 	| CALC L_PAREN int_expr R_PAREN
@@ -245,6 +255,32 @@ d_roll_expr
 		$$ = ast.NewDivideWithRounding($1, $2, $3)
 	}
 
+d_roll_comp
+	: d_roll_expr EQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| d_roll_expr LT int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| d_roll_expr GT int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| d_roll_expr LTEQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| d_roll_expr GTEQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| d_roll_expr DIAMOND int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+
 d_roll
 	: int D_ROLL int
 	{
@@ -333,6 +369,9 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.EQ: EQ,
 	token.LT: LT,
 	token.GT: GT,
+	token.LTEQ: LTEQ,
+	token.GTEQ: GTEQ,
+	token.DIAMOND: DIAMOND,
 
 	token.L_PAREN: L_PAREN,
 	token.R_PAREN: R_PAREN,
@@ -375,7 +414,12 @@ func (lw *LexerWrapper) Lex(lval *yySymType) int {
 
 	lval.token = tok
 
-	return tokenTypeToYYTokenType[tok.Type]
+	yyTokenType, ok := tokenTypeToYYTokenType[tok.Type]
+	if !ok {
+		return ILLEGAL
+	}
+
+	return yyTokenType
 }
 
 // Error は発生したエラーを記録する。
