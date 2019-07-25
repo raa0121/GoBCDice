@@ -171,6 +171,18 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		return e.evalSumRoll(left, right)
 	case "...":
 		return e.evalRandomNumber(left, right)
+	case "=":
+		return &object.Boolean{Value: leftValue == rightValue}, nil
+	case "<>":
+		return &object.Boolean{Value: leftValue != rightValue}, nil
+	case "<":
+		return &object.Boolean{Value: leftValue < rightValue}, nil
+	case ">":
+		return &object.Boolean{Value: leftValue > rightValue}, nil
+	case "<=":
+		return &object.Boolean{Value: leftValue <= rightValue}, nil
+	case ">=":
+		return &object.Boolean{Value: leftValue >= rightValue}, nil
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s %s %s",
