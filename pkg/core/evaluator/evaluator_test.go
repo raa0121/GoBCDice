@@ -351,6 +351,21 @@ func TestEvalDRollComp(t *testing.T) {
 			dice:     []dice.Die{{3, 6}, {5, 6}},
 		},
 		{
+			input:    "2D6<>7",
+			expected: false,
+			dice:     []dice.Die{{3, 6}, {4, 6}},
+		},
+		{
+			input:    "2D6<>7",
+			expected: true,
+			dice:     []dice.Die{{3, 6}, {3, 6}},
+		},
+		{
+			input:    "2D6<>7",
+			expected: true,
+			dice:     []dice.Die{{3, 6}, {5, 6}},
+		},
+		{
 			input:    "2D6<7",
 			expected: true,
 			dice:     []dice.Die{{3, 6}, {3, 6}},
@@ -389,21 +404,6 @@ func TestEvalDRollComp(t *testing.T) {
 			input:    "2D6>=7",
 			expected: false,
 			dice:     []dice.Die{{3, 6}, {3, 6}},
-		},
-		{
-			input:    "2D6<>7",
-			expected: false,
-			dice:     []dice.Die{{3, 6}, {4, 6}},
-		},
-		{
-			input:    "2D6<>7",
-			expected: true,
-			dice:     []dice.Die{{3, 6}, {3, 6}},
-		},
-		{
-			input:    "2D6<>7",
-			expected: true,
-			dice:     []dice.Die{{3, 6}, {5, 6}},
 		},
 		{
 			input:    "-2D6<-7",

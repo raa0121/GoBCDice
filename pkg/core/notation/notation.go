@@ -27,10 +27,10 @@ import (
 // 設定し、右側の中置表記を求める際にはfalseを設定する。
 func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
-	case *ast.DRollExpr:
-		return infixNotationOfDRollExpr(n, walkingToLeft)
 	case *ast.Calc:
 		return infixNotationOfCalc(n, walkingToLeft)
+	case ast.Command:
+		return infixNotationOfCommand(n, walkingToLeft)
 	case ast.Divide:
 		return infixNotationOfDivide(n, walkingToLeft)
 	case ast.PrefixExpression:
@@ -46,8 +46,8 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
 }
 
-// infixNotationOfCalc は加算ロール式の中置表記を返す。
-func infixNotationOfDRollExpr(node *ast.DRollExpr, walkingToLeft bool) (string, error) {
+// infixNotationOfCommand はコマンドの中置表記を返す。
+func infixNotationOfCommand(node ast.Command, walkingToLeft bool) (string, error) {
 	expr, err := InfixNotation(node.Expression(), walkingToLeft)
 	if err != nil {
 		return "", err
