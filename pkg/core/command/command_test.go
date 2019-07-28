@@ -114,6 +114,13 @@ func TestExecuteCalc(t *testing.T) {
 			if actual != test.expected {
 				t.Errorf("got %q, want %q", actual, test.expected)
 			}
+
+			expectedSuccessCheckResult := SUCCESS_CHECK_UNSPECIFIED
+			actualSuccessCheckResult := r.SuccessCheckResult
+			if actualSuccessCheckResult != expectedSuccessCheckResult {
+				t.Errorf("成功判定結果が異なる: got %s, want %s",
+					actualSuccessCheckResult, expectedSuccessCheckResult)
+			}
 		})
 	}
 }
