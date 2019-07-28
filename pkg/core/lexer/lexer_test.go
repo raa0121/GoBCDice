@@ -22,11 +22,11 @@ func Example() {
 	// <Token - Literal:"-" Column:5>
 	// <Token INT Literal:"4" Column:6>
 	// <Token ) Literal:")" Column:7>
-	// <Token D_ROLL Literal:"d" Column:8>
+	// <Token D Literal:"d" Column:8>
 	// <Token INT Literal:"6" Column:9>
 	// <Token - Literal:"-" Column:10>
 	// <Token INT Literal:"1" Column:11>
-	// <Token D_ROLL Literal:"d" Column:12>
+	// <Token D Literal:"d" Column:12>
 	// <Token INT Literal:"4" Column:13>
 	// <Token + Literal:"+" Column:14>
 	// <Token INT Literal:"1" Column:15>
@@ -56,7 +56,7 @@ func TestNextToken(t *testing.T) {
 			input: "3d10/4+2*1D6-5",
 			expectations: []tokenExpectation{
 				{token.INT, "3", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "10", 3},
 				{token.SLASH, "/", 5},
 				{token.INT, "4", 6},
@@ -64,7 +64,7 @@ func TestNextToken(t *testing.T) {
 				{token.INT, "2", 8},
 				{token.ASTERISK, "*", 9},
 				{token.INT, "1", 10},
-				{token.D_ROLL, "D", 11},
+				{token.D, "D", 11},
 				{token.INT, "6", 12},
 				{token.MINUS, "-", 13},
 				{token.INT, "5", 14},
@@ -85,7 +85,7 @@ func TestNextToken(t *testing.T) {
 				{token.SLASH, "/", 9},
 				{token.INT, "3", 10},
 				{token.R_PAREN, ")", 11},
-				{token.D_ROLL, "d", 12},
+				{token.D, "d", 12},
 				{token.INT, "6", 13},
 				{token.ASTERISK, "*", 14},
 				{token.INT, "2", 15},
@@ -102,7 +102,7 @@ func TestNextToken(t *testing.T) {
 				{token.DOTS, "...", 3},
 				{token.INT, "5", 6},
 				{token.R_BRACKET, "]", 7},
-				{token.D_ROLL, "D", 8},
+				{token.D, "D", 8},
 				{token.INT, "6", 9},
 				{token.EOT, "", 10},
 			},
@@ -116,7 +116,7 @@ func TestNextToken(t *testing.T) {
 				{token.ILLEGAL, ".", 4},
 				{token.INT, "5", 5},
 				{token.R_BRACKET, "]", 6},
-				{token.D_ROLL, "D", 7},
+				{token.D, "D", 7},
 				{token.INT, "6", 8},
 				{token.EOT, "", 9},
 			},
@@ -125,7 +125,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6/3u",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.SLASH, "/", 4},
 				{token.INT, "3", 5},
@@ -137,7 +137,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6/3r",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.SLASH, "/", 4},
 				{token.INT, "3", 5},
@@ -149,7 +149,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6=7",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.EQ, "=", 4},
 				{token.INT, "7", 5},
@@ -159,7 +159,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6>7",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.GT, ">", 4},
 				{token.INT, "7", 5},
@@ -169,7 +169,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6<7",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.LT, "<", 4},
 				{token.INT, "7", 5},
@@ -179,7 +179,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6>=7",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.GTEQ, ">=", 4},
 				{token.INT, "7", 6},
@@ -189,7 +189,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6<=7",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.LTEQ, "<=", 4},
 				{token.INT, "7", 6},
@@ -199,7 +199,7 @@ func TestNextToken(t *testing.T) {
 			input: "2d6<>7",
 			expectations: []tokenExpectation{
 				{token.INT, "2", 1},
-				{token.D_ROLL, "d", 2},
+				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.DIAMOND, "<>", 4},
 				{token.INT, "7", 6},

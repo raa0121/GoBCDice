@@ -44,8 +44,8 @@ import (
 %token<token> L_BRACKET
 %token<token> R_BRACKET
 
-%token<token> D_ROLL
-%token<token> B_ROLL
+%token<token> D
+%token<token> B
 %token<token> R
 %token<token> U
 %token<token> SECRET
@@ -66,7 +66,7 @@ import (
 %nonassoc EQ, LT, GT, LTEQ, GTEQ, DIAMOND
 %left PLUS, MINUS
 %left ASTERISK, SLASH
-%nonassoc D_ROLL
+%nonassoc D
 %nonassoc DOTS
 %nonassoc UPLUS, UMINUS
 
@@ -282,31 +282,31 @@ d_roll_comp
 	}
 
 d_roll
-	: int D_ROLL int
+	: int D int
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
-	| rand D_ROLL int
+	| rand D int
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
-	| int D_ROLL rand
+	| int D rand
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
-	| rand D_ROLL rand
+	| rand D rand
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
-	| L_PAREN int_rand_expr R_PAREN D_ROLL int
+	| L_PAREN int_rand_expr R_PAREN D int
 	{
 		$$ = ast.NewDRoll($2, $4, $5)
 	}
-	| int D_ROLL L_PAREN int_rand_expr R_PAREN
+	| int D L_PAREN int_rand_expr R_PAREN
 	{
 		$$ = ast.NewDRoll($1, $2, $4)
 	}
-	| L_PAREN int_rand_expr R_PAREN D_ROLL L_PAREN int_rand_expr R_PAREN
+	| L_PAREN int_rand_expr R_PAREN D L_PAREN int_rand_expr R_PAREN
 	{
 		$$ = ast.NewDRoll($2, $4, $6)
 	}
@@ -378,8 +378,8 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.L_BRACKET: L_BRACKET,
 	token.R_BRACKET: R_BRACKET,
 
-	token.D_ROLL: D_ROLL,
-	token.B_ROLL: B_ROLL,
+	token.D: D,
+	token.B: B,
 	token.R: R,
 	token.U: U,
 	token.SECRET: SECRET,

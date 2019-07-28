@@ -17,7 +17,7 @@ func TestIsVariable(t *testing.T) {
 		{
 			node: NewDRoll(
 				NewInt(2, token.Token{token.INT, "2", 1}),
-				token.Token{token.D_ROLL, "D", 2},
+				token.Token{token.D, "D", 2},
 				NewInt(6, token.Token{token.INT, "6", 3}),
 			),
 			expected: true,
@@ -42,7 +42,7 @@ func TestIsVariable(t *testing.T) {
 				token.Token{token.MINUS, "-", 1},
 				NewDRoll(
 					NewInt(2, token.Token{token.INT, "2", 2}),
-					token.Token{token.D_ROLL, "D", 3},
+					token.Token{token.D, "D", 3},
 					NewInt(6, token.Token{token.INT, "6", 4}),
 				),
 			),
@@ -60,7 +60,7 @@ func TestIsVariable(t *testing.T) {
 			node: NewAdd(
 				NewDRoll(
 					NewInt(2, token.Token{token.INT, "2", 1}),
-					token.Token{token.D_ROLL, "D", 2},
+					token.Token{token.D, "D", 2},
 					NewInt(6, token.Token{token.INT, "6", 3}),
 				),
 				token.Token{token.PLUS, "+", 4},
@@ -74,7 +74,7 @@ func TestIsVariable(t *testing.T) {
 				token.Token{token.PLUS, "+", 2},
 				NewDRoll(
 					NewInt(2, token.Token{token.INT, "2", 3}),
-					token.Token{token.D_ROLL, "D", 4},
+					token.Token{token.D, "D", 4},
 					NewInt(6, token.Token{token.INT, "6", 5}),
 				),
 			),
@@ -84,13 +84,13 @@ func TestIsVariable(t *testing.T) {
 			node: NewAdd(
 				NewDRoll(
 					NewInt(2, token.Token{token.INT, "2", 1}),
-					token.Token{token.D_ROLL, "D", 2},
+					token.Token{token.D, "D", 2},
 					NewInt(6, token.Token{token.INT, "6", 3}),
 				),
 				token.Token{token.PLUS, "+", 4},
 				NewDRoll(
 					NewInt(3, token.Token{token.INT, "3", 5}),
-					token.Token{token.D_ROLL, "D", 6},
+					token.Token{token.D, "D", 6},
 					NewInt(10, token.Token{token.INT, "10", 7}),
 				),
 			),

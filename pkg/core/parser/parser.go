@@ -32,12 +32,12 @@ const (
 	yyDefault = 57373
 	yyEofCode = 57344
 	ASTERISK  = 57351
-	B_ROLL    = 57364
+	B         = 57364
 	CALC      = 57369
 	CHOICE    = 57370
+	D         = 57363
 	DIAMOND   = 57358
 	DOTS      = 57368
-	D_ROLL    = 57363
 	EQ        = 57353
 	GT        = 57355
 	GTEQ      = 57357
@@ -76,7 +76,7 @@ var (
 		MINUS:    1,
 		ASTERISK: 2,
 		SLASH:    2,
-		D_ROLL:   3,
+		D:        3,
 		DOTS:     4,
 		UPLUS:    5,
 		UMINUS:   5,
@@ -106,14 +106,14 @@ var (
 		57379: 20, // int_expr (17x)
 		57375: 21, // d_roll (12x)
 		57377: 22, // d_roll_expr (12x)
-		57363: 23, // D_ROLL (8x)
+		57363: 23, // D (8x)
 		57362: 24, // R_BRACKET (5x)
 		57368: 25, // DOTS (3x)
 		57369: 26, // CALC (1x)
 		57374: 27, // command (1x)
 		57376: 28, // d_roll_comp (1x)
 		57373: 29, // $default (0x)
-		57364: 30, // B_ROLL (0x)
+		57364: 30, // B (0x)
 		57370: 31, // CHOICE (0x)
 		57345: 32, // error (0x)
 		57347: 33, // IDENT (0x)
@@ -147,14 +147,14 @@ var (
 		"int_expr",
 		"d_roll",
 		"d_roll_expr",
-		"D_ROLL",
+		"D",
 		"R_BRACKET",
 		"DOTS",
 		"CALC",
 		"command",
 		"d_roll_comp",
 		"$default",
-		"B_ROLL",
+		"B",
 		"CHOICE",
 		"error",
 		"IDENT",
@@ -922,8 +922,8 @@ var tokenTypeToYYTokenType = map[token.TokenType]int{
 	token.L_BRACKET: L_BRACKET,
 	token.R_BRACKET: R_BRACKET,
 
-	token.D_ROLL: D_ROLL,
-	token.B_ROLL: B_ROLL,
+	token.D:      D,
+	token.B:      B,
 	token.R:      R,
 	token.U:      U,
 	token.SECRET: SECRET,
