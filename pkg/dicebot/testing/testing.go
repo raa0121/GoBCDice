@@ -24,7 +24,14 @@ func Run(gameID string, testDataPath string, t *testing.T) {
 	}
 
 	for _, test := range testcases {
-		t.Run(fmt.Sprintf("%s-%d:%q", test.GameID, test.Index, test.Input[0]), func(t *testing.T) {
+		name := fmt.Sprintf(
+			"%s-%d:%q[%s]",
+			test.GameID,
+			test.Index,
+			test.Input[0],
+			dice.FormatDiceWithoutSpaces(test.Dice),
+		)
+		t.Run(name, func(t *testing.T) {
 			f := feeder.NewQueue(test.Dice)
 			b := bcdice.New(f)
 
