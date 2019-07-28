@@ -11,7 +11,7 @@ many game-system-specific dice bots.
 
 ## Usage
 
-Prerequisite: Go &ge; 1.12
+Prerequisite: [Go](https://golang.org/dl/) &ge; 1.12
 
 Currently, only the REPL of GoBCDice can be built and run.
 
