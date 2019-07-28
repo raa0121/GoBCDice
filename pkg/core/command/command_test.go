@@ -449,7 +449,7 @@ func TestExecuteDRollComp(t *testing.T) {
 		},
 		{
 			input:                      "-2D6>-7",
-			expectedMessage:            "DiceBot : (-2D6>-7) ＞ -6[3,5] ＞ -6 ＞ 成功",
+			expectedMessage:            "DiceBot : (-2D6>-7) ＞ -6[3,3] ＞ -6 ＞ 成功",
 			expectedSuccessCheckResult: SUCCESS_CHECK_SUCCESS,
 			dice:                       []dice.Die{{3, 6}, {3, 6}},
 		},
@@ -467,7 +467,7 @@ func TestExecuteDRollComp(t *testing.T) {
 		},
 		{
 			input:                      "-2D6<=-7",
-			expectedMessage:            "DiceBot : (-2D6<=-7) ＞ -6[3,4] ＞ -6 ＞ 失敗",
+			expectedMessage:            "DiceBot : (-2D6<=-7) ＞ -6[3,3] ＞ -6 ＞ 失敗",
 			expectedSuccessCheckResult: SUCCESS_CHECK_FAILURE,
 			dice:                       []dice.Die{{3, 6}, {3, 6}},
 		},
