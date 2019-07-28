@@ -205,6 +205,32 @@ func TestNextToken(t *testing.T) {
 				{token.INT, "7", 6},
 			},
 		},
+		{
+			input: "2b6+4b10",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.B, "b", 2},
+				{token.INT, "6", 3},
+				{token.PLUS, "+", 4},
+				{token.INT, "4", 5},
+				{token.B, "b", 6},
+				{token.INT, "10", 7},
+			},
+		},
+		{
+			input: "2b6+4b10>3",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.B, "b", 2},
+				{token.INT, "6", 3},
+				{token.PLUS, "+", 4},
+				{token.INT, "4", 5},
+				{token.B, "b", 6},
+				{token.INT, "10", 7},
+				{token.GT, ">", 9},
+				{token.INT, "3", 10},
+			},
+		},
 	}
 
 	for _, test := range testcases {
