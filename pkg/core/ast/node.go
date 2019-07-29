@@ -21,6 +21,7 @@ const (
 
 	D_ROLL_EXPR_NODE
 	D_ROLL_COMP_NODE
+	B_ROLL_LIST_NODE
 	CALC_NODE
 
 	PREFIX_EXPRESSION_NODE
@@ -35,6 +36,7 @@ const (
 	DIVIDE_WITH_ROUNDING_NODE
 	DIVIDE_WITH_ROUNDING_DOWN_NODE
 	D_ROLL_NODE
+	B_ROLL_NODE
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
@@ -47,6 +49,7 @@ var nodeTypeString = map[NodeType]string{
 
 	D_ROLL_EXPR_NODE:               "DRollExpr",
 	D_ROLL_COMP_NODE:               "DRollComp",
+	B_ROLL_LIST_NODE:               "BRollList",
 	CALC_NODE:                      "Calc",
 	PREFIX_EXPRESSION_NODE:         "PrefixExpression",
 	UNARY_MINUS_NODE:               "UnaryMinus",
@@ -59,6 +62,7 @@ var nodeTypeString = map[NodeType]string{
 	DIVIDE_WITH_ROUNDING_NODE:      "DivideWithRounding",
 	DIVIDE_WITH_ROUNDING_DOWN_NODE: "DivideWithRoundingDown",
 	D_ROLL_NODE:                    "DRoll",
+	B_ROLL_NODE:                    "BRoll",
 	RANDOM_NUMBER_NODE:             "RandomNumber",
 	INT_NODE:                       "Int",
 	SUM_ROLL_RESULT_NODE:           "SumRollResult",

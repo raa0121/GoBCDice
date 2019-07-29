@@ -12,8 +12,8 @@ const (
 	PREC_ADDITIVE
 	// Multiply, Divide
 	PREC_MULTITIVE
-	// DRoll
-	PREC_D_ROLL
+	// ダイスロール
+	PREC_ROLL
 	// RandomNumber
 	PREC_DOTS
 	// 単項マイナス、単項プラス

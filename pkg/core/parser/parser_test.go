@@ -155,6 +155,20 @@ func TestParse(t *testing.T) {
 		{"2d6<7<8", "", true},
 		{"1<=2d6<=12", "", true},
 		{"1<2<2d6", "", true},
+
+		// バラバラロール
+		{"2b6", "(BRollList (BRoll 2 6))", false},
+		{"[1...3]b6", "(BRollList (BRoll (Rand 1 3) 6))", false},
+		{"2b[4...6]", "(BRollList (BRoll 2 (Rand 4 6)))", false},
+		{"[1...3]b[4...6]", "(BRollList (BRoll (Rand 1 3) (Rand 4 6)))", false},
+		{"(1*2)b6", "(BRollList (BRoll (* 1 2) 6))", false},
+		{"([1...3]+1)b6", "(BRollList (BRoll (+ (Rand 1 3) 1) 6))", false},
+		{"2b(2+4)", "(BRollList (BRoll 2 (+ 2 4)))", false},
+		{"2b([3...5]+1)", "(BRollList (BRoll 2 (+ (Rand 3 5) 1)))", false},
+		{"(1*2)b(2+4)", "(BRollList (BRoll (* 1 2) (+ 2 4)))", false},
+		{"2b6+4b10", "(BRollList (BRoll 2 6) (BRoll 4 10))", false},
+		{"2b6+1", "", true},
+		{"1+2b6", "", true},
 	}
 
 	for _, test := range testCases {

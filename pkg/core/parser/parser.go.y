@@ -20,6 +20,8 @@ import (
 %union{
 	token token.Token
 	node ast.Node
+	bRoll *ast.BRoll
+	bRollList *ast.BRollList
 }
 
 %token<token> ILLEGAL
@@ -59,14 +61,16 @@ import (
 %type<node> int_rand_expr
 %type<node> d_roll_expr
 %type<node> d_roll_comp
+%type<bRollList> b_roll_list
 %type<node> d_roll
+%type<bRoll> b_roll
 %type<node> rand
 %type<node> int
 
 %nonassoc EQ, LT, GT, LTEQ, GTEQ, DIAMOND
 %left PLUS, MINUS
 %left ASTERISK, SLASH
-%nonassoc D
+%nonassoc D, B
 %nonassoc DOTS
 %nonassoc UPLUS, UMINUS
 
@@ -81,6 +85,11 @@ command
 	| d_roll_comp
 	{
 		$$ = ast.NewDRollComp($1.Token(), $1)
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| b_roll_list
+	{
+		$$ = $1
 		yylex.(*LexerWrapper).ast = $$
 	}
 	| CALC L_PAREN int_expr R_PAREN
@@ -281,6 +290,16 @@ d_roll_comp
 		$$ = ast.NewCompare($1, $2, $3)
 	}
 
+b_roll_list
+	: b_roll
+	{
+		$$ = ast.NewBRollList($1)
+	}
+	| b_roll_list PLUS b_roll
+	{
+		$$.Append($3)
+	}
+
 d_roll
 	: int D int
 	{
@@ -309,6 +328,36 @@ d_roll
 	| L_PAREN int_rand_expr R_PAREN D L_PAREN int_rand_expr R_PAREN
 	{
 		$$ = ast.NewDRoll($2, $4, $6)
+	}
+
+b_roll
+	: int B int
+	{
+		$$ = ast.NewBRoll($1, $2, $3)
+	}
+	| rand B int
+	{
+		$$ = ast.NewBRoll($1, $2, $3)
+	}
+	| int B rand
+	{
+		$$ = ast.NewBRoll($1, $2, $3)
+	}
+	| rand B rand
+	{
+		$$ = ast.NewBRoll($1, $2, $3)
+	}
+	| L_PAREN int_rand_expr R_PAREN B int
+	{
+		$$ = ast.NewBRoll($2, $4, $5)
+	}
+	| int B L_PAREN int_rand_expr R_PAREN
+	{
+		$$ = ast.NewBRoll($1, $2, $4)
+	}
+	| L_PAREN int_rand_expr R_PAREN B L_PAREN int_rand_expr R_PAREN
+	{
+		$$ = ast.NewBRoll($2, $4, $6)
 	}
 
 rand
