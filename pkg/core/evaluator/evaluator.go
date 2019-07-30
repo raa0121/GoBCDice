@@ -47,6 +47,8 @@ func (e *Evaluator) RolledDice() []dice.Die {
 func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	// 型で分岐する
 	switch n := node.(type) {
+	case *ast.BRollList:
+		return e.evalBRollList(n)
 	case ast.Command:
 		// TODO: もしかしたらコマンドの種類で分岐する？
 		return e.Eval(n.Expression())
@@ -61,6 +63,27 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	}
 
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
+}
+
+// evalBRollList はバラバラロールのリストを評価する。
+func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
+	elements := []object.Object{}
+
+	for _, b := range node.BRolls {
+		o, err := e.Eval(b)
+		if err != nil {
+			return nil, err
+		}
+
+		intObjs, typeMatched := o.(*object.Array)
+		if !typeMatched {
+			return nil, fmt.Errorf("evalBRollList: type mismatch: %s", o.Type())
+		}
+
+		elements = append(elements, intObjs.Elements...)
+	}
+
+	return &object.Array{Elements: elements}, nil
 }
 
 // evalPrefixExpression は前置式を評価する。
@@ -169,6 +192,8 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		return &object.Integer{Value: leftValue * rightValue}, nil
 	case "D":
 		return e.evalSumRoll(left, right)
+	case "B":
+		return e.evalBasicRoll(left, right)
 	case "...":
 		return e.evalRandomNumber(left, right)
 	case "=":
@@ -242,6 +267,28 @@ func (e *Evaluator) evalSumRoll(
 	}
 
 	return &object.Integer{Value: sum}, nil
+}
+
+// evalBasicRoll はバラバラロールを評価する。
+// 返り値は、整数オブジェクトを要素として持つ配列オブジェクト、およびエラー。
+func (e *Evaluator) evalBasicRoll(
+	num *object.Integer,
+	sides *object.Integer,
+) (*object.Array, error) {
+	numVal := num.Value
+	sidesVal := sides.Value
+
+	rolledDice, err := e.RollDice(numVal, sidesVal)
+	if err != nil {
+		return nil, err
+	}
+
+	intObjs := make([]object.Object, 0, len(rolledDice))
+	for _, d := range rolledDice {
+		intObjs = append(intObjs, &object.Integer{Value: d.Value})
+	}
+
+	return &object.Array{Elements: intObjs}, nil
 }
 
 // evalRandomNumber はランダム数値取り出しを評価する。
