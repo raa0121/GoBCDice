@@ -167,6 +167,7 @@ func TestParse(t *testing.T) {
 		{"2b([3...5]+1)", "(BRollList (BRoll 2 (+ (Rand 3 5) 1)))", false},
 		{"(1*2)b(2+4)", "(BRollList (BRoll (* 1 2) (+ 2 4)))", false},
 		{"2b6+4b10", "(BRollList (BRoll 2 6) (BRoll 4 10))", false},
+		{"2b6+3b8+5b12", "(BRollList (BRoll 2 6) (BRoll 3 8) (BRoll 5 12))", false},
 		{"2b6+1", "", true},
 		{"1+2b6", "", true},
 	}
