@@ -78,15 +78,13 @@ func executeDRollExpr(
 	}
 
 	// 加算ロールなどの可変ノードの引数を評価して整数に変換する
-	infixNotationOfNodeWithEvaluatedVarArgs, evalVarArgsErr :=
-		evalVarArgs(node, evaluator)
+	infixNotation1, evalVarArgsErr := evalVarArgs(node, evaluator)
 	if evalVarArgsErr != nil {
 		return nil, evalVarArgsErr
 	}
 
 	// 加算ロールなどの可変ノードの値を決定する
-	infixNotationOfNodeWithDeterminedValues, determineValuesErr :=
-		determineValues(node, evaluator)
+	infixNotation2, determineValuesErr := determineValues(node, evaluator)
 	if determineValuesErr != nil {
 		return nil, determineValuesErr
 	}
@@ -100,8 +98,8 @@ func executeDRollExpr(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(notation.Parenthesize(infixNotationOfNodeWithEvaluatedVarArgs))
-	result.appendMessagePart(infixNotationOfNodeWithDeterminedValues)
+	result.appendMessagePart(notation.Parenthesize(infixNotation1))
+	result.appendMessagePart(infixNotation2)
 	result.appendMessagePart(obj.Inspect())
 
 	return result, nil
@@ -123,14 +121,14 @@ func executeDRollComp(
 	}
 
 	// 左辺の可変ノードの引数および右辺を評価する
-	infixNotationOfNodeWithEvaluatedVarArgs, evalVarArgsAndRightErr :=
+	infixNotation1, evalVarArgsAndRightErr :=
 		evalDRollCompVarArgsAndRight(compareNode, evaluator)
 	if evalVarArgsAndRightErr != nil {
 		return nil, evalVarArgsAndRightErr
 	}
 
 	// 加算ロールなどの可変ノードの値を決定する
-	infixNotationOfLeftWithDeterminedValues, determineValuesErr :=
+	infixNotation2, determineValuesErr :=
 		determineDRollCompValues(compareNode, evaluator)
 	if determineValuesErr != nil {
 		return nil, determineValuesErr
@@ -165,8 +163,8 @@ func executeDRollComp(
 		successCheckResultMessage = "失敗"
 	}
 
-	result.appendMessagePart(notation.Parenthesize(infixNotationOfNodeWithEvaluatedVarArgs))
-	result.appendMessagePart(infixNotationOfLeftWithDeterminedValues)
+	result.appendMessagePart(notation.Parenthesize(infixNotation1))
+	result.appendMessagePart(infixNotation2)
 	result.appendMessagePart(leftObj.Inspect())
 	result.appendMessagePart(successCheckResultMessage)
 
