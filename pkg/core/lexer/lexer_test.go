@@ -145,6 +145,66 @@ func TestNextToken(t *testing.T) {
 				{token.EOT, "", 7},
 			},
 		},
+		{
+			input: "2d6=7",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.EQ, "=", 4},
+				{token.INT, "7", 5},
+			},
+		},
+		{
+			input: "2d6>7",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.GT, ">", 4},
+				{token.INT, "7", 5},
+			},
+		},
+		{
+			input: "2d6<7",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.LT, "<", 4},
+				{token.INT, "7", 5},
+			},
+		},
+		{
+			input: "2d6>=7",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.GTEQ, ">=", 4},
+				{token.INT, "7", 6},
+			},
+		},
+		{
+			input: "2d6<=7",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.LTEQ, "<=", 4},
+				{token.INT, "7", 6},
+			},
+		},
+		{
+			input: "2d6<>7",
+			expectations: []tokenExpectation{
+				{token.INT, "2", 1},
+				{token.D_ROLL, "d", 2},
+				{token.INT, "6", 3},
+				{token.DIAMOND, "<>", 4},
+				{token.INT, "7", 6},
+			},
+		},
 	}
 
 	for _, test := range testcases {

@@ -6,6 +6,8 @@ type OperatorPrecedenceType int
 const (
 	PREC_MIN OperatorPrecedenceType = iota
 
+	// Compare (=, >, <, >=, <=, <>)
+	PREC_COMPARE
 	// Add, Subtract
 	PREC_ADDITIVE
 	// Multiply, Divide

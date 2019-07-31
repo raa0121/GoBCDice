@@ -27,10 +27,12 @@ import (
 // 設定し、右側の中置表記を求める際にはfalseを設定する。
 func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
-	case *ast.DRollExpr:
-		return infixNotationOfDRollExpr(n, walkingToLeft)
 	case *ast.Calc:
 		return infixNotationOfCalc(n, walkingToLeft)
+	case ast.Command:
+		return infixNotationOfCommand(n, walkingToLeft)
+	case *ast.Compare:
+		return infixNotationOfCompare(n, walkingToLeft)
 	case ast.Divide:
 		return infixNotationOfDivide(n, walkingToLeft)
 	case ast.PrefixExpression:
@@ -46,8 +48,8 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
 }
 
-// infixNotationOfCalc は加算ロール式の中置表記を返す。
-func infixNotationOfDRollExpr(node *ast.DRollExpr, walkingToLeft bool) (string, error) {
+// infixNotationOfCommand はコマンドの中置表記を返す。
+func infixNotationOfCommand(node ast.Command, walkingToLeft bool) (string, error) {
 	expr, err := InfixNotation(node.Expression(), walkingToLeft)
 	if err != nil {
 		return "", err
@@ -56,7 +58,7 @@ func infixNotationOfDRollExpr(node *ast.DRollExpr, walkingToLeft bool) (string, 
 	return expr, nil
 }
 
-// infixNotationOfCalcは計算ノードの中置表記を返す
+// infixNotationOfCalc は計算ノードの中置表記を返す。
 func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
 	expr, err := InfixNotation(node.Expression(), walkingToLeft)
 	if err != nil {
@@ -64,6 +66,21 @@ func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
 	}
 
 	return fmt.Sprintf("C(%s)", expr), nil
+}
+
+// infixNotationOfCompare は比較式の中置表記を返す。
+func infixNotationOfCompare(node *ast.Compare, _ bool) (string, error) {
+	leftInfixNotation, leftErr := InfixNotation(node.Left(), true)
+	if leftErr != nil {
+		return "", leftErr
+	}
+
+	rightInfixNotation, rightErr := InfixNotation(node.Right(), true)
+	if rightErr != nil {
+		return "", rightErr
+	}
+
+	return leftInfixNotation + node.Operator() + rightInfixNotation, nil
 }
 
 // infixNotationOfPrefixExpression は前置式の中置表記を返す。

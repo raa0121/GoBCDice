@@ -20,12 +20,14 @@ const (
 	UNKNOWN_NODE NodeType = iota
 
 	D_ROLL_EXPR_NODE
+	D_ROLL_COMP_NODE
 	CALC_NODE
 
 	PREFIX_EXPRESSION_NODE
 	UNARY_MINUS_NODE
 
 	INFIX_EXPRESSION_NODE
+	COMPARE_NODE
 	ADD_NODE
 	SUBTRACT_NODE
 	MULTIPLY_NODE
@@ -44,10 +46,12 @@ var nodeTypeString = map[NodeType]string{
 	UNKNOWN_NODE: "UNKNOWN",
 
 	D_ROLL_EXPR_NODE:               "DRollExpr",
+	D_ROLL_COMP_NODE:               "DRollComp",
 	CALC_NODE:                      "Calc",
 	PREFIX_EXPRESSION_NODE:         "PrefixExpression",
 	UNARY_MINUS_NODE:               "UnaryMinus",
 	INFIX_EXPRESSION_NODE:          "InfixExpression",
+	COMPARE_NODE:                   "Compare",
 	ADD_NODE:                       "Add",
 	SUBTRACT_NODE:                  "Subtract",
 	MULTIPLY_NODE:                  "Multiply",

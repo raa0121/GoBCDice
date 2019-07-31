@@ -140,6 +140,21 @@ func TestParse(t *testing.T) {
 		{"2d[(2+3)...8]", "(DRollExpr (DRoll 2 (Rand (+ 2 3) 8)))", false},
 		{"2d[5...(7+1)]", "(DRollExpr (DRoll 2 (Rand 5 (+ 7 1))))", false},
 		{"([1...4]+1)d([2...4]+2)-1", "(DRollExpr (- (DRoll (+ (Rand 1 4) 1) (+ (Rand 2 4) 2)) 1))", false},
+
+		// 加算ロール式の成功判定
+		{"2d6=7", "(DRollComp (= (DRoll 2 6) 7))", false},
+		{"2d6>7", "(DRollComp (> (DRoll 2 6) 7))", false},
+		{"2d6<7", "(DRollComp (< (DRoll 2 6) 7))", false},
+		{"2d6>=7", "(DRollComp (>= (DRoll 2 6) 7))", false},
+		{"2d6<=7", "(DRollComp (<= (DRoll 2 6) 7))", false},
+		{"2d6<>7", "(DRollComp (<> (DRoll 2 6) 7))", false},
+		{"2d6>=5+3", "(DRollComp (>= (DRoll 2 6) (+ 5 3)))", false},
+		{"2d6+1>=3+4", "(DRollComp (>= (+ (DRoll 2 6) 1) (+ 3 4)))", false},
+		{"1+2d6>=3+4", "(DRollComp (>= (+ 1 (DRoll 2 6)) (+ 3 4)))", false},
+		{"2*(2d6+1)/3<7", "(DRollComp (< (/ (* 2 (+ (DRoll 2 6) 1)) 3) 7))", false},
+		{"2d6<7<8", "", true},
+		{"1<=2d6<=12", "", true},
+		{"1<2<2d6", "", true},
 	}
 
 	for _, test := range testCases {
@@ -162,6 +177,11 @@ func TestParse(t *testing.T) {
 			if test.err {
 				// エラーを想定していたのに、発生していない
 				t.Fatal("should err")
+				return
+			}
+
+			if actual == nil {
+				t.Fatal("got nil node")
 				return
 			}
 

@@ -22,7 +22,7 @@ func (t ObjectType) String() string {
 const (
 	ILLEGAL_OBJ ObjectType = iota
 	INTEGER_OBJ
-	SF_OBJ
+	BOOLEAN_OBJ
 )
 
 // オブジェクトの種類とそれを表す文字列との対応
@@ -30,7 +30,7 @@ var objectTypeString = map[ObjectType]string{
 	ILLEGAL_OBJ: "ILLEGAL",
 
 	INTEGER_OBJ: "INTEGER",
-	SF_OBJ:      "SF",
+	BOOLEAN_OBJ: "BOOLEAN",
 }
 
 // オブジェクトが持つインターフェース。
@@ -57,23 +57,18 @@ func (i *Integer) Inspect() string {
 	return fmt.Sprintf("%d", i.Value)
 }
 
-// 成功/失敗オブジェクトの構造体。
-type SF struct {
+// 論理値オブジェクトの構造体。
+type Boolean struct {
 	// 値
 	Value bool
 }
 
 // Type はオブジェクトの種類を返す。
-func (sf *SF) Type() ObjectType {
-	return SF_OBJ
+func (b *Boolean) Type() ObjectType {
+	return BOOLEAN_OBJ
 }
 
 // Inspect はオブジェクトの内容を文字列として返す。
-func (sf *SF) Inspect() string {
-	str := "failure"
-	if sf.Value == true {
-		str = "success"
-	}
-
-	return str
+func (b *Boolean) Inspect() string {
+	return fmt.Sprintf("%t", b.Value)
 }
