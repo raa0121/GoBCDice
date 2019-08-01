@@ -17,24 +17,26 @@ import (
 
 // Execute は指定されたコマンドを実行する。
 //
-// commandNode: コマンドのノード,
+// node: コマンドのノード,
 // gameID: ゲーム識別子,
 // evaluator: 評価器。
 func Execute(
-	commandNode ast.Command,
+	node ast.Node,
 	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
-	switch c := commandNode.(type) {
+	switch c := node.(type) {
 	case *ast.Calc:
 		return executeCalc(c, gameID, evaluator)
 	case *ast.DRollExpr:
 		return executeDRollExpr(c, gameID, evaluator)
 	case *ast.DRollComp:
 		return executeDRollComp(c, gameID, evaluator)
+	case *ast.BRollList:
+		return executeBRollList(c, gameID, evaluator)
 	}
 
-	return nil, fmt.Errorf("command execution not implemented: %s", commandNode.Type())
+	return nil, fmt.Errorf("command execution not implemented: %s", node.Type())
 }
 
 // executeCalc は計算を実行する。
@@ -105,7 +107,7 @@ func executeDRollExpr(
 	return result, nil
 }
 
-// executeDRollCompp は加算ロール式の成功判定を実行する。
+// executeDRollComp は加算ロール式の成功判定を実行する。
 func executeDRollComp(
 	node *ast.DRollComp,
 	gameID string,
@@ -167,6 +169,39 @@ func executeDRollComp(
 	result.appendMessagePart(infixNotation2)
 	result.appendMessagePart(leftObj.Inspect())
 	result.appendMessagePart(successCheckResultMessage)
+
+	return result, nil
+}
+
+// executeBRollList はバラバラロールを実行する。
+func executeBRollList(
+	node *ast.BRollList,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameID: gameID,
+	}
+
+	// 加算ロールなどの可変ノードの引数を評価して整数に変換する
+	infixNotation, evalVarArgsErr := evalVarArgs(node, evaluator)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
+	}
+
+	// 変換された抽象構文木を評価する
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	arrayObj := obj.(*object.Array)
+
+	result.RolledDice = evaluator.RolledDice()
+
+	// 結果のメッセージを作る
+	result.appendMessagePart(notation.Parenthesize(infixNotation))
+	result.appendMessagePart(arrayObj.JoinedElements(","))
 
 	return result, nil
 }

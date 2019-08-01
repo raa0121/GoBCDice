@@ -181,7 +181,12 @@ func TestExecuteDRollExpr(t *testing.T) {
 	}
 
 	for _, test := range testcases {
-		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
+		name := fmt.Sprintf(
+			"%q[%s]",
+			test.input,
+			dice.FormatDiceWithoutSpaces(test.dice),
+		)
+		t.Run(name, func(t *testing.T) {
 			root, parseErr := parser.Parse(test.input)
 			if parseErr != nil {
 				t.Fatalf("構文エラー: %s", parseErr)

@@ -1,8 +1,6 @@
 package bcdice
 
 import (
-	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/command"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
@@ -100,13 +98,8 @@ func (b *BCDice) ExecuteBasicCommand(c string) (*command.Result, error) {
 		return nil, parseErr
 	}
 
-	commandNode, nodeIsCommandNode := node.(ast.Command)
-	if !nodeIsCommandNode {
-		return nil, fmt.Errorf("not executable command: %s", node.Type())
-	}
-
 	env := evaluator.NewEnvironment()
 	ev := evaluator.NewEvaluator(b.diceRoller, env)
 
-	return command.Execute(commandNode, b.DiceBot.GameID(), ev)
+	return command.Execute(node, b.DiceBot.GameID(), ev)
 }
