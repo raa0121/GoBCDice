@@ -20,7 +20,7 @@ func (a *Array) Inspect() string {
 	var out bytes.Buffer
 
 	out.WriteString("[")
-	out.WriteString(a.joinedElements(", "))
+	out.WriteString(a.JoinedElements(", "))
 	out.WriteString("]")
 
 	return out.String()
@@ -31,14 +31,14 @@ func (a *Array) InspectWithoutSpaces() string {
 	var out bytes.Buffer
 
 	out.WriteString("[")
-	out.WriteString(a.joinedElements(","))
+	out.WriteString(a.JoinedElements(","))
 	out.WriteString("]")
 
 	return out.String()
 }
 
-// joinedElements は要素の内容を区切り文字sepを使って結合した文字列を返す。
-func (a *Array) joinedElements(sep string) string {
+// JoinedElements は要素の内容を区切り文字sepを使って結合した文字列を返す。
+func (a *Array) JoinedElements(sep string) string {
 	elements := make([]string, 0, len(a.Elements))
 	for _, e := range a.Elements {
 		elements = append(elements, e.Inspect())
