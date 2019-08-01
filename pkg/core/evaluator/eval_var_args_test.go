@@ -117,6 +117,47 @@ func TestEvalVarArgs(t *testing.T) {
 			expected: "(DRollExpr (- (DRoll 3 6) 1))",
 			dice:     []dice.Die{{2, 4}, {3, 3}},
 		},
+		{
+			input:    "[1...3]b6",
+			expected: "(BRollList (BRoll 1 6))",
+			dice:     []dice.Die{{1, 3}},
+		},
+		{
+			input:    "2b[4...6]",
+			expected: "(BRollList (BRoll 2 4))",
+			dice:     []dice.Die{{1, 3}},
+		},
+		{
+			input:    "[1...3]b[4...6]",
+			expected: "(BRollList (BRoll 3 6))",
+			dice:     []dice.Die{{3, 3}, {3, 3}},
+		},
+		{
+			input:    "(1*2)b6",
+			expected: "(BRollList (BRoll 2 6))",
+		},
+		{
+			input:    "([1...3]+1)b6",
+			expected: "(BRollList (BRoll 3 6))",
+			dice:     []dice.Die{{2, 3}},
+		},
+		{
+			input:    "2b(2+4)",
+			expected: "(BRollList (BRoll 2 6))",
+		},
+		{
+			input:    "2b([3...5]+1)",
+			expected: "(BRollList (BRoll 2 5))",
+			dice:     []dice.Die{{2, 3}},
+		},
+		{
+			input:    "(1*2)b(2+4)",
+			expected: "(BRollList (BRoll 2 6))",
+		},
+		{
+			input:    "(1*2)b(2+4)+(8/2)b(101/10R)",
+			expected: "(BRollList (BRoll 2 6) (BRoll 4 10))",
+		},
 	}
 
 	for _, test := range testcases {
