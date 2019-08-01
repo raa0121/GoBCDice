@@ -30,6 +30,8 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
 	case *ast.Calc:
 		return infixNotationOfCalc(n, walkingToLeft)
+	case *ast.BRollList:
+		return infixNotationOfBRollList(n)
 	case ast.Command:
 		return infixNotationOfCommand(n, walkingToLeft)
 	case *ast.Compare:
@@ -69,6 +71,21 @@ func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
 	}
 
 	return fmt.Sprintf("C(%s)", expr), nil
+}
+
+// infixNotationOfBRollList はバラバラロールのリストの中置表記を返す。
+func infixNotationOfBRollList(node *ast.BRollList) (string, error) {
+	infixNotations := make([]string, 0, len(node.BRolls))
+	for _, b := range node.BRolls {
+		n, err := InfixNotation(b, true)
+		if err != nil {
+			return "", err
+		}
+
+		infixNotations = append(infixNotations, n)
+	}
+
+	return strings.Join(infixNotations, "+"), nil
 }
 
 // infixNotationOfCompare は比較式の中置表記を返す。
