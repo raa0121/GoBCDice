@@ -76,7 +76,7 @@ func TestExecuteDRollExpr(t *testing.T) {
 		{
 			input:    "(2*3-4)d6-1d4+1",
 			expected: "DiceBot : (2D6-1D4+1) ＞ 11[6,5]-2[2]+1 ＞ 10",
-			dice:     []dice.Die{{6, 6}, {5, 6}, {2, 6}},
+			dice:     []dice.Die{{6, 6}, {5, 6}, {2, 4}},
 		},
 		{
 			input:    "((2+3)*4/3)d6*2+5",

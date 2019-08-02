@@ -41,7 +41,7 @@ func TestExecuteBRollList(t *testing.T) {
 		{
 			input:    "2b[4...6]",
 			expected: "DiceBot : (2B4) ＞ 3,4",
-			dice:     []dice.Die{{1, 3}, {3, 6}, {4, 6}},
+			dice:     []dice.Die{{1, 3}, {3, 4}, {4, 4}},
 		},
 		{
 			input:    "2b[4...6]",
