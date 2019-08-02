@@ -5,16 +5,6 @@ import (
 	"testing"
 )
 
-func TestInteger_Type(t *testing.T) {
-	obj := &Integer{}
-
-	expected := INTEGER_OBJ
-	actual := obj.Type()
-	if actual != expected {
-		t.Fatalf("got=%s, want=%s", actual, expected)
-	}
-}
-
 func TestInteger_Inspect(t *testing.T) {
 	testcases := []struct {
 		obj      *Integer

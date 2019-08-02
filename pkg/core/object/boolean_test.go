@@ -5,16 +5,6 @@ import (
 	"testing"
 )
 
-func TestBoolean_Type(t *testing.T) {
-	obj := &Boolean{}
-
-	expected := BOOLEAN_OBJ
-	actual := obj.Type()
-	if actual != expected {
-		t.Fatalf("got=%s, want=%s", actual, expected)
-	}
-}
-
 func TestBoolean_Inspect(t *testing.T) {
 	testcases := []struct {
 		obj      *Boolean

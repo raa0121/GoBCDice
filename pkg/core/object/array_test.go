@@ -5,16 +5,6 @@ import (
 	"testing"
 )
 
-func TestArray_Type(t *testing.T) {
-	obj := &Array{}
-
-	expected := ARRAY_OBJ
-	actual := obj.Type()
-	if actual != expected {
-		t.Fatalf("got=%s, want=%s", actual, expected)
-	}
-}
-
 func TestArray_Inspect(t *testing.T) {
 	testcases := []struct {
 		obj      *Array
