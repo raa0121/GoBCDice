@@ -10,11 +10,11 @@ func TestInteger_Inspect(t *testing.T) {
 		obj      *Integer
 		expected string
 	}{
-		{&Integer{Value: 1}, "1"},
-		{&Integer{Value: 0}, "0"},
-		{&Integer{Value: -1}, "-1"},
-		{&Integer{Value: 12}, "12"},
-		{&Integer{Value: 12345}, "12345"},
+		{NewInteger(1), "1"},
+		{NewInteger(0), "0"},
+		{NewInteger(-1), "-1"},
+		{NewInteger(12), "12"},
+		{NewInteger(12345), "12345"},
 	}
 
 	for _, test := range testcases {

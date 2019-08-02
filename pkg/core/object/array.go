@@ -11,6 +11,28 @@ type Array struct {
 	Elements []Object
 }
 
+// NewArray は新しい配列オブジェクトを返す。
+func NewArray(elements ...Object) *Array {
+	a := &Array{
+		Elements: make([]Object, len(elements)),
+	}
+
+	if len(elements) > 0 {
+		copy(a.Elements, elements)
+	}
+
+	return a
+}
+
+// NewArray は、スライスelementsを参照する新しい配列オブジェクトを返す。
+// 要素のコピーが必要ない場合に使用する。
+func NewArrayByMove(elements []Object) *Array {
+	return &Array{
+		Elements: elements,
+	}
+}
+
+// Type はオブジェクトの種類を返す。
 func (a *Array) Type() ObjectType {
 	return ARRAY_OBJ
 }

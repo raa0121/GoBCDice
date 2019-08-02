@@ -10,6 +10,11 @@ type Boolean struct {
 	Value bool
 }
 
+// NewBoolean は新しい論理値オブジェクトを返す。
+func NewBoolean(v bool) *Boolean {
+	return &Boolean{Value: v}
+}
+
 // Type はオブジェクトの種類を返す。
 func (b *Boolean) Type() ObjectType {
 	return BOOLEAN_OBJ

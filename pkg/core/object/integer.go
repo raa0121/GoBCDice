@@ -10,6 +10,11 @@ type Integer struct {
 	Value int
 }
 
+// NewInteger は新しい整数オブジェクトを返す。
+func NewInteger(v int) *Integer {
+	return &Integer{Value: v}
+}
+
 // Type はオブジェクトの種類を返す。
 func (i *Integer) Type() ObjectType {
 	return INTEGER_OBJ

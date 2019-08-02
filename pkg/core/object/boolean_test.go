@@ -10,8 +10,8 @@ func TestBoolean_Inspect(t *testing.T) {
 		obj      *Boolean
 		expected string
 	}{
-		{&Boolean{Value: true}, "true"},
-		{&Boolean{Value: false}, "false"},
+		{NewBoolean(true), "true"},
+		{NewBoolean(false), "false"},
 	}
 
 	for _, test := range testcases {

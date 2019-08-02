@@ -57,9 +57,9 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	case ast.InfixExpression:
 		return e.evalInfixExpression(n)
 	case *ast.Int:
-		return &object.Integer{Value: n.Value}, nil
+		return object.NewInteger(n.Value), nil
 	case *ast.SumRollResult:
-		return &object.Integer{Value: n.Value()}, nil
+		return object.NewInteger(n.Value()), nil
 	}
 
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
@@ -83,7 +83,7 @@ func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
 		elements = append(elements, intObjs.Elements...)
 	}
 
-	return &object.Array{Elements: elements}, nil
+	return object.NewArrayByMove(elements), nil
 }
 
 // evalPrefixExpression は前置式を評価する。
@@ -121,7 +121,7 @@ func (e *Evaluator) evalIntegerPrefixExpression(
 
 	switch operator {
 	case "-":
-		return &object.Integer{Value: -value}, nil
+		return object.NewInteger(-value), nil
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s%s",
@@ -185,11 +185,11 @@ func (e *Evaluator) evalIntegerInfixExpression(
 
 	switch operator {
 	case "+":
-		return &object.Integer{Value: leftValue + rightValue}, nil
+		return object.NewInteger(leftValue + rightValue), nil
 	case "-":
-		return &object.Integer{Value: leftValue - rightValue}, nil
+		return object.NewInteger(leftValue - rightValue), nil
 	case "*":
-		return &object.Integer{Value: leftValue * rightValue}, nil
+		return object.NewInteger(leftValue * rightValue), nil
 	case "D":
 		return e.evalSumRoll(left, right)
 	case "B":
@@ -197,17 +197,17 @@ func (e *Evaluator) evalIntegerInfixExpression(
 	case "...":
 		return e.evalRandomNumber(left, right)
 	case "=":
-		return &object.Boolean{Value: leftValue == rightValue}, nil
+		return object.NewBoolean(leftValue == rightValue), nil
 	case "<>":
-		return &object.Boolean{Value: leftValue != rightValue}, nil
+		return object.NewBoolean(leftValue != rightValue), nil
 	case "<":
-		return &object.Boolean{Value: leftValue < rightValue}, nil
+		return object.NewBoolean(leftValue < rightValue), nil
 	case ">":
-		return &object.Boolean{Value: leftValue > rightValue}, nil
+		return object.NewBoolean(leftValue > rightValue), nil
 	case "<=":
-		return &object.Boolean{Value: leftValue <= rightValue}, nil
+		return object.NewBoolean(leftValue <= rightValue), nil
 	case ">=":
-		return &object.Boolean{Value: leftValue >= rightValue}, nil
+		return object.NewBoolean(leftValue >= rightValue), nil
 	}
 
 	return nil, fmt.Errorf("operator not implemented: %s %s %s",
@@ -230,18 +230,18 @@ func (e *Evaluator) evalIntegerDivide(
 	switch divide.RoundingMethod() {
 	case ast.ROUNDING_METHOD_ROUND_DOWN:
 		// 除算（小数点以下切り捨て）
-		return &object.Integer{Value: leftValue / rightValue}, nil
+		return object.NewInteger(leftValue / rightValue), nil
 	case ast.ROUNDING_METHOD_ROUND:
 		{
 			// 除算（小数点以下四捨五入）
 			resultFloat := math.Round(float64(leftValue) / float64(rightValue))
-			return &object.Integer{Value: int(resultFloat)}, nil
+			return object.NewInteger(int(resultFloat)), nil
 		}
 	case ast.ROUNDING_METHOD_ROUND_UP:
 		{
 			// 除算（小数点以下切り上げ）
 			resultFloat := math.Ceil(float64(leftValue) / float64(rightValue))
-			return &object.Integer{Value: int(resultFloat)}, nil
+			return object.NewInteger(int(resultFloat)), nil
 		}
 	default:
 		return nil, fmt.Errorf("evalIntegerDivide: unknown rounding method")
@@ -266,7 +266,7 @@ func (e *Evaluator) evalSumRoll(
 		sum += d.Value
 	}
 
-	return &object.Integer{Value: sum}, nil
+	return object.NewInteger(sum), nil
 }
 
 // evalBasicRoll はバラバラロールを評価する。
@@ -285,10 +285,10 @@ func (e *Evaluator) evalBasicRoll(
 
 	intObjs := make([]object.Object, 0, len(rolledDice))
 	for _, d := range rolledDice {
-		intObjs = append(intObjs, &object.Integer{Value: d.Value})
+		intObjs = append(intObjs, object.NewInteger(d.Value))
 	}
 
-	return &object.Array{Elements: intObjs}, nil
+	return object.NewArrayByMove(intObjs), nil
 }
 
 // evalRandomNumber はランダム数値取り出しを評価する。
@@ -316,7 +316,7 @@ func (e *Evaluator) evalRandomNumber(
 
 	resultValue := (minValue - 1) + rolledDice[0].Value
 
-	return &object.Integer{Value: resultValue}, nil
+	return object.NewInteger(resultValue), nil
 }
 
 // RollDice は、sides個の面を持つダイスをnum個振り、その結果を返す。

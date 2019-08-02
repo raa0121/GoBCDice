@@ -11,24 +11,24 @@ func TestArray_Inspect(t *testing.T) {
 		expected string
 	}{
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 1},
-					&Integer{Value: 2},
-				},
-			},
+			obj:      NewArray(),
+			expected: "[]",
+		},
+		{
+			obj: NewArray(
+				NewInteger(1),
+				NewInteger(2),
+			),
 			expected: "[1, 2]",
 		},
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 2},
-					&Integer{Value: 3},
-					&Integer{Value: 5},
-					&Integer{Value: 8},
-					&Integer{Value: 13},
-				},
-			},
+			obj: NewArray(
+				NewInteger(2),
+				NewInteger(3),
+				NewInteger(5),
+				NewInteger(8),
+				NewInteger(13),
+			),
 			expected: "[2, 3, 5, 8, 13]",
 		},
 	}
@@ -49,24 +49,24 @@ func TestArray_InspectWithoutSpaces(t *testing.T) {
 		expected string
 	}{
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 1},
-					&Integer{Value: 2},
-				},
-			},
+			obj:      NewArray(),
+			expected: "[]",
+		},
+		{
+			obj: NewArray(
+				NewInteger(1),
+				NewInteger(2),
+			),
 			expected: "[1,2]",
 		},
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 2},
-					&Integer{Value: 3},
-					&Integer{Value: 5},
-					&Integer{Value: 8},
-					&Integer{Value: 13},
-				},
-			},
+			obj: NewArray(
+				NewInteger(2),
+				NewInteger(3),
+				NewInteger(5),
+				NewInteger(8),
+				NewInteger(13),
+			),
 			expected: "[2,3,5,8,13]",
 		},
 	}
@@ -88,48 +88,44 @@ func TestArray_JoinedElements(t *testing.T) {
 		expected string
 	}{
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 1},
-					&Integer{Value: 2},
-				},
-			},
+			obj:      NewArray(),
+			expected: "",
+		},
+		{
+			obj: NewArray(
+				NewInteger(1),
+				NewInteger(2),
+			),
 			sep:      ",",
 			expected: "1,2",
 		},
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 2},
-					&Integer{Value: 3},
-					&Integer{Value: 5},
-					&Integer{Value: 8},
-					&Integer{Value: 13},
-				},
-			},
+			obj: NewArray(
+				NewInteger(2),
+				NewInteger(3),
+				NewInteger(5),
+				NewInteger(8),
+				NewInteger(13),
+			),
 			sep:      ",",
 			expected: "2,3,5,8,13",
 		},
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 1},
-					&Integer{Value: 2},
-				},
-			},
+			obj: NewArray(
+				NewInteger(1),
+				NewInteger(2),
+			),
 			sep:      "/",
 			expected: "1/2",
 		},
 		{
-			obj: &Array{
-				Elements: []Object{
-					&Integer{Value: 2},
-					&Integer{Value: 3},
-					&Integer{Value: 5},
-					&Integer{Value: 8},
-					&Integer{Value: 13},
-				},
-			},
+			obj: NewArray(
+				NewInteger(2),
+				NewInteger(3),
+				NewInteger(5),
+				NewInteger(8),
+				NewInteger(13),
+			),
 			sep:      "/",
 			expected: "2/3/5/8/13",
 		},
