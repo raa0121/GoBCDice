@@ -17,18 +17,21 @@ func (t ObjectType) String() string {
 
 const (
 	ILLEGAL_OBJ ObjectType = iota
+
 	INTEGER_OBJ
 	BOOLEAN_OBJ
 	ARRAY_OBJ
+	B_ROLL_COMP_RESULT_OBJ
 )
 
 // オブジェクトの種類とそれを表す文字列との対応
 var objectTypeString = map[ObjectType]string{
 	ILLEGAL_OBJ: "ILLEGAL",
 
-	INTEGER_OBJ: "INTEGER",
-	BOOLEAN_OBJ: "BOOLEAN",
-	ARRAY_OBJ:   "ARRAY",
+	INTEGER_OBJ:            "INTEGER",
+	BOOLEAN_OBJ:            "BOOLEAN",
+	ARRAY_OBJ:              "ARRAY",
+	B_ROLL_COMP_RESULT_OBJ: "B_ROLL_COMP_RESULT",
 }
 
 // オブジェクトが持つインターフェース。

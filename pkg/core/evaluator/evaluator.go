@@ -18,6 +18,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
+	"github.com/raa0121/GoBCDice/pkg/core/token"
 	"math"
 )
 
@@ -49,8 +50,9 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	switch n := node.(type) {
 	case *ast.BRollList:
 		return e.evalBRollList(n)
+	case *ast.BRollComp:
+		return e.evalBRollComp(n)
 	case ast.Command:
-		// TODO: もしかしたらコマンドの種類で分岐する？
 		return e.Eval(n.Expression())
 	case ast.PrefixExpression:
 		return e.evalPrefixExpression(n)
@@ -75,15 +77,56 @@ func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
 			return nil, err
 		}
 
-		intObjs, typeMatched := o.(*object.Array)
-		if !typeMatched {
-			return nil, fmt.Errorf("evalBRollList: type mismatch: %s", o.Type())
-		}
-
+		intObjs := o.(*object.Array)
 		elements = append(elements, intObjs.Elements...)
 	}
 
 	return object.NewArrayByMove(elements), nil
+}
+
+// evalBRollComp はバラバラロールの成功数カウントを評価する。
+func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult, error) {
+	compareNode := node.Expression().(*ast.Compare)
+
+	// 左辺を評価する
+	valuesObj, evalBRollListErr := e.Eval(compareNode.Left())
+	if evalBRollListErr != nil {
+		return nil, evalBRollListErr
+	}
+
+	// 右辺を評価する
+	evaluatedTargetObj, evalTargetErr := e.Eval(compareNode.Right())
+	if evalTargetErr != nil {
+		return nil, evalTargetErr
+	}
+
+	valuesArray := valuesObj.(*object.Array)
+	evaluatedTargetNode := ast.NewInt(
+		evaluatedTargetObj.(*object.Integer).Value,
+		token.Token{},
+	)
+
+	// 振られた各ダイスに対して成功判定を行い、成功数を数える
+	numOfSuccesses := 0
+	for _, el := range valuesArray.Elements {
+		valueNode := ast.NewInt(el.(*object.Integer).Value, token.Token{})
+		valueCompareNode := ast.NewCompare(
+			valueNode,
+			compareNode.Token(),
+			evaluatedTargetNode,
+		)
+
+		r, compErr := e.Eval(valueCompareNode)
+		if compErr != nil {
+			return nil, compErr
+		}
+
+		if success := r.(*object.Boolean).Value; success {
+			numOfSuccesses += 1
+		}
+	}
+
+	return object.NewBRollCompResult(valuesArray, object.NewInteger(numOfSuccesses)), nil
 }
 
 // evalPrefixExpression は前置式を評価する。
