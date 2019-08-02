@@ -76,6 +76,15 @@ func TestDiceRoller_RollDice_Queue(t *testing.T) {
 			sides: -6,
 			err:   true,
 		},
+
+		// 指定した面数と取り出されたダイスの面数が一致しなければエラーとする
+		// （Ruby版BCDiceのテストとの互換性維持のため）
+		{
+			dice:  []dice.Die{{3, 6}, {4, 8}},
+			num:   2,
+			sides: 6,
+			err:   true,
+		},
 	}
 
 	for i, test := range testcases {

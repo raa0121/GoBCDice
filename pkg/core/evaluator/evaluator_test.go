@@ -22,7 +22,7 @@ func ExampleEvaluator_Eval() {
 	fmt.Println("抽象構文木: " + ast.SExp())
 
 	// ノードを評価する
-	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {2, 6}, {3, 6}})
+	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {2, 6}, {3, 4}})
 	evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
 	obj, evalErr := evaluator.Eval(ast)
@@ -34,7 +34,7 @@ func ExampleEvaluator_Eval() {
 	fmt.Println("評価結果: " + obj.Inspect())
 	// Output:
 	// 抽象構文木: (DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))
-	// ダイスロール結果: 6/6, 2/6, 3/6
+	// ダイスロール結果: 6/6, 2/6, 3/4
 	// 評価結果: 6
 }
 
