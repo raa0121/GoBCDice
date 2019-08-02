@@ -143,15 +143,16 @@ func TestParse(t *testing.T) {
 
 		// 加算ロール式の成功判定
 		{"2d6=7", "(DRollComp (= (DRoll 2 6) 7))", false},
+		{"2d6<>7", "(DRollComp (<> (DRoll 2 6) 7))", false},
 		{"2d6>7", "(DRollComp (> (DRoll 2 6) 7))", false},
 		{"2d6<7", "(DRollComp (< (DRoll 2 6) 7))", false},
 		{"2d6>=7", "(DRollComp (>= (DRoll 2 6) 7))", false},
 		{"2d6<=7", "(DRollComp (<= (DRoll 2 6) 7))", false},
-		{"2d6<>7", "(DRollComp (<> (DRoll 2 6) 7))", false},
 		{"2d6>=5+3", "(DRollComp (>= (DRoll 2 6) (+ 5 3)))", false},
 		{"2d6+1>=3+4", "(DRollComp (>= (+ (DRoll 2 6) 1) (+ 3 4)))", false},
 		{"1+2d6>=3+4", "(DRollComp (>= (+ 1 (DRoll 2 6)) (+ 3 4)))", false},
 		{"2*(2d6+1)/3<7", "(DRollComp (< (/ (* 2 (+ (DRoll 2 6) 1)) 3) 7))", false},
+		{"7<2d6", "", true},
 		{"2d6<7<8", "", true},
 		{"1<=2d6<=12", "", true},
 		{"1<2<2d6", "", true},
@@ -170,6 +171,23 @@ func TestParse(t *testing.T) {
 		{"2b6+3b8+5b12", "(BRollList (BRoll 2 6) (BRoll 3 8) (BRoll 5 12))", false},
 		{"2b6+1", "", true},
 		{"1+2b6", "", true},
+
+		// バラバラロールの成功数カウント
+		{"2b6=3", "(BRollComp (= (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6<>3", "(BRollComp (<> (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6>3", "(BRollComp (> (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6<3", "(BRollComp (< (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6>=3", "(BRollComp (>= (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6<=3", "(BRollComp (<= (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6>4-1", "(BRollComp (> (BRollList (BRoll 2 6)) (- 4 1)))", false},
+		{"2b6+4b10>4", "(BRollComp (> (BRollList (BRoll 2 6) (BRoll 4 10)) 4))", false},
+		{"2b6>-(-1*3)", "(BRollComp (> (BRollList (BRoll 2 6)) (- (* (- 1) 3))))", false},
+		{"2b6+1>3", "", true},
+		{"1+2b6>3", "", true},
+		{"3<2b6", "", true},
+		{"1<2b6<5", "", true},
+		{"2b6<4<5", "", true},
+		{"1<2<2b6", "", true},
 	}
 
 	for _, test := range testCases {
