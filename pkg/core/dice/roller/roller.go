@@ -36,19 +36,38 @@ func (dr *DiceRoller) DieFeeder() feeder.DieFeeder {
 // この条件が満たされていなかった場合は、エラーを返す。
 func (dr *DiceRoller) RollDice(num int, sides int) ([]dice.Die, error) {
 	if sides < 1 {
-		return nil, fmt.Errorf("ダイスの面数が少なすぎます: %d", sides)
+		return nil, fmt.Errorf(
+			"RollDice(num: %d, sides: %d): ダイスの面数が少なすぎます",
+			num,
+			sides,
+		)
 	}
 
 	if num < 1 {
-		return nil, fmt.Errorf("振るダイス数が少なすぎます: %d", num)
+		return nil, fmt.Errorf(
+			"RollDice(num: %d, sides: %d): 振るダイス数が少なすぎます",
+			num,
+			sides,
+		)
 	}
 
-	rolledDice := []dice.Die{}
+	// 結果のスライスの領域をnum個分確保する
+	rolledDice := make([]dice.Die, 0, num)
 
 	for i := 0; i < num; i++ {
 		d, err := dr.feeder.Next(sides)
 		if err != nil {
 			return nil, err
+		}
+
+		if d.Sides != sides {
+			return nil, fmt.Errorf(
+				"RollDice(num: %d, sides: %d) -> %d/%d: ダイスの面数が指定と一致しません",
+				num,
+				sides,
+				d.Value,
+				d.Sides,
+			)
 		}
 
 		rolledDice = append(rolledDice, d)

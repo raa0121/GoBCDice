@@ -25,7 +25,7 @@ func ExampleExecute_sumRoll() {
 	}
 
 	// コマンドを実行する
-	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {5, 6}, {2, 6}})
+	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {5, 6}, {2, 4}})
 	evaluator := evaluator.NewEvaluator(
 		roller.New(dieFeeder),
 		evaluator.NewEnvironment(),
