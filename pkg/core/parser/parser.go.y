@@ -62,6 +62,7 @@ import (
 %type<node> d_roll_expr
 %type<node> d_roll_comp
 %type<bRollList> b_roll_list
+%type<node> b_roll_comp
 %type<node> d_roll
 %type<bRoll> b_roll
 %type<node> rand
@@ -90,6 +91,11 @@ command
 	| b_roll_list
 	{
 		$$ = $1
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| b_roll_comp
+	{
+		$$ = ast.NewBRollComp($1.Token(), $1)
 		yylex.(*LexerWrapper).ast = $$
 	}
 	| CALC L_PAREN int_expr R_PAREN
@@ -269,6 +275,10 @@ d_roll_comp
 	{
 		$$ = ast.NewCompare($1, $2, $3)
 	}
+	| d_roll_expr DIAMOND int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
 	| d_roll_expr LT int_expr
 	{
 		$$ = ast.NewCompare($1, $2, $3)
@@ -285,10 +295,6 @@ d_roll_comp
 	{
 		$$ = ast.NewCompare($1, $2, $3)
 	}
-	| d_roll_expr DIAMOND int_expr
-	{
-		$$ = ast.NewCompare($1, $2, $3)
-	}
 
 b_roll_list
 	: b_roll
@@ -298,6 +304,32 @@ b_roll_list
 	| b_roll_list PLUS b_roll
 	{
 		$$.Append($3)
+	}
+
+b_roll_comp
+	: b_roll_list EQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list DIAMOND int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list LT int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list GT int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list LTEQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list GTEQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
 	}
 
 d_roll
