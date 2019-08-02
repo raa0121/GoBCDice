@@ -100,7 +100,7 @@ func TestEvalBRollList(t *testing.T) {
 
 					x := eiInt.Value
 					if x != e {
-						t.Fatalf("異なる値: got=%d, want=%d", x, e)
+						t.Errorf("異なる値: got=%d, want=%d", x, e)
 					}
 				})
 			}
