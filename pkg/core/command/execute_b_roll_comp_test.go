@@ -148,6 +148,11 @@ func TestExecuteBRollComp(t *testing.T) {
 			expected: "DiceBot : (2B6>3) ＞ 4,3 ＞ 成功数1",
 			dice:     []dice.Die{{4, 6}, {3, 6}},
 		},
+		{
+			input:    "2b6>=1+3",
+			expected: "DiceBot : (2B6>=4) ＞ 4,3 ＞ 成功数1",
+			dice:     []dice.Die{{4, 6}, {3, 6}},
+		},
 	}
 
 	for _, test := range testcases {
