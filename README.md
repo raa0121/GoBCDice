@@ -52,7 +52,7 @@ The notations currently supported by GoBCDice are checked.
 * [x] Sum roll (加算ロール, D): `xDn`
     * [x] With success check: `xDn>=y` etc.
 * [x] Basic roll (バラバラロール, B): `nBx`
-    * [ ] With success check: `xBn>=y` etc.
+    * [x] With success check: `xBn>=y` etc.
 * [ ] Exploding roll (個数振り足しロール, R): `xRn>=y` etc.
 * [ ] Compounding roll (上方無限ロール, U): `xUn[t]`
     * [ ] With success check: `xUn[t]>=y` etc.
