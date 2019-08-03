@@ -34,6 +34,8 @@ func Execute(
 		return executeDRollComp(c, gameID, evaluator)
 	case *ast.BRollList:
 		return executeBRollList(c, gameID, evaluator)
+	case *ast.BRollComp:
+		return executeBRollComp(c, gameID, evaluator)
 	}
 
 	return nil, fmt.Errorf("command execution not implemented: %s", node.Type())
@@ -202,6 +204,39 @@ func executeBRollList(
 	// 結果のメッセージを作る
 	result.appendMessagePart(notation.Parenthesize(infixNotation))
 	result.appendMessagePart(arrayObj.JoinedElements(","))
+
+	return result, nil
+}
+
+// executeBRollComp はバラバラロールの成功数カウントを実行する。
+func executeBRollComp(
+	node *ast.BRollComp,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameID: gameID,
+	}
+
+	// 加算ロールなどの可変ノードの引数を評価して整数に変換する
+	infixNotation, evalVarArgsErr := evalVarArgs(node, evaluator)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
+	}
+
+	// 変換された抽象構文木を評価する
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	resultObj := obj.(*object.BRollCompResult)
+	result.RolledDice = evaluator.RolledDice()
+
+	// 結果のメッセージを作る
+	result.appendMessagePart(notation.Parenthesize(infixNotation))
+	result.appendMessagePart(resultObj.Values.JoinedElements(","))
+	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
 
 	return result, nil
 }
