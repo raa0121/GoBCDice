@@ -63,8 +63,10 @@ import (
 %type<node> d_roll_comp
 %type<bRollList> b_roll_list
 %type<node> b_roll_comp
+%type<node> roll_operand
 %type<node> d_roll
 %type<bRoll> b_roll
+%type<node> rand_operand
 %type<node> rand
 %type<node> int
 
@@ -332,82 +334,37 @@ b_roll_comp
 		$$ = ast.NewCompare($1, $2, $3)
 	}
 
+roll_operand
+	: int
+	| rand
+	| L_PAREN int_rand_expr R_PAREN
+	{
+		$$ = $2
+	}
+
 d_roll
-	: int D int
+	: roll_operand D roll_operand
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
-	}
-	| rand D int
-	{
-		$$ = ast.NewDRoll($1, $2, $3)
-	}
-	| int D rand
-	{
-		$$ = ast.NewDRoll($1, $2, $3)
-	}
-	| rand D rand
-	{
-		$$ = ast.NewDRoll($1, $2, $3)
-	}
-	| L_PAREN int_rand_expr R_PAREN D int
-	{
-		$$ = ast.NewDRoll($2, $4, $5)
-	}
-	| int D L_PAREN int_rand_expr R_PAREN
-	{
-		$$ = ast.NewDRoll($1, $2, $4)
-	}
-	| L_PAREN int_rand_expr R_PAREN D L_PAREN int_rand_expr R_PAREN
-	{
-		$$ = ast.NewDRoll($2, $4, $6)
 	}
 
 b_roll
-	: int B int
+	: roll_operand B roll_operand
 	{
 		$$ = ast.NewBRoll($1, $2, $3)
 	}
-	| rand B int
+
+rand_operand
+	: int
+	| L_PAREN int_expr R_PAREN
 	{
-		$$ = ast.NewBRoll($1, $2, $3)
-	}
-	| int B rand
-	{
-		$$ = ast.NewBRoll($1, $2, $3)
-	}
-	| rand B rand
-	{
-		$$ = ast.NewBRoll($1, $2, $3)
-	}
-	| L_PAREN int_rand_expr R_PAREN B int
-	{
-		$$ = ast.NewBRoll($2, $4, $5)
-	}
-	| int B L_PAREN int_rand_expr R_PAREN
-	{
-		$$ = ast.NewBRoll($1, $2, $4)
-	}
-	| L_PAREN int_rand_expr R_PAREN B L_PAREN int_rand_expr R_PAREN
-	{
-		$$ = ast.NewBRoll($2, $4, $6)
+		$$ = $2
 	}
 
 rand
-	: L_BRACKET int DOTS int R_BRACKET
+	: L_BRACKET rand_operand DOTS rand_operand R_BRACKET
 	{
 		$$ = ast.NewRandomNumber($2, $3, $4)
-	}
-	| L_BRACKET L_PAREN int_expr R_PAREN DOTS int R_BRACKET
-	{
-		$$ = ast.NewRandomNumber($3, $5, $6)
-	}
-	| L_BRACKET int DOTS L_PAREN int_expr R_PAREN R_BRACKET
-	{
-		$$ = ast.NewRandomNumber($2, $3, $5)
-	}
-	| L_BRACKET L_PAREN int_expr R_PAREN DOTS L_PAREN int_expr R_PAREN R_BRACKET
-	{
-		$$ = ast.NewRandomNumber($3, $5, $7)
 	}
 
 int

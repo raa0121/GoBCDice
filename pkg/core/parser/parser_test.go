@@ -139,6 +139,8 @@ func TestParse(t *testing.T) {
 		{"2d([2...4]+2)", "(DRollExpr (DRoll 2 (+ (Rand 2 4) 2)))", false},
 		{"2d[(2+3)...8]", "(DRollExpr (DRoll 2 (Rand (+ 2 3) 8)))", false},
 		{"2d[5...(7+1)]", "(DRollExpr (DRoll 2 (Rand 5 (+ 7 1))))", false},
+		{"[1...5]d(2*3)", "(DRollExpr (DRoll (Rand 1 5) (* 2 3)))", false},
+		{"(1+1)d[1...5]", "(DRollExpr (DRoll (+ 1 1) (Rand 1 5)))", false},
 		{"([1...4]+1)d([2...4]+2)-1", "(DRollExpr (- (DRoll (+ (Rand 1 4) 1) (+ (Rand 2 4) 2)) 1))", false},
 
 		// 加算ロール式の成功判定
@@ -166,6 +168,8 @@ func TestParse(t *testing.T) {
 		{"([1...3]+1)b6", "(BRollList (BRoll (+ (Rand 1 3) 1) 6))", false},
 		{"2b(2+4)", "(BRollList (BRoll 2 (+ 2 4)))", false},
 		{"2b([3...5]+1)", "(BRollList (BRoll 2 (+ (Rand 3 5) 1)))", false},
+		{"[1...5]b(2*3)", "(BRollList (BRoll (Rand 1 5) (* 2 3)))", false},
+		{"(1+1)b[1...5]", "(BRollList (BRoll (+ 1 1) (Rand 1 5)))", false},
 		{"(1*2)b(2+4)", "(BRollList (BRoll (* 1 2) (+ 2 4)))", false},
 		{"2b6+4b10", "(BRollList (BRoll 2 6) (BRoll 4 10))", false},
 		{"2b6+3b8+5b12", "(BRollList (BRoll 2 6) (BRoll 3 8) (BRoll 5 12))", false},

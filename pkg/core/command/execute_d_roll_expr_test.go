@@ -174,6 +174,16 @@ func TestExecuteDRollExpr(t *testing.T) {
 			dice:     []dice.Die{{4, 4}, {3, 8}, {7, 8}},
 		},
 		{
+			input:    "[1...5]d(2*3)",
+			expected: "DiceBot : (5D6) ＞ 20[3,5,1,5,6] ＞ 20",
+			dice:     []dice.Die{{5, 5}, {3, 6}, {5, 6}, {1, 6}, {5, 6}, {6, 6}},
+		},
+		{
+			input:    "(1+1)d[1...5]",
+			expected: "DiceBot : (2D4) ＞ 7[3,4] ＞ 7",
+			dice:     []dice.Die{{4, 5}, {3, 4}, {4, 4}},
+		},
+		{
 			input:    "([1...4]+1)d([2...4]+2)-1",
 			expected: "DiceBot : (3D6-1) ＞ 14[5,5,4]-1 ＞ 13",
 			dice:     []dice.Die{{2, 4}, {3, 3}, {5, 6}, {5, 6}, {4, 6}},
