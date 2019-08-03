@@ -8,5 +8,5 @@ import (
 
 func TestDiceBot(t *testing.T) {
 	testDataPath := filepath.Join("testdata", "DiceBot.txt")
-	dicebottesting.Run("DiceBot", testDataPath, t)
+	dicebottesting.Run("DiceBot", t, testDataPath)
 }

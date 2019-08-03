@@ -3,6 +3,7 @@ package testing
 import (
 	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -198,7 +199,7 @@ var parseFileTestCases = []struct {
 	expected []DiceBotTestCase
 }{
 	{
-		filename: "testdata/DiceBot.txt",
+		filename: filepath.Join("testdata", "DiceBot.txt"),
 		gameID:   "DiceBot",
 		expected: []DiceBotTestCase{
 			{
@@ -232,7 +233,7 @@ var parseFileTestCases = []struct {
 		},
 	},
 	{
-		filename: "testdata/multiline.txt",
+		filename: filepath.Join("testdata", "multiline.txt"),
 		gameID:   "multiline",
 		expected: []DiceBotTestCase{
 			{
@@ -282,5 +283,40 @@ func TestParseFile(t *testing.T) {
 				})
 			}
 		})
+	}
+}
+
+func TestParseFiles(t *testing.T) {
+	testDataFiles := []string{
+		filepath.Join("testdata", "DiceBot.txt"),
+		filepath.Join("testdata", "multiline.txt"),
+	}
+
+	loadedTestCases, err := ParseFiles(testDataFiles, "DiceBot")
+	if err != nil {
+		t.Fatalf("テストデータ読み込み時のエラー: %s", err)
+		return
+	}
+
+	expectedNumOfTestCases := 6
+	actualNumOfTestCases := len(loadedTestCases)
+	if actualNumOfTestCases != expectedNumOfTestCases {
+		t.Fatalf("読み込まれたテストケースの数が異なる: got=%d, want=%d",
+			actualNumOfTestCases, expectedNumOfTestCases)
+		return
+	}
+
+	expectedFirstIndex := 1
+	actualFirstIndex := loadedTestCases[0].Index
+	if actualFirstIndex != expectedFirstIndex {
+		t.Errorf("最初のテストケース番号が異なる: got=%d, want=%d",
+			actualFirstIndex, expectedFirstIndex)
+	}
+
+	expectedLastIndex := expectedNumOfTestCases
+	actualLastIndex := loadedTestCases[actualNumOfTestCases-1].Index
+	if actualLastIndex != expectedLastIndex {
+		t.Errorf("最後のテストケース番号が異なる: got=%d, want=%d",
+			actualLastIndex, expectedLastIndex)
 	}
 }

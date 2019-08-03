@@ -108,3 +108,28 @@ func ParseFile(filename string, gameID string) ([]*DiceBotTestCase, error) {
 
 	return testCases, nil
 }
+
+// ParseFiles は複数のテストデータファイルからテストケースを読み込む。
+//
+// testDataFiles: テストデータファイルのパスのスライス,
+// gameID: ゲーム識別子。
+func ParseFiles(testDataFiles []string, gameID string) ([]*DiceBotTestCase, error) {
+	lastIndex := 0
+	testcases := []*DiceBotTestCase{}
+
+	for _, f := range testDataFiles {
+		testCasesFromF, loadErr := ParseFile(f, gameID)
+		if loadErr != nil {
+			return nil, fmt.Errorf("%s: %s", f, loadErr)
+		}
+
+		for _, c := range testCasesFromF {
+			c.Index += lastIndex
+			testcases = append(testcases, c)
+		}
+
+		lastIndex = len(testcases)
+	}
+
+	return testcases, nil
+}
