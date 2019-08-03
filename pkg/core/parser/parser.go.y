@@ -28,6 +28,7 @@ import (
 
 %token<token> IDENT
 %token<token> INT
+%token<token> STRING
 
 %token<token> PLUS
 %token<token> MINUS
@@ -45,6 +46,7 @@ import (
 %token<token> R_PAREN
 %token<token> L_BRACKET
 %token<token> R_BRACKET
+%token<token> COMMA
 
 %token<token> D
 %token<token> B
@@ -54,7 +56,9 @@ import (
 %token<token> DOTS
 
 %token<token> CALC
-%token<token> CHOICE
+
+%token<token> CHOICE_BEGIN
+%token<token> CHOICE_END
 
 %type<node> command
 %type<node> int_expr
@@ -398,6 +402,7 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 
 	token.IDENT: IDENT,
 	token.INT: INT,
+	token.STRING: STRING,
 
 	token.PLUS: PLUS,
 	token.MINUS: MINUS,
@@ -415,6 +420,7 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.R_PAREN: R_PAREN,
 	token.L_BRACKET: L_BRACKET,
 	token.R_BRACKET: R_BRACKET,
+	token.COMMA: COMMA,
 
 	token.D: D,
 	token.B: B,
@@ -424,7 +430,9 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.DOTS: DOTS,
 
 	token.CALC: CALC,
-	token.CHOICE: CHOICE,
+
+	token.CHOICE_BEGIN: CHOICE_BEGIN,
+	token.CHOICE_END: CHOICE_END,
 }
 
 // newLexerWrapper は新しい字句解析器ラッパーを作る。

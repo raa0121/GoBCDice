@@ -32,29 +32,47 @@ func Example() {
 	// <Token INT Literal:"1" Column:15>
 }
 
-type tokenExpectation struct {
-	expectedType    token.TokenType
-	expectedLiteral string
-	expectedColumn  int
-}
+func TestReadChoiceBegin(t *testing.T) {
+	testcases := []string{
+		"choice[A,B]",
+		"Choice[A,B]",
+		"CHOICE[A,B]",
+	}
 
-type tokenTestCase struct {
-	input        string
-	expectations []tokenExpectation
+	for _, input := range testcases {
+		t.Run(fmt.Sprintf("%q", input), func(t *testing.T) {
+			l := New(input)
+
+			if l.state != STATE_INIT {
+				t.Fatalf("字句解析器が初期状態ではない")
+				return
+			}
+
+			tok := l.NextToken()
+			expected := token.CHOICE_BEGIN
+			actual := tok.Type
+			if actual != expected {
+				t.Fatalf("got=%q, want=%q", actual, expected)
+			}
+		})
+	}
 }
 
 func TestNextToken(t *testing.T) {
-	testcases := []tokenTestCase{
+	testcases := []struct {
+		input    string
+		expected []token.Token
+	}{
 		// 空文字列
 		{
 			input: "",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.EOT, "", 1},
 			},
 		},
 		{
 			input: "3d10/4+2*1D6-5",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "3", 1},
 				{token.D, "d", 2},
 				{token.INT, "10", 3},
@@ -73,7 +91,7 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			input: "((2+3)*4/3)d6*2+5",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.L_PAREN, "(", 1},
 				{token.L_PAREN, "(", 2},
 				{token.INT, "2", 3},
@@ -96,7 +114,7 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			input: "[1...5]D6",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.L_BRACKET, "[", 1},
 				{token.INT, "1", 2},
 				{token.DOTS, "...", 3},
@@ -109,7 +127,7 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			input: "[1..5]D6",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.L_BRACKET, "[", 1},
 				{token.INT, "1", 2},
 				{token.ILLEGAL, ".", 3},
@@ -123,7 +141,7 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			input: "2d6/3u",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
@@ -135,7 +153,7 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			input: "2d6/3r",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
@@ -147,67 +165,73 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			input: "2d6=7",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.EQ, "=", 4},
 				{token.INT, "7", 5},
+				{token.EOT, "", 6},
 			},
 		},
 		{
 			input: "2d6>7",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.GT, ">", 4},
 				{token.INT, "7", 5},
+				{token.EOT, "", 6},
 			},
 		},
 		{
 			input: "2d6<7",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.LT, "<", 4},
 				{token.INT, "7", 5},
+				{token.EOT, "", 6},
 			},
 		},
 		{
 			input: "2d6>=7",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.GTEQ, ">=", 4},
 				{token.INT, "7", 6},
+				{token.EOT, "", 7},
 			},
 		},
 		{
 			input: "2d6<=7",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.LTEQ, "<=", 4},
 				{token.INT, "7", 6},
+				{token.EOT, "", 7},
 			},
 		},
 		{
 			input: "2d6<>7",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.D, "d", 2},
 				{token.INT, "6", 3},
 				{token.DIAMOND, "<>", 4},
 				{token.INT, "7", 6},
+				{token.EOT, "", 7},
 			},
 		},
 		{
 			input: "2b6+4b10",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.B, "b", 2},
 				{token.INT, "6", 3},
@@ -215,11 +239,12 @@ func TestNextToken(t *testing.T) {
 				{token.INT, "4", 5},
 				{token.B, "b", 6},
 				{token.INT, "10", 7},
+				{token.EOT, "", 9},
 			},
 		},
 		{
 			input: "2b6+4b10>3",
-			expectations: []tokenExpectation{
+			expected: []token.Token{
 				{token.INT, "2", 1},
 				{token.B, "b", 2},
 				{token.INT, "6", 3},
@@ -229,6 +254,95 @@ func TestNextToken(t *testing.T) {
 				{token.INT, "10", 7},
 				{token.GT, ">", 9},
 				{token.INT, "3", 10},
+				{token.EOT, "", 11},
+			},
+		},
+		{
+			input: "choice[A,B,C]どれにしよう",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "choice[", 1},
+				{token.STRING, "A", 8},
+				{token.COMMA, ",", 9},
+				{token.STRING, "B", 10},
+				{token.COMMA, ",", 11},
+				{token.STRING, "C", 12},
+				{token.CHOICE_END, "]", 13},
+				{token.EOT, "", 14},
+			},
+		},
+		{
+			input: "choice[A,B, ]",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "choice[", 1},
+				{token.STRING, "A", 8},
+				{token.COMMA, ",", 9},
+				{token.STRING, "B", 10},
+				{token.COMMA, ",", 11},
+				{token.CHOICE_END, "]", 13},
+				{token.EOT, "", 14},
+			},
+		},
+		{
+			input: "Choice[ A, B,   C     ,D ]",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "Choice[", 1},
+				{token.STRING, "A", 9},
+				{token.COMMA, ",", 10},
+				{token.STRING, "B", 12},
+				{token.COMMA, ",", 13},
+				{token.STRING, "C", 17},
+				{token.COMMA, ",", 23},
+				{token.STRING, "D", 24},
+				{token.CHOICE_END, "]", 26},
+				{token.EOT, "", 27},
+			},
+		},
+		{
+			input: "CHOICE[Call of Cthulhu, Sword World, Double Cross]",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "CHOICE[", 1},
+				{token.STRING, "Call of Cthulhu", 8},
+				{token.COMMA, ",", 23},
+				{token.STRING, "Sword World", 25},
+				{token.COMMA, ",", 36},
+				{token.STRING, "Double Cross", 38},
+				{token.CHOICE_END, "]", 50},
+				{token.EOT, "", 51},
+			},
+		},
+		{
+			input: "CHOICE[日本語, でも,　だいじょうぶ]",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "CHOICE[", 1},
+				{token.STRING, "日本語", 8},
+				{token.COMMA, ",", 11},
+				{token.STRING, "でも", 13},
+				{token.COMMA, ",", 15},
+				{token.STRING, "だいじょうぶ", 17},
+				{token.CHOICE_END, "]", 23},
+				{token.EOT, "", 24},
+			},
+		},
+		{
+			input: "choice[1+2, (3*4), 5d6]",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "choice[", 1},
+				{token.STRING, "1+2", 8},
+				{token.COMMA, ",", 11},
+				{token.STRING, "(3*4)", 13},
+				{token.COMMA, ",", 18},
+				{token.STRING, "5d6", 20},
+				{token.CHOICE_END, "]", 23},
+				{token.EOT, "", 24},
+			},
+		},
+		// 無効な入力だが、リストの終わりの "]" がない場合に止まるかどうか
+		{
+			input: "choice[forgetting R_BRACKET!",
+			expected: []token.Token{
+				{token.CHOICE_BEGIN, "choice[", 1},
+				{token.STRING, "forgetting R_BRACKET!", 8},
+				{token.EOT, "", 29},
 			},
 		},
 	}
@@ -237,31 +351,31 @@ func TestNextToken(t *testing.T) {
 		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
 			l := New(test.input)
 
-			for _, e := range test.expectations {
+			for _, e := range test.expected {
 				var name string
 
-				if e.expectedType == token.EOT {
+				if e.Type == token.EOT {
 					name = "EOT"
 				} else {
-					name = fmt.Sprintf("%q", e.expectedLiteral)
+					name = fmt.Sprintf("%q", e.Literal)
 				}
 
 				t.Run(name, func(t *testing.T) {
 					tok := l.NextToken()
 
-					if tok.Type != e.expectedType {
+					if tok.Type != e.Type {
 						t.Errorf("Type: got: %q, want: %q",
-							tok.Type, e.expectedType)
+							tok.Type, e.Type)
 					}
 
-					if tok.Literal != e.expectedLiteral {
+					if tok.Literal != e.Literal {
 						t.Errorf("Literal: got: %q, want: %q",
-							tok.Literal, e.expectedLiteral)
+							tok.Literal, e.Literal)
 					}
 
-					if tok.Column != e.expectedColumn {
+					if tok.Column != e.Column {
 						t.Errorf("Column: got: %d, want: %d",
-							tok.Column, e.expectedColumn)
+							tok.Column, e.Column)
 					}
 				})
 			}

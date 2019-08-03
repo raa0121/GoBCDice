@@ -31,36 +31,39 @@ type yyXError struct {
 }
 
 const (
-	yyDefault = 57373
-	yyEofCode = 57344
-	ASTERISK  = 57351
-	B         = 57364
-	CALC      = 57369
-	CHOICE    = 57370
-	D         = 57363
-	DIAMOND   = 57358
-	DOTS      = 57368
-	EQ        = 57353
-	GT        = 57355
-	GTEQ      = 57357
-	IDENT     = 57347
-	ILLEGAL   = 57346
-	INT       = 57348
-	LT        = 57354
-	LTEQ      = 57356
-	L_BRACKET = 57361
-	L_PAREN   = 57359
-	MINUS     = 57350
-	PLUS      = 57349
-	R         = 57365
-	R_BRACKET = 57362
-	R_PAREN   = 57360
-	SECRET    = 57367
-	SLASH     = 57352
-	U         = 57366
-	UMINUS    = 57372
-	UPLUS     = 57371
-	yyErrCode = 57345
+	yyDefault    = 57376
+	yyEofCode    = 57344
+	ASTERISK     = 57352
+	B            = 57366
+	CALC         = 57371
+	CHOICE_BEGIN = 57372
+	CHOICE_END   = 57373
+	COMMA        = 57364
+	D            = 57365
+	DIAMOND      = 57359
+	DOTS         = 57370
+	EQ           = 57354
+	GT           = 57356
+	GTEQ         = 57358
+	IDENT        = 57347
+	ILLEGAL      = 57346
+	INT          = 57348
+	LT           = 57355
+	LTEQ         = 57357
+	L_BRACKET    = 57362
+	L_PAREN      = 57360
+	MINUS        = 57351
+	PLUS         = 57350
+	R            = 57367
+	R_BRACKET    = 57363
+	R_PAREN      = 57361
+	SECRET       = 57369
+	SLASH        = 57353
+	STRING       = 57349
+	U            = 57368
+	UMINUS       = 57375
+	UPLUS        = 57374
+	yyErrCode    = 57345
 
 	yyMaxDepth = 200
 	yyTabOfs   = -72
@@ -86,49 +89,52 @@ var (
 	}
 
 	yyXLAT = map[int]int{
-		57349: 0,  // PLUS (124x)
-		57350: 1,  // MINUS (120x)
-		57351: 2,  // ASTERISK (79x)
-		57352: 3,  // SLASH (79x)
+		57350: 0,  // PLUS (124x)
+		57351: 1,  // MINUS (120x)
+		57352: 2,  // ASTERISK (79x)
+		57353: 3,  // SLASH (79x)
 		57344: 4,  // $end (70x)
-		57360: 5,  // R_PAREN (65x)
-		57365: 6,  // R (58x)
-		57366: 7,  // U (58x)
-		57359: 8,  // L_PAREN (47x)
+		57361: 5,  // R_PAREN (65x)
+		57367: 6,  // R (58x)
+		57368: 7,  // U (58x)
+		57360: 8,  // L_PAREN (47x)
 		57348: 9,  // INT (46x)
-		57381: 10, // int (46x)
-		57358: 11, // DIAMOND (44x)
-		57353: 12, // EQ (44x)
-		57355: 13, // GT (44x)
-		57357: 14, // GTEQ (44x)
-		57354: 15, // LT (44x)
-		57356: 16, // LTEQ (44x)
-		57361: 17, // L_BRACKET (23x)
-		57384: 18, // rand (23x)
-		57382: 19, // int_expr (21x)
-		57383: 20, // int_rand_expr (20x)
-		57386: 21, // roll_operand (15x)
-		57378: 22, // d_roll (12x)
-		57380: 23, // d_roll_expr (12x)
-		57364: 24, // B (10x)
-		57363: 25, // D (7x)
-		57368: 26, // DOTS (4x)
-		57362: 27, // R_BRACKET (4x)
-		57374: 28, // b_roll (2x)
-		57385: 29, // rand_operand (2x)
-		57375: 30, // b_roll_comp (1x)
-		57376: 31, // b_roll_list (1x)
-		57369: 32, // CALC (1x)
-		57377: 33, // command (1x)
-		57379: 34, // d_roll_comp (1x)
-		57373: 35, // $default (0x)
-		57370: 36, // CHOICE (0x)
-		57345: 37, // error (0x)
-		57347: 38, // IDENT (0x)
-		57346: 39, // ILLEGAL (0x)
-		57367: 40, // SECRET (0x)
-		57372: 41, // UMINUS (0x)
-		57371: 42, // UPLUS (0x)
+		57384: 10, // int (46x)
+		57359: 11, // DIAMOND (44x)
+		57354: 12, // EQ (44x)
+		57356: 13, // GT (44x)
+		57358: 14, // GTEQ (44x)
+		57355: 15, // LT (44x)
+		57357: 16, // LTEQ (44x)
+		57362: 17, // L_BRACKET (23x)
+		57387: 18, // rand (23x)
+		57385: 19, // int_expr (21x)
+		57386: 20, // int_rand_expr (20x)
+		57389: 21, // roll_operand (15x)
+		57381: 22, // d_roll (12x)
+		57383: 23, // d_roll_expr (12x)
+		57366: 24, // B (10x)
+		57365: 25, // D (7x)
+		57370: 26, // DOTS (4x)
+		57363: 27, // R_BRACKET (4x)
+		57377: 28, // b_roll (2x)
+		57388: 29, // rand_operand (2x)
+		57378: 30, // b_roll_comp (1x)
+		57379: 31, // b_roll_list (1x)
+		57371: 32, // CALC (1x)
+		57380: 33, // command (1x)
+		57382: 34, // d_roll_comp (1x)
+		57376: 35, // $default (0x)
+		57372: 36, // CHOICE_BEGIN (0x)
+		57373: 37, // CHOICE_END (0x)
+		57364: 38, // COMMA (0x)
+		57345: 39, // error (0x)
+		57347: 40, // IDENT (0x)
+		57346: 41, // ILLEGAL (0x)
+		57369: 42, // SECRET (0x)
+		57349: 43, // STRING (0x)
+		57375: 44, // UMINUS (0x)
+		57374: 45, // UPLUS (0x)
 	}
 
 	yySymNames = []string{
@@ -168,11 +174,14 @@ var (
 		"command",
 		"d_roll_comp",
 		"$default",
-		"CHOICE",
+		"CHOICE_BEGIN",
+		"CHOICE_END",
+		"COMMA",
 		"error",
 		"IDENT",
 		"ILLEGAL",
 		"SECRET",
+		"STRING",
 		"UMINUS",
 		"UPLUS",
 	}
@@ -467,7 +476,7 @@ func yylex1(yylex yyLexer, lval *yySymType) (n int) {
 }
 
 func yyParse(yylex yyLexer) int {
-	const yyError = 37
+	const yyError = 39
 
 	yyEx, _ := yylex.(yyLexerEx)
 	var yyn int
@@ -946,8 +955,9 @@ type LexerWrapper struct {
 var tokenTypeToYYTokenType = map[token.TokenType]int{
 	token.ILLEGAL: ILLEGAL,
 
-	token.IDENT: IDENT,
-	token.INT:   INT,
+	token.IDENT:  IDENT,
+	token.INT:    INT,
+	token.STRING: STRING,
 
 	token.PLUS:     PLUS,
 	token.MINUS:    MINUS,
@@ -965,6 +975,7 @@ var tokenTypeToYYTokenType = map[token.TokenType]int{
 	token.R_PAREN:   R_PAREN,
 	token.L_BRACKET: L_BRACKET,
 	token.R_BRACKET: R_BRACKET,
+	token.COMMA:     COMMA,
 
 	token.D:      D,
 	token.B:      B,
@@ -973,8 +984,10 @@ var tokenTypeToYYTokenType = map[token.TokenType]int{
 	token.SECRET: SECRET,
 	token.DOTS:   DOTS,
 
-	token.CALC:   CALC,
-	token.CHOICE: CHOICE,
+	token.CALC: CALC,
+
+	token.CHOICE_BEGIN: CHOICE_BEGIN,
+	token.CHOICE_END:   CHOICE_END,
 }
 
 // newLexerWrapper は新しい字句解析器ラッパーを作る。
