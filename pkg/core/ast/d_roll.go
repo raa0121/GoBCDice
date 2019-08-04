@@ -23,7 +23,7 @@ func (n *DRoll) Type() NodeType {
 
 // Precedence は演算子の優先順位を返す。
 func (n *DRoll) Precedence() OperatorPrecedenceType {
-	return PREC_D_ROLL
+	return PREC_ROLL
 }
 
 // IsLeftAssociative は左結合性かどうかを返す。

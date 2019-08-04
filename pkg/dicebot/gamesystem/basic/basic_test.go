@@ -7,6 +7,24 @@ import (
 )
 
 func TestDiceBot(t *testing.T) {
-	testDataPath := filepath.Join("testdata", "DiceBot.txt")
-	dicebottesting.Run("DiceBot", testDataPath, t)
+	testDataFileBaseNames := []string{
+		"calc.txt",
+		"d_roll_expr.txt",
+		"d_roll_comp.txt",
+		"b_roll_list.txt",
+		"b_roll_comp.txt",
+	}
+
+	testDataFiles := joinWithTestData(testDataFileBaseNames)
+	dicebottesting.Run("DiceBot", t, testDataFiles...)
+}
+
+func joinWithTestData(basenames []string) []string {
+	files := make([]string, 0, len(basenames))
+
+	for _, b := range basenames {
+		files = append(files, filepath.Join("testdata", b))
+	}
+
+	return files
 }

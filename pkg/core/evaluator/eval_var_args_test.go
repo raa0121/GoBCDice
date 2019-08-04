@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
@@ -37,15 +38,126 @@ func TestEvalVarArgs(t *testing.T) {
 	testcases := []struct {
 		input    string
 		expected string
+		dice     []dice.Die
 	}{
-		{"(1+2)d6", "(DRollExpr (DRoll 3 6))"},
-		{"4d(3*2)", "(DRollExpr (DRoll 4 6))"},
-		{"(8/2)D(4+6)", "(DRollExpr (DRoll 4 10))"},
-		{"-(1+2)d6", "(DRollExpr (- (DRoll 3 6)))"},
-		{"(2+3)d6-1+3d6+2", "(DRollExpr (+ (+ (- (DRoll 5 6) 1) (DRoll 3 6)) 2))"},
-		{"(2*3-4)d6-1d4+1", "(DRollExpr (+ (- (DRoll 2 6) (DRoll 1 4)) 1))"},
-		{"((2+3)*4/3)d6*2+5", "(DRollExpr (+ (* (DRoll 6 6) 2) 5))"},
-		{"(2-1)d(8/2)*(1+1)d(3*4/2)+2*3", "(DRollExpr (+ (* (DRoll 1 4) (DRoll 2 6)) (* 2 3)))"},
+		{
+			input:    "(1+2)d6",
+			expected: "(DRollExpr (DRoll 3 6))",
+		},
+		{
+			input:    "4d(3*2)",
+			expected: "(DRollExpr (DRoll 4 6))",
+		},
+		{
+			input:    "(8/2)D(4+6)",
+			expected: "(DRollExpr (DRoll 4 10))",
+		},
+		{
+			input:    "-(1+2)d6",
+			expected: "(DRollExpr (- (DRoll 3 6)))",
+		},
+		{
+			input:    "(2+3)d6-1+3d6+2",
+			expected: "(DRollExpr (+ (+ (- (DRoll 5 6) 1) (DRoll 3 6)) 2))",
+		},
+		{
+			input:    "(2*3-4)d6-1d4+1",
+			expected: "(DRollExpr (+ (- (DRoll 2 6) (DRoll 1 4)) 1))",
+		},
+		{
+			input:    "((2+3)*4/3)d6*2+5",
+			expected: "(DRollExpr (+ (* (DRoll 6 6) 2) 5))",
+		},
+		{
+			input:    "(2-1)d(8/2)*(1+1)d(3*4/2)+2*3",
+			expected: "(DRollExpr (+ (* (DRoll 1 4) (DRoll 2 6)) (* 2 3)))",
+		},
+		{
+			input:    "[1...5]D6",
+			expected: "(DRollExpr (DRoll 4 6))",
+			dice:     []dice.Die{{4, 5}},
+		},
+		{
+			input:    "([2...4]+2)D10",
+			expected: "(DRollExpr (DRoll 6 10))",
+			dice:     []dice.Die{{3, 3}},
+		},
+		{
+			input:    "[(2+3)...8]D6",
+			expected: "(DRollExpr (DRoll 5 6))",
+			dice:     []dice.Die{{1, 4}},
+		},
+		{
+			input:    "[5...(7+1)]D6",
+			expected: "(DRollExpr (DRoll 5 6))",
+			dice:     []dice.Die{{1, 4}},
+		},
+		{
+			input:    "2d[1...5]",
+			expected: "(DRollExpr (DRoll 2 2))",
+			dice:     []dice.Die{{2, 5}},
+		},
+		{
+			input:    "2d([2...4]+2)",
+			expected: "(DRollExpr (DRoll 2 5))",
+			dice:     []dice.Die{{2, 3}},
+		},
+		{
+			input:    "2d[(2+3)...8]",
+			expected: "(DRollExpr (DRoll 2 8))",
+			dice:     []dice.Die{{4, 4}},
+		},
+		{
+			input:    "2d[5...(7+1)]",
+			expected: "(DRollExpr (DRoll 2 8))",
+			dice:     []dice.Die{{4, 4}},
+		},
+		{
+			input:    "([1...4]+1)d([2...4]+2)-1",
+			expected: "(DRollExpr (- (DRoll 3 6) 1))",
+			dice:     []dice.Die{{2, 4}, {3, 3}},
+		},
+		{
+			input:    "[1...3]b6",
+			expected: "(BRollList (BRoll 1 6))",
+			dice:     []dice.Die{{1, 3}},
+		},
+		{
+			input:    "2b[4...6]",
+			expected: "(BRollList (BRoll 2 4))",
+			dice:     []dice.Die{{1, 3}},
+		},
+		{
+			input:    "[1...3]b[4...6]",
+			expected: "(BRollList (BRoll 3 6))",
+			dice:     []dice.Die{{3, 3}, {3, 3}},
+		},
+		{
+			input:    "(1*2)b6",
+			expected: "(BRollList (BRoll 2 6))",
+		},
+		{
+			input:    "([1...3]+1)b6",
+			expected: "(BRollList (BRoll 3 6))",
+			dice:     []dice.Die{{2, 3}},
+		},
+		{
+			input:    "2b(2+4)",
+			expected: "(BRollList (BRoll 2 6))",
+		},
+		{
+			input:    "2b([3...5]+1)",
+			expected: "(BRollList (BRoll 2 5))",
+			dice:     []dice.Die{{2, 3}},
+		},
+		{
+			input:    "(1*2)b(2+4)",
+			expected: "(BRollList (BRoll 2 6))",
+		},
+		{
+			input:    "(1*2)b(2+4)+(8/2)b(101/10R)",
+			expected: "(BRollList (BRoll 2 6) (BRoll 4 10))",
+		},
 	}
 
 	for _, test := range testcases {
@@ -57,7 +169,7 @@ func TestEvalVarArgs(t *testing.T) {
 			}
 
 			// 可変ノードの引数を評価する
-			dieFeeder := feeder.NewEmptyQueue()
+			dieFeeder := feeder.NewQueue(test.dice)
 			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
 			evalErr := evaluator.EvalVarArgs(ast)

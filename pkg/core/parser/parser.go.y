@@ -20,6 +20,8 @@ import (
 %union{
 	token token.Token
 	node ast.Node
+	bRoll *ast.BRoll
+	bRollList *ast.BRollList
 }
 
 %token<token> ILLEGAL
@@ -44,8 +46,8 @@ import (
 %token<token> L_BRACKET
 %token<token> R_BRACKET
 
-%token<token> D_ROLL
-%token<token> B_ROLL
+%token<token> D
+%token<token> B
 %token<token> R
 %token<token> U
 %token<token> SECRET
@@ -59,14 +61,19 @@ import (
 %type<node> int_rand_expr
 %type<node> d_roll_expr
 %type<node> d_roll_comp
+%type<bRollList> b_roll_list
+%type<node> b_roll_comp
+%type<node> roll_operand
 %type<node> d_roll
+%type<bRoll> b_roll
+%type<node> rand_operand
 %type<node> rand
 %type<node> int
 
 %nonassoc EQ, LT, GT, LTEQ, GTEQ, DIAMOND
 %left PLUS, MINUS
 %left ASTERISK, SLASH
-%nonassoc D_ROLL
+%nonassoc D, B
 %nonassoc DOTS
 %nonassoc UPLUS, UMINUS
 
@@ -81,6 +88,16 @@ command
 	| d_roll_comp
 	{
 		$$ = ast.NewDRollComp($1.Token(), $1)
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| b_roll_list
+	{
+		$$ = $1
+		yylex.(*LexerWrapper).ast = $$
+	}
+	| b_roll_comp
+	{
+		$$ = ast.NewBRollComp($1.Token(), $1)
 		yylex.(*LexerWrapper).ast = $$
 	}
 	| CALC L_PAREN int_expr R_PAREN
@@ -260,6 +277,10 @@ d_roll_comp
 	{
 		$$ = ast.NewCompare($1, $2, $3)
 	}
+	| d_roll_expr DIAMOND int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
 	| d_roll_expr LT int_expr
 	{
 		$$ = ast.NewCompare($1, $2, $3)
@@ -276,57 +297,74 @@ d_roll_comp
 	{
 		$$ = ast.NewCompare($1, $2, $3)
 	}
-	| d_roll_expr DIAMOND int_expr
+
+b_roll_list
+	: b_roll
+	{
+		$$ = ast.NewBRollList($1)
+	}
+	| b_roll_list PLUS b_roll
+	{
+		$$.Append($3)
+	}
+
+b_roll_comp
+	: b_roll_list EQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list DIAMOND int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list LT int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list GT int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list LTEQ int_expr
+	{
+		$$ = ast.NewCompare($1, $2, $3)
+	}
+	| b_roll_list GTEQ int_expr
 	{
 		$$ = ast.NewCompare($1, $2, $3)
 	}
 
+roll_operand
+	: int
+	| rand
+	| L_PAREN int_rand_expr R_PAREN
+	{
+		$$ = $2
+	}
+
 d_roll
-	: int D_ROLL int
+	: roll_operand D roll_operand
 	{
 		$$ = ast.NewDRoll($1, $2, $3)
 	}
-	| rand D_ROLL int
+
+b_roll
+	: roll_operand B roll_operand
 	{
-		$$ = ast.NewDRoll($1, $2, $3)
+		$$ = ast.NewBRoll($1, $2, $3)
 	}
-	| int D_ROLL rand
+
+rand_operand
+	: int
+	| L_PAREN int_expr R_PAREN
 	{
-		$$ = ast.NewDRoll($1, $2, $3)
-	}
-	| rand D_ROLL rand
-	{
-		$$ = ast.NewDRoll($1, $2, $3)
-	}
-	| L_PAREN int_rand_expr R_PAREN D_ROLL int
-	{
-		$$ = ast.NewDRoll($2, $4, $5)
-	}
-	| int D_ROLL L_PAREN int_rand_expr R_PAREN
-	{
-		$$ = ast.NewDRoll($1, $2, $4)
-	}
-	| L_PAREN int_rand_expr R_PAREN D_ROLL L_PAREN int_rand_expr R_PAREN
-	{
-		$$ = ast.NewDRoll($2, $4, $6)
+		$$ = $2
 	}
 
 rand
-	: L_BRACKET int DOTS int R_BRACKET
+	: L_BRACKET rand_operand DOTS rand_operand R_BRACKET
 	{
 		$$ = ast.NewRandomNumber($2, $3, $4)
-	}
-	| L_BRACKET L_PAREN int_expr R_PAREN DOTS int R_BRACKET
-	{
-		$$ = ast.NewRandomNumber($3, $5, $6)
-	}
-	| L_BRACKET int DOTS L_PAREN int_expr R_PAREN R_BRACKET
-	{
-		$$ = ast.NewRandomNumber($2, $3, $5)
-	}
-	| L_BRACKET L_PAREN int_expr R_PAREN DOTS L_PAREN int_expr R_PAREN R_BRACKET
-	{
-		$$ = ast.NewRandomNumber($3, $5, $7)
 	}
 
 int
@@ -378,8 +416,8 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.L_BRACKET: L_BRACKET,
 	token.R_BRACKET: R_BRACKET,
 
-	token.D_ROLL: D_ROLL,
-	token.B_ROLL: B_ROLL,
+	token.D: D,
+	token.B: B,
 	token.R: R,
 	token.U: U,
 	token.SECRET: SECRET,

@@ -78,9 +78,9 @@ const (
 	R_BRACKET
 
 	// ダイスロール：加算ロールとD66ロール "D"
-	D_ROLL
+	D
 	// バラバラロール "B"
-	B_ROLL
+	B
 	// 個数振り足しロール、切り上げ "R"
 	R
 	// 上方無限ロール、四捨五入 "U"
@@ -120,8 +120,8 @@ var tokenTypeString = map[TokenType]string{
 	L_BRACKET: "[",
 	R_BRACKET: "]",
 
-	D_ROLL: "D_ROLL",
-	B_ROLL: "B_ROLL",
+	D:      "D",
+	B:      "B",
 	R:      "R",
 	U:      "U",
 	SECRET: "SECRET",
@@ -133,8 +133,8 @@ var tokenTypeString = map[TokenType]string{
 
 // 識別子 -> キーワードの対応表
 var keywords = map[string]TokenType{
-	"D":      D_ROLL,
-	"B":      B_ROLL,
+	"D":      D,
+	"B":      B,
 	"R":      R,
 	"U":      U,
 	"S":      SECRET,

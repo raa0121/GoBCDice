@@ -14,12 +14,12 @@ import (
 // Run はダイスボットのテストを実行する。
 //
 // gameID: ゲーム識別子,
-// testDataPath: テストデータファイルのパス,
 // t: テストの状態管理。
-func Run(gameID string, testDataPath string, t *testing.T) {
-	testcases, loadErr := ParseFile(testDataPath, gameID)
+// testDataFiles: テストデータファイルのパス,
+func Run(gameID string, t *testing.T, testDataFiles ...string) {
+	testcases, loadErr := ParseFiles(testDataFiles, gameID)
 	if loadErr != nil {
-		t.Fatalf("%s を読み込めません: %s", testDataPath, loadErr)
+		t.Fatalf("テストデータファイルの読み込み失敗: %s", loadErr)
 		return
 	}
 

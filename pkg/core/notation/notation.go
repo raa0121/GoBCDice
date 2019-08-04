@@ -8,6 +8,7 @@
 package notation
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"strings"
@@ -29,12 +30,16 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
 	case *ast.Calc:
 		return infixNotationOfCalc(n, walkingToLeft)
+	case *ast.BRollList:
+		return infixNotationOfBRollList(n)
 	case ast.Command:
 		return infixNotationOfCommand(n, walkingToLeft)
 	case *ast.Compare:
-		return infixNotationOfCompare(n, walkingToLeft)
+		return infixNotationOfCompare(n)
 	case ast.Divide:
 		return infixNotationOfDivide(n, walkingToLeft)
+	case *ast.RandomNumber:
+		return infixNotationOfRandomNumber(n)
 	case ast.PrefixExpression:
 		return infixNotationOfPrefixExpression(n, walkingToLeft)
 	case ast.InfixExpression:
@@ -42,7 +47,7 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	case *ast.Int:
 		return fmt.Sprintf("%d", n.Value), nil
 	case *ast.SumRollResult:
-		return infixNotationOfSumRollResult(n, walkingToLeft)
+		return infixNotationOfSumRollResult(n)
 	}
 
 	return "", fmt.Errorf("infix notation not implemented: %s", node.Type())
@@ -68,8 +73,23 @@ func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
 	return fmt.Sprintf("C(%s)", expr), nil
 }
 
+// infixNotationOfBRollList はバラバラロールのリストの中置表記を返す。
+func infixNotationOfBRollList(node *ast.BRollList) (string, error) {
+	infixNotations := make([]string, 0, len(node.BRolls))
+	for _, b := range node.BRolls {
+		n, err := InfixNotation(b, true)
+		if err != nil {
+			return "", err
+		}
+
+		infixNotations = append(infixNotations, n)
+	}
+
+	return strings.Join(infixNotations, "+"), nil
+}
+
 // infixNotationOfCompare は比較式の中置表記を返す。
-func infixNotationOfCompare(node *ast.Compare, _ bool) (string, error) {
+func infixNotationOfCompare(node *ast.Compare) (string, error) {
 	leftInfixNotation, leftErr := InfixNotation(node.Left(), true)
 	if leftErr != nil {
 		return "", leftErr
@@ -223,8 +243,24 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression, walkingTo
 	return leftInfixNotation, rightInfixNotation, nil
 }
 
+// infixNotationOfRandomNumber はランダム数値取り出しの中置表記を返す。
+func infixNotationOfRandomNumber(node *ast.RandomNumber) (string, error) {
+	var out bytes.Buffer
+
+	n, err := infixNotationOfInfixExpression(node, true)
+	if err != nil {
+		return "", err
+	}
+
+	out.WriteString("[")
+	out.WriteString(n)
+	out.WriteString("]")
+
+	return out.String(), nil
+}
+
 // infixNotationOfSumRollResult は加算ロール結果の中置表記を返す。
-func infixNotationOfSumRollResult(node *ast.SumRollResult, _ bool) (string, error) {
+func infixNotationOfSumRollResult(node *ast.SumRollResult) (string, error) {
 	dieValueStrs := []string{}
 
 	for _, d := range node.Dice {

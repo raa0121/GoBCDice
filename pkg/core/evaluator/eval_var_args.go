@@ -10,6 +10,8 @@ import (
 // EvalVarArgs は可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 	switch n := node.(type) {
+	case *ast.BRollList:
+		return e.evalVarArgsInBRollList(n)
 	case ast.Command:
 		return e.evalVarArgsInCommand(n)
 	case ast.PrefixExpression:
@@ -28,14 +30,16 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
 	switch n := node.(type) {
 	case *ast.DRoll:
-		return e.evalVarArgsOfDRoll(n)
+		return e.evalVarArgsOfRoll(n)
+	case *ast.BRoll:
+		return e.evalVarArgsOfRoll(n)
 	}
 
 	return fmt.Errorf("evalVarArgsOfVariableExpr not implemented: %s", node.Type())
 }
 
-// evalVarArgsOfDRoll は加算ロールノードの引数を評価して整数に変換する。
-func (e *Evaluator) evalVarArgsOfDRoll(node *ast.DRoll) error {
+// evalVarArgsOfRoll はダイスロールノードの引数を評価して整数に変換する。
+func (e *Evaluator) evalVarArgsOfRoll(node ast.InfixExpression) error {
 	leftObj, leftErr := e.Eval(node.Left())
 	if leftErr != nil {
 		return leftErr
@@ -51,6 +55,18 @@ func (e *Evaluator) evalVarArgsOfDRoll(node *ast.DRoll) error {
 
 	node.SetLeft(evaluatedLeft)
 	node.SetRight(evaluatedRight)
+
+	return nil
+}
+
+// evalVarArgsInBRollList はバラバラロールリスト内の可変ノードの引数を評価して整数に変換する。
+func (e *Evaluator) evalVarArgsInBRollList(node *ast.BRollList) error {
+	for _, b := range node.BRolls {
+		err := e.evalVarArgsOfVariableExpr(b)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

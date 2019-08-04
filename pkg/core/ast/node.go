@@ -21,6 +21,8 @@ const (
 
 	D_ROLL_EXPR_NODE
 	D_ROLL_COMP_NODE
+	B_ROLL_LIST_NODE
+	B_ROLL_COMP_NODE
 	CALC_NODE
 
 	PREFIX_EXPRESSION_NODE
@@ -35,6 +37,7 @@ const (
 	DIVIDE_WITH_ROUNDING_NODE
 	DIVIDE_WITH_ROUNDING_DOWN_NODE
 	D_ROLL_NODE
+	B_ROLL_NODE
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
@@ -45,11 +48,15 @@ const (
 var nodeTypeString = map[NodeType]string{
 	UNKNOWN_NODE: "UNKNOWN",
 
-	D_ROLL_EXPR_NODE:               "DRollExpr",
-	D_ROLL_COMP_NODE:               "DRollComp",
-	CALC_NODE:                      "Calc",
-	PREFIX_EXPRESSION_NODE:         "PrefixExpression",
-	UNARY_MINUS_NODE:               "UnaryMinus",
+	D_ROLL_EXPR_NODE: "DRollExpr",
+	D_ROLL_COMP_NODE: "DRollComp",
+	B_ROLL_LIST_NODE: "BRollList",
+	B_ROLL_COMP_NODE: "BRollComp",
+	CALC_NODE:        "Calc",
+
+	PREFIX_EXPRESSION_NODE: "PrefixExpression",
+	UNARY_MINUS_NODE:       "UnaryMinus",
+
 	INFIX_EXPRESSION_NODE:          "InfixExpression",
 	COMPARE_NODE:                   "Compare",
 	ADD_NODE:                       "Add",
@@ -59,9 +66,11 @@ var nodeTypeString = map[NodeType]string{
 	DIVIDE_WITH_ROUNDING_NODE:      "DivideWithRounding",
 	DIVIDE_WITH_ROUNDING_DOWN_NODE: "DivideWithRoundingDown",
 	D_ROLL_NODE:                    "DRoll",
+	B_ROLL_NODE:                    "BRoll",
 	RANDOM_NUMBER_NODE:             "RandomNumber",
-	INT_NODE:                       "Int",
-	SUM_ROLL_RESULT_NODE:           "SumRollResult",
+
+	INT_NODE:             "Int",
+	SUM_ROLL_RESULT_NODE: "SumRollResult",
 }
 
 // 抽象構文木のノードのインターフェース。
