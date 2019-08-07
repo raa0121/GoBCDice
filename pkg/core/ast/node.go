@@ -41,6 +41,7 @@ const (
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
+	STRING_NODE
 	SUM_ROLL_RESULT_NODE
 )
 
@@ -70,6 +71,7 @@ var nodeTypeString = map[NodeType]string{
 	RANDOM_NUMBER_NODE:             "RandomNumber",
 
 	INT_NODE:             "Int",
+	STRING_NODE:          "String",
 	SUM_ROLL_RESULT_NODE: "SumRollResult",
 }
 

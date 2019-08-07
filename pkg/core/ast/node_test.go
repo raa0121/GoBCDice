@@ -32,6 +32,7 @@ func TestNode_Type(t *testing.T) {
 		{&RandomNumber{}, "RandomNumber"},
 
 		{&Int{}, "Int"},
+		{&String{}, "String"},
 		{&SumRollResult{}, "SumRollResult"},
 	}
 
@@ -73,6 +74,7 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&RandomNumber{}, true},
 
 		{&Int{}, true},
+		{&String{}, true},
 		{&SumRollResult{}, true},
 	}
 
@@ -252,6 +254,10 @@ func TestNode_IsVariable(t *testing.T) {
 				),
 			),
 			expected: true,
+		},
+		{
+			node:     NewString("hello", token.Token{token.STRING, "hello", 1}),
+			expected: false,
 		},
 	}
 
