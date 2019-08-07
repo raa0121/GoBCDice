@@ -1,0 +1,120 @@
+{
+// vim: noexpandtab sw=4 ts=4 sts=4
+	package peg_parser
+
+	import (
+		"github.com/raa0121/GoBCDice/pkg/core/ast"
+		"github.com/raa0121/GoBCDice/pkg/core/token"
+		"strconv"
+		"strings"
+	)
+}
+
+Command <- n:Calc EOT {
+	return n.(ast.Node), nil
+}
+
+Calc <- calc:"C"i '(' expr:IntExpr ')' {
+	exprNode := expr.(ast.Node)
+	return ast.NewCalc(
+		token.Token{
+			Type: token.CALC,
+			Literal: string(calc.([]byte)),
+			Column: c.pos.col,
+		},
+		exprNode,
+	), nil
+}
+
+IntExpr <- IntExprAdditive
+
+IntExprAdditive <- left:IntExprMultitive additives:(('+' / '-') IntExprMultitive)* {
+	leftNode := left.(ast.Node)
+
+	lastNode := leftNode
+	additiveSlice := additives.([]interface{})
+	for _, e := range additiveSlice {
+		es := e.([]interface{})
+		op := string(es[0].([]byte))
+		oper := es[1].(ast.Node)
+
+		switch op {
+		case "+":
+			tok := token.Token{Type: token.PLUS, Literal: op}
+			lastNode = ast.NewAdd(lastNode, tok, oper)
+		case "-":
+			tok := token.Token{Type: token.PLUS, Literal: op}
+			lastNode = ast.NewSubtract(lastNode, tok, oper)
+		}
+	}
+
+	return lastNode, nil
+}
+
+IntExprMultitive <- left:IntExprPrimary multitives:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
+	leftNode := left.(ast.Node)
+
+	lastNode := leftNode
+	multitiveSlice := multitives.([]interface{})
+	for _, e := range multitiveSlice {
+		es := e.([]interface{})
+		op := string(es[0].([]byte))
+		oper := es[1].(ast.Node)
+
+		var roundingMethod string
+		if len(es) >= 3 {
+			roundingMethod = strings.ToUpper(string(es[2].([]byte)))
+		}
+
+		switch op {
+		case "*":
+			tok := token.Token{Type: token.ASTERISK, Literal: op}
+			lastNode = ast.NewMultiply(lastNode, tok, oper)
+		case "/":
+			tok := token.Token{Type: token.SLASH, Literal: op}
+			switch roundingMethod {
+			case "U":
+				lastNode = ast.NewDivideWithRoundingUp(lastNode, tok, oper)
+			case "R":
+				lastNode = ast.NewDivideWithRounding(lastNode, tok, oper)
+			case "":
+				lastNode = ast.NewDivideWithRoundingDown(lastNode, tok, oper)
+			}
+		}
+	}
+
+	return lastNode, nil
+}
+
+IntExprPrimary <- Integer / IntExprUnaryPlus / IntExprUnaryMinus / IntExprParenthesize
+
+IntExprParenthesize <- "(" e:IntExpr ")" {
+	return e.(ast.Node), nil
+}
+
+IntExprUnaryPlus <- "+" e:IntExpr {
+	return e.(ast.Node), nil
+}
+
+IntExprUnaryMinus <- "-" e:(Integer / IntExprUnaryMinus / IntExprParenthesize) {
+	tok := token.Token{Type: token.MINUS, Literal: "-"}
+	return ast.NewUnaryMinus(tok, e.(ast.Node)), nil
+}
+
+Integer <- [0-9]+ {
+	s := string(c.text)
+
+	// TODO: 整数が大きすぎるときなどのエラー処理が必要
+	value, _ := strconv.Atoi(s)
+
+	return ast.NewInt(
+		value,
+		token.Token{
+			Type: token.INT,
+			Literal: s,
+			Column: c.pos.col,
+		},
+	), nil
+}
+
+EOT <- !.
