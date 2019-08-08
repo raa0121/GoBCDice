@@ -22,6 +22,8 @@ import (
 	node ast.Node
 	bRoll *ast.BRoll
 	bRollList *ast.BRollList
+	choiceItemList *ast.Choice
+	str *ast.String
 }
 
 %token<token> ILLEGAL
@@ -61,6 +63,7 @@ import (
 %token<token> CHOICE_END
 
 %type<node> command
+%type<choiceItemList> choice_item_list
 %type<node> int_expr
 %type<node> int_rand_expr
 %type<node> d_roll_expr
@@ -73,6 +76,7 @@ import (
 %type<node> rand_operand
 %type<node> rand
 %type<node> int
+%type<str> string
 
 %nonassoc EQ, LT, GT, LTEQ, GTEQ, DIAMOND
 %left PLUS, MINUS
@@ -109,6 +113,12 @@ command
 		$$ = ast.NewCalc($1, $3)
 		yylex.(*LexerWrapper).ast = $$
 	}
+	| CHOICE_BEGIN choice_item_list comma_opt CHOICE_END
+	{
+		$$ = $2
+		yylex.(*LexerWrapper).ast = $$
+	}
+
 
 int_expr
 	: int
@@ -338,6 +348,20 @@ b_roll_comp
 		$$ = ast.NewCompare($1, $2, $3)
 	}
 
+choice_item_list
+	: string
+	{
+		$$ = ast.NewChoice($1)
+	}
+	| choice_item_list COMMA string
+	{
+		$$.Append($3)
+	}
+
+comma_opt
+	:
+	| COMMA
+
 roll_operand
 	: int
 	| rand
@@ -378,6 +402,12 @@ int
 		value, _ := strconv.Atoi($1.Literal)
 
 		$$ = ast.NewInt(value, $1)
+	}
+
+string
+	: STRING
+	{
+		$$ = ast.NewString($1.Literal, $1)
 	}
 
 %%

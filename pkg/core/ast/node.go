@@ -24,6 +24,7 @@ const (
 	B_ROLL_LIST_NODE
 	B_ROLL_COMP_NODE
 	CALC_NODE
+	CHOICE_NODE
 
 	PREFIX_EXPRESSION_NODE
 	UNARY_MINUS_NODE
@@ -54,6 +55,7 @@ var nodeTypeString = map[NodeType]string{
 	B_ROLL_LIST_NODE: "BRollList",
 	B_ROLL_COMP_NODE: "BRollComp",
 	CALC_NODE:        "Calc",
+	CHOICE_NODE:      "Choice",
 
 	PREFIX_EXPRESSION_NODE: "PrefixExpression",
 	UNARY_MINUS_NODE:       "UnaryMinus",

@@ -15,6 +15,7 @@ func TestNode_Type(t *testing.T) {
 		{&BRollList{}, "BRollList"},
 		{&BRollComp{}, "BRollComp"},
 		{&Calc{}, "Calc"},
+		{&Choice{}, "Choice"},
 
 		{&PrefixExpressionImpl{}, "PrefixExpression"},
 		{&UnaryMinus{}, "UnaryMinus"},
@@ -56,6 +57,7 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&BRollList{}, false},
 		{&BRollComp{}, false},
 		{&Calc{}, false},
+		{&Choice{}, false},
 
 		{&PrefixExpressionImpl{}, false},
 		{&UnaryMinus{}, false},
@@ -258,6 +260,10 @@ func TestNode_IsVariable(t *testing.T) {
 		{
 			node:     NewString("hello", token.Token{token.STRING, "hello", 1}),
 			expected: false,
+		},
+		{
+			node:     NewChoice(NewString("hello", token.Token{token.STRING, "hello", 8})),
+			expected: true,
 		},
 	}
 
