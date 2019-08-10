@@ -32,6 +32,8 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 		return infixNotationOfCalc(n, walkingToLeft)
 	case *ast.BRollList:
 		return infixNotationOfBRollList(n)
+	case *ast.Choice:
+		return infixNotationOfChoice(n)
 	case ast.Command:
 		return infixNotationOfCommand(n, walkingToLeft)
 	case *ast.Compare:
@@ -86,6 +88,22 @@ func infixNotationOfBRollList(node *ast.BRollList) (string, error) {
 	}
 
 	return strings.Join(infixNotations, "+"), nil
+}
+
+func infixNotationOfChoice(node *ast.Choice) (string, error) {
+	itemValues := make([]string, 0, len(node.Items))
+
+	for _, item := range node.Items {
+		itemValues = append(itemValues, item.Value)
+	}
+
+	var out bytes.Buffer
+
+	out.WriteString("CHOICE[")
+	out.WriteString(strings.Join(itemValues, ","))
+	out.WriteString("]")
+
+	return out.String(), nil
 }
 
 // infixNotationOfCompare は比較式の中置表記を返す。
