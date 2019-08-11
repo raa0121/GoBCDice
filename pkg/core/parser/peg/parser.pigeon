@@ -1,25 +1,15 @@
 {
-	package peg_parser
 
-	import (
-		"github.com/raa0121/GoBCDice/pkg/core/ast"
-		"github.com/raa0121/GoBCDice/pkg/core/token"
-		"strconv"
-		"strings"
-	)
-}
+package peg_parser
 
-Command <- n:Calc EOT {
-	return n.(ast.Node), nil
-}
+import (
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
+	"github.com/raa0121/GoBCDice/pkg/core/token"
+	"strconv"
+	"strings"
+)
 
-Calc <- calc:"C"i '(' expr:IntExpr ')' {
-	return ast.NewCalc2(expr.(ast.Node)), nil
-}
-
-IntExpr <- IntExprAdditive
-
-IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
+func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range rest.([]interface{}) {
 		rs := r.([]interface{})
@@ -37,7 +27,7 @@ IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
 	return lastNode, nil
 }
 
-IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
+func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range rest.([]interface{}) {
 		rs := r.([]interface{})
@@ -67,18 +57,120 @@ IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' 
 	return lastNode, nil
 }
 
-IntExprPrimary <- Integer / IntExprUnaryPlus / IntExprUnaryMinus / IntExprParenthesize
+}
 
-IntExprParenthesize <- "(" e:IntExpr ")" {
+Command <- n:(Calc / DRollExprCommand) EOT {
+	return n, nil
+}
+
+Calc <- calc:'C'i '(' expr:IntExpr ')' {
+	return ast.NewCalc2(expr.(ast.Node)), nil
+}
+
+DRollExprCommand <- #{
+	c.state["RandCount"] = 0
+	return nil
+} expr:DRollExpr {
+	if c.state["RandCount"].(int) < 1 {
+		return nil, fmt.Errorf("random element not found")
+	}
+
+	return ast.NewDRollExpr2(expr.(ast.Node)), nil
+}
+
+IntExpr <- IntExprAdditive
+
+IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
+	return leftAssociativeAdditive(first, rest)
+}
+
+IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
+	return leftAssociativeMultitive(first, rest)
+}
+
+IntExprPrimary <- Integer / IntExprUnaryPlus / IntExprUnaryMinus / ParenthesizedIntExpr
+
+ParenthesizedIntExpr <- '(' e:IntExpr ')' {
 	return e.(ast.Node), nil
 }
 
-IntExprUnaryPlus <- "+" e:IntExpr {
+IntExprUnaryPlus <- '+' e:IntExprPrimary {
 	return e.(ast.Node), nil
 }
 
-IntExprUnaryMinus <- "-" e:IntExprPrimary {
+IntExprUnaryMinus <- '-' e:IntExprPrimary {
 	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+}
+
+DRollExpr <- DRollExprAdditive
+
+DRollExprAdditive <- first:DRollExprMultitive rest:(('+' / '-') DRollExprMultitive)* {
+	return leftAssociativeAdditive(first, rest)
+}
+
+DRollExprMultitive <- first:DRollExprPrimary rest:('/' DRollExprPrimary [ur]i / (('*' / '/') DRollExprPrimary))* {
+	return leftAssociativeMultitive(first, rest)
+}
+
+DRollExprPrimary <- DRoll / Rand / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
+
+ParenthesizedDRollExpr <- '(' e:DRollExpr ')' {
+	return e.(ast.Node), nil
+}
+
+DRollExprUnaryPlus <- '+' e:DRollExprPrimary {
+	return e.(ast.Node), nil
+}
+
+DRollExprUnaryMinus <- '-' e:DRollExprPrimary {
+	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+}
+
+IntRandExpr <- IntRandExprAdditive
+
+IntRandExprAdditive <- first:IntRandExprMultitive rest:(('+' / '-') IntRandExprMultitive)* {
+	return leftAssociativeAdditive(first, rest)
+}
+
+IntRandExprMultitive <- first:IntRandExprPrimary rest:('/' IntRandExprPrimary [ur]i / (('*' / '/') IntRandExprPrimary))* {
+	return leftAssociativeMultitive(first, rest)
+}
+
+IntRandExprPrimary <- Integer / Rand / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
+
+ParenthesizedIntRandExpr <- '(' e:IntRandExpr ')' {
+	return e.(ast.Node), nil
+}
+
+IntRandExprUnaryPlus <- '+' e:IntRandExprPrimary {
+	return e.(ast.Node), nil
+}
+
+IntRandExprUnaryMinus <- '-' e:IntRandExprPrimary {
+	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+}
+
+DRoll <- num:RollOperand 'D'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
+
+	return ast.NewDRoll2(numNode, sidesNode), nil
+}
+
+RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
+
+Rand <- '[' min:RandOperand "..." max:RandOperand ']' IncRandCount {
+	minNode := min.(ast.Node)
+	maxNode := max.(ast.Node)
+
+	return ast.NewRandomNumber2(minNode, maxNode), nil
+}
+
+RandOperand <- Integer / ParenthesizedIntExpr
+
+IncRandCount <- #{
+	c.state["RandCount"] = c.state["RandCount"].(int) + 1
+	return nil
 }
 
 Integer <- [0-9]+ {

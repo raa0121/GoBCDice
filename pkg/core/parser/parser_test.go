@@ -79,6 +79,7 @@ func TestParse(t *testing.T) {
 		{"+2D6", "(DRollExpr (DRoll 2 6))", false},
 		{"2D6+1", "(DRollExpr (+ (DRoll 2 6) 1))", false},
 		{"1+2D6", "(DRollExpr (+ 1 (DRoll 2 6)))", false},
+		{"1+2D6+2", "(DRollExpr (+ (+ 1 (DRoll 2 6)) 2))", false},
 		{"-2D6+1", "(DRollExpr (+ (- (DRoll 2 6)) 1))", false},
 		{"+2D6+1", "(DRollExpr (+ (DRoll 2 6) 1))", false},
 		{"2d6+1-1-2-3-4", "(DRollExpr (- (- (- (- (+ (DRoll 2 6) 1) 1) 2) 3) 4))", false},
