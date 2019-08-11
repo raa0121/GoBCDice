@@ -68,3 +68,18 @@ func NewRandomNumber(min Node, tok token.Token, max Node) *RandomNumber {
 		},
 	}
 }
+
+// NewRand2 はランダム数値取り出しのノードを返す。
+//
+// min: 最小値のノード,
+// max: 最大値のノード。
+func NewRandomNumber2(min Node, max Node) *RandomNumber {
+	return &RandomNumber{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            min,
+			operator:        "...",
+			operatorForSExp: "Rand",
+			right:           max,
+		},
+	}
+}

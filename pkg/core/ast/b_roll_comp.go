@@ -33,6 +33,17 @@ func NewBRollComp(tok token.Token, expression Node) *BRollComp {
 	}
 }
 
+// NewDRollComp2 は新しいバラバラロールの成功数カウントのノードを返す。
+//
+// expression: 式。
+func NewBRollComp2(expression Node) *BRollComp {
+	return &BRollComp{
+		CommandImpl: CommandImpl{
+			expr: expression,
+		},
+	}
+}
+
 // Type はノードの種類を返す。
 func (n *BRollComp) Type() NodeType {
 	return B_ROLL_COMP_NODE

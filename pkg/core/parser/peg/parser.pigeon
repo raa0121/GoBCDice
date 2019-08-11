@@ -14,15 +14,7 @@ Command <- n:Calc EOT {
 }
 
 Calc <- calc:"C"i '(' expr:IntExpr ')' {
-	exprNode := expr.(ast.Node)
-	return ast.NewCalc(
-		token.Token{
-			Type: token.CALC,
-			Literal: string(calc.([]byte)),
-			Column: c.pos.col,
-		},
-		exprNode,
-	), nil
+	return ast.NewCalc2(expr.(ast.Node)), nil
 }
 
 IntExpr <- IntExprAdditive
@@ -36,11 +28,9 @@ IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
 
 		switch op {
 		case "+":
-			tok := token.Token{Type: token.PLUS, Literal: op}
-			lastNode = ast.NewAdd(lastNode, tok, right)
+			lastNode = ast.NewAdd2(lastNode, right)
 		case "-":
-			tok := token.Token{Type: token.PLUS, Literal: op}
-			lastNode = ast.NewSubtract(lastNode, tok, right)
+			lastNode = ast.NewSubtract2(lastNode, right)
 		}
 	}
 
@@ -61,17 +51,15 @@ IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' 
 
 		switch op {
 		case "*":
-			tok := token.Token{Type: token.ASTERISK, Literal: op}
-			lastNode = ast.NewMultiply(lastNode, tok, right)
+			lastNode = ast.NewMultiply2(lastNode, right)
 		case "/":
-			tok := token.Token{Type: token.SLASH, Literal: op}
 			switch roundingMethod {
 			case "U":
-				lastNode = ast.NewDivideWithRoundingUp(lastNode, tok, right)
+				lastNode = ast.NewDivideWithRoundingUp2(lastNode, right)
 			case "R":
-				lastNode = ast.NewDivideWithRounding(lastNode, tok, right)
+				lastNode = ast.NewDivideWithRounding2(lastNode, right)
 			case "":
-				lastNode = ast.NewDivideWithRoundingDown(lastNode, tok, right)
+				lastNode = ast.NewDivideWithRoundingDown2(lastNode, right)
 			}
 		}
 	}
@@ -90,8 +78,7 @@ IntExprUnaryPlus <- "+" e:IntExpr {
 }
 
 IntExprUnaryMinus <- "-" e:IntExprPrimary {
-	tok := token.Token{Type: token.MINUS, Literal: "-"}
-	return ast.NewUnaryMinus(tok, e.(ast.Node)), nil
+	return ast.NewUnaryMinus2(e.(ast.Node)), nil
 }
 
 Integer <- [0-9]+ {
@@ -100,14 +87,7 @@ Integer <- [0-9]+ {
 	// TODO: 整数が大きすぎるときなどのエラー処理が必要
 	value, _ := strconv.Atoi(s)
 
-	return ast.NewInt(
-		value,
-		token.Token{
-			Type: token.INT,
-			Literal: s,
-			Column: c.pos.col,
-		},
-	), nil
+	return ast.NewInt2(value), nil
 }
 
 EOT <- !.

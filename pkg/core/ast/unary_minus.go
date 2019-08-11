@@ -30,3 +30,16 @@ func NewUnaryMinus(tok token.Token, right Node) *UnaryMinus {
 		PrefixExpressionImpl: *NewPrefixExpression(tok, right),
 	}
 }
+
+// NewUnaryMinus2 は新しい単項マイナスのノードを返す。
+//
+// right: 右のノード。
+func NewUnaryMinus2(right Node) *UnaryMinus {
+	return &UnaryMinus{
+		PrefixExpressionImpl: PrefixExpressionImpl{
+			operator:        "-",
+			operatorForSExp: "-",
+			right:           right,
+		},
+	}
+}

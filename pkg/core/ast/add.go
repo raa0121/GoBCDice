@@ -48,3 +48,18 @@ func NewAdd(left Node, tok token.Token, right Node) *Add {
 		InfixExpressionImpl: *NewInfixExpression(left, tok, right),
 	}
 }
+
+// NewAdd2 は新しい加算のノードを返す。
+//
+// left: 加えられる数のノード,
+// right: 加える数のノード。
+func NewAdd2(left Node, right Node) *Add {
+	return &Add{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            left,
+			operator:        "+",
+			operatorForSExp: "+",
+			right:           right,
+		},
+	}
+}

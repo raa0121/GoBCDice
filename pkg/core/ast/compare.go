@@ -48,3 +48,19 @@ func NewCompare(left Node, tok token.Token, right Node) *Compare {
 		InfixExpressionImpl: *NewInfixExpression(left, tok, right),
 	}
 }
+
+// NewCompare2 は新しい比較のノードを返す。
+//
+// left: 左辺のノード,
+// op: 比較演算子,
+// right: 右辺のノード。
+func NewCompare2(left Node, op string, right Node) *Compare {
+	return &Compare{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            left,
+			operator:        op,
+			operatorForSExp: op,
+			right:           right,
+		},
+	}
+}

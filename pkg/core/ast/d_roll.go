@@ -68,3 +68,18 @@ func NewDRoll(num Node, tok token.Token, sides Node) *DRoll {
 		},
 	}
 }
+
+// NewDRoll2 は加算ロールのノードを返す。
+//
+// num: 振るダイスの数のノード,
+// sides: ダイスの面数のノード。
+func NewDRoll2(num Node, sides Node) *DRoll {
+	return &DRoll{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            num,
+			operator:        "D",
+			operatorForSExp: "DRoll",
+			right:           sides,
+		},
+	}
+}

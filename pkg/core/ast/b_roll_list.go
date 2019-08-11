@@ -28,6 +28,15 @@ func NewBRollList(first *BRoll) *BRollList {
 	}
 }
 
+// NewBRollList2 は新しいバラバラロール列のノードを返す。
+//
+// first: 最初のバラバラロール
+func NewBRollList2(first *BRoll) *BRollList {
+	return &BRollList{
+		BRolls: []*BRoll{first},
+	}
+}
+
 // Type はノードの種類を返す。
 func (n *BRollList) Type() NodeType {
 	return B_ROLL_LIST_NODE

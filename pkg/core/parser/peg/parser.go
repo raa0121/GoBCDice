@@ -17,7 +17,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 var g = &grammar{
@@ -89,54 +88,54 @@ var g = &grammar{
 		},
 		{
 			name: "IntExpr",
-			pos:  position{line: 28, col: 1, offset: 420},
+			pos:  position{line: 20, col: 1, offset: 295},
 			expr: &ruleRefExpr{
-				pos:  position{line: 28, col: 12, offset: 431},
+				pos:  position{line: 20, col: 12, offset: 306},
 				name: "IntExprAdditive",
 			},
 		},
 		{
 			name: "IntExprAdditive",
-			pos:  position{line: 30, col: 1, offset: 448},
+			pos:  position{line: 22, col: 1, offset: 323},
 			expr: &actionExpr{
-				pos: position{line: 30, col: 20, offset: 467},
+				pos: position{line: 22, col: 20, offset: 342},
 				run: (*parser).callonIntExprAdditive1,
 				expr: &seqExpr{
-					pos: position{line: 30, col: 20, offset: 467},
+					pos: position{line: 22, col: 20, offset: 342},
 					exprs: []interface{}{
 						&labeledExpr{
-							pos:   position{line: 30, col: 20, offset: 467},
+							pos:   position{line: 22, col: 20, offset: 342},
 							label: "first",
 							expr: &ruleRefExpr{
-								pos:  position{line: 30, col: 26, offset: 473},
+								pos:  position{line: 22, col: 26, offset: 348},
 								name: "IntExprMultitive",
 							},
 						},
 						&labeledExpr{
-							pos:   position{line: 30, col: 43, offset: 490},
+							pos:   position{line: 22, col: 43, offset: 365},
 							label: "rest",
 							expr: &zeroOrMoreExpr{
-								pos: position{line: 30, col: 48, offset: 495},
+								pos: position{line: 22, col: 48, offset: 370},
 								expr: &seqExpr{
-									pos: position{line: 30, col: 49, offset: 496},
+									pos: position{line: 22, col: 49, offset: 371},
 									exprs: []interface{}{
 										&choiceExpr{
-											pos: position{line: 30, col: 50, offset: 497},
+											pos: position{line: 22, col: 50, offset: 372},
 											alternatives: []interface{}{
 												&litMatcher{
-													pos:        position{line: 30, col: 50, offset: 497},
+													pos:        position{line: 22, col: 50, offset: 372},
 													val:        "+",
 													ignoreCase: false,
 												},
 												&litMatcher{
-													pos:        position{line: 30, col: 56, offset: 503},
+													pos:        position{line: 22, col: 56, offset: 378},
 													val:        "-",
 													ignoreCase: false,
 												},
 											},
 										},
 										&ruleRefExpr{
-											pos:  position{line: 30, col: 61, offset: 508},
+											pos:  position{line: 22, col: 61, offset: 383},
 											name: "IntExprMultitive",
 										},
 									},
@@ -149,43 +148,43 @@ var g = &grammar{
 		},
 		{
 			name: "IntExprMultitive",
-			pos:  position{line: 50, col: 1, offset: 963},
+			pos:  position{line: 40, col: 1, offset: 724},
 			expr: &actionExpr{
-				pos: position{line: 50, col: 21, offset: 983},
+				pos: position{line: 40, col: 21, offset: 744},
 				run: (*parser).callonIntExprMultitive1,
 				expr: &seqExpr{
-					pos: position{line: 50, col: 21, offset: 983},
+					pos: position{line: 40, col: 21, offset: 744},
 					exprs: []interface{}{
 						&labeledExpr{
-							pos:   position{line: 50, col: 21, offset: 983},
+							pos:   position{line: 40, col: 21, offset: 744},
 							label: "first",
 							expr: &ruleRefExpr{
-								pos:  position{line: 50, col: 27, offset: 989},
+								pos:  position{line: 40, col: 27, offset: 750},
 								name: "IntExprPrimary",
 							},
 						},
 						&labeledExpr{
-							pos:   position{line: 50, col: 42, offset: 1004},
+							pos:   position{line: 40, col: 42, offset: 765},
 							label: "rest",
 							expr: &zeroOrMoreExpr{
-								pos: position{line: 50, col: 47, offset: 1009},
+								pos: position{line: 40, col: 47, offset: 770},
 								expr: &choiceExpr{
-									pos: position{line: 50, col: 48, offset: 1010},
+									pos: position{line: 40, col: 48, offset: 771},
 									alternatives: []interface{}{
 										&seqExpr{
-											pos: position{line: 50, col: 48, offset: 1010},
+											pos: position{line: 40, col: 48, offset: 771},
 											exprs: []interface{}{
 												&litMatcher{
-													pos:        position{line: 50, col: 48, offset: 1010},
+													pos:        position{line: 40, col: 48, offset: 771},
 													val:        "/",
 													ignoreCase: false,
 												},
 												&ruleRefExpr{
-													pos:  position{line: 50, col: 52, offset: 1014},
+													pos:  position{line: 40, col: 52, offset: 775},
 													name: "IntExprPrimary",
 												},
 												&charClassMatcher{
-													pos:        position{line: 50, col: 67, offset: 1029},
+													pos:        position{line: 40, col: 67, offset: 790},
 													val:        "[ur]i",
 													chars:      []rune{'u', 'r'},
 													ignoreCase: true,
@@ -194,25 +193,25 @@ var g = &grammar{
 											},
 										},
 										&seqExpr{
-											pos: position{line: 50, col: 76, offset: 1038},
+											pos: position{line: 40, col: 76, offset: 799},
 											exprs: []interface{}{
 												&choiceExpr{
-													pos: position{line: 50, col: 77, offset: 1039},
+													pos: position{line: 40, col: 77, offset: 800},
 													alternatives: []interface{}{
 														&litMatcher{
-															pos:        position{line: 50, col: 77, offset: 1039},
+															pos:        position{line: 40, col: 77, offset: 800},
 															val:        "*",
 															ignoreCase: false,
 														},
 														&litMatcher{
-															pos:        position{line: 50, col: 83, offset: 1045},
+															pos:        position{line: 40, col: 83, offset: 806},
 															val:        "/",
 															ignoreCase: false,
 														},
 													},
 												},
 												&ruleRefExpr{
-													pos:  position{line: 50, col: 88, offset: 1050},
+													pos:  position{line: 40, col: 88, offset: 811},
 													name: "IntExprPrimary",
 												},
 											},
@@ -227,24 +226,24 @@ var g = &grammar{
 		},
 		{
 			name: "IntExprPrimary",
-			pos:  position{line: 82, col: 1, offset: 1835},
+			pos:  position{line: 70, col: 1, offset: 1469},
 			expr: &choiceExpr{
-				pos: position{line: 82, col: 19, offset: 1853},
+				pos: position{line: 70, col: 19, offset: 1487},
 				alternatives: []interface{}{
 					&ruleRefExpr{
-						pos:  position{line: 82, col: 19, offset: 1853},
+						pos:  position{line: 70, col: 19, offset: 1487},
 						name: "Integer",
 					},
 					&ruleRefExpr{
-						pos:  position{line: 82, col: 29, offset: 1863},
+						pos:  position{line: 70, col: 29, offset: 1497},
 						name: "IntExprUnaryPlus",
 					},
 					&ruleRefExpr{
-						pos:  position{line: 82, col: 48, offset: 1882},
+						pos:  position{line: 70, col: 48, offset: 1516},
 						name: "IntExprUnaryMinus",
 					},
 					&ruleRefExpr{
-						pos:  position{line: 82, col: 68, offset: 1902},
+						pos:  position{line: 70, col: 68, offset: 1536},
 						name: "IntExprParenthesize",
 					},
 				},
@@ -252,28 +251,28 @@ var g = &grammar{
 		},
 		{
 			name: "IntExprParenthesize",
-			pos:  position{line: 84, col: 1, offset: 1923},
+			pos:  position{line: 72, col: 1, offset: 1557},
 			expr: &actionExpr{
-				pos: position{line: 84, col: 24, offset: 1946},
+				pos: position{line: 72, col: 24, offset: 1580},
 				run: (*parser).callonIntExprParenthesize1,
 				expr: &seqExpr{
-					pos: position{line: 84, col: 24, offset: 1946},
+					pos: position{line: 72, col: 24, offset: 1580},
 					exprs: []interface{}{
 						&litMatcher{
-							pos:        position{line: 84, col: 24, offset: 1946},
+							pos:        position{line: 72, col: 24, offset: 1580},
 							val:        "(",
 							ignoreCase: false,
 						},
 						&labeledExpr{
-							pos:   position{line: 84, col: 28, offset: 1950},
+							pos:   position{line: 72, col: 28, offset: 1584},
 							label: "e",
 							expr: &ruleRefExpr{
-								pos:  position{line: 84, col: 30, offset: 1952},
+								pos:  position{line: 72, col: 30, offset: 1586},
 								name: "IntExpr",
 							},
 						},
 						&litMatcher{
-							pos:        position{line: 84, col: 38, offset: 1960},
+							pos:        position{line: 72, col: 38, offset: 1594},
 							val:        ")",
 							ignoreCase: false,
 						},
@@ -283,23 +282,23 @@ var g = &grammar{
 		},
 		{
 			name: "IntExprUnaryPlus",
-			pos:  position{line: 88, col: 1, offset: 1995},
+			pos:  position{line: 76, col: 1, offset: 1629},
 			expr: &actionExpr{
-				pos: position{line: 88, col: 21, offset: 2015},
+				pos: position{line: 76, col: 21, offset: 1649},
 				run: (*parser).callonIntExprUnaryPlus1,
 				expr: &seqExpr{
-					pos: position{line: 88, col: 21, offset: 2015},
+					pos: position{line: 76, col: 21, offset: 1649},
 					exprs: []interface{}{
 						&litMatcher{
-							pos:        position{line: 88, col: 21, offset: 2015},
+							pos:        position{line: 76, col: 21, offset: 1649},
 							val:        "+",
 							ignoreCase: false,
 						},
 						&labeledExpr{
-							pos:   position{line: 88, col: 25, offset: 2019},
+							pos:   position{line: 76, col: 25, offset: 1653},
 							label: "e",
 							expr: &ruleRefExpr{
-								pos:  position{line: 88, col: 27, offset: 2021},
+								pos:  position{line: 76, col: 27, offset: 1655},
 								name: "IntExpr",
 							},
 						},
@@ -309,23 +308,23 @@ var g = &grammar{
 		},
 		{
 			name: "IntExprUnaryMinus",
-			pos:  position{line: 92, col: 1, offset: 2060},
+			pos:  position{line: 80, col: 1, offset: 1694},
 			expr: &actionExpr{
-				pos: position{line: 92, col: 22, offset: 2081},
+				pos: position{line: 80, col: 22, offset: 1715},
 				run: (*parser).callonIntExprUnaryMinus1,
 				expr: &seqExpr{
-					pos: position{line: 92, col: 22, offset: 2081},
+					pos: position{line: 80, col: 22, offset: 1715},
 					exprs: []interface{}{
 						&litMatcher{
-							pos:        position{line: 92, col: 22, offset: 2081},
+							pos:        position{line: 80, col: 22, offset: 1715},
 							val:        "-",
 							ignoreCase: false,
 						},
 						&labeledExpr{
-							pos:   position{line: 92, col: 26, offset: 2085},
+							pos:   position{line: 80, col: 26, offset: 1719},
 							label: "e",
 							expr: &ruleRefExpr{
-								pos:  position{line: 92, col: 28, offset: 2087},
+								pos:  position{line: 80, col: 28, offset: 1721},
 								name: "IntExprPrimary",
 							},
 						},
@@ -335,14 +334,14 @@ var g = &grammar{
 		},
 		{
 			name: "Integer",
-			pos:  position{line: 97, col: 1, offset: 2210},
+			pos:  position{line: 84, col: 1, offset: 1787},
 			expr: &actionExpr{
-				pos: position{line: 97, col: 12, offset: 2221},
+				pos: position{line: 84, col: 12, offset: 1798},
 				run: (*parser).callonInteger1,
 				expr: &oneOrMoreExpr{
-					pos: position{line: 97, col: 12, offset: 2221},
+					pos: position{line: 84, col: 12, offset: 1798},
 					expr: &charClassMatcher{
-						pos:        position{line: 97, col: 12, offset: 2221},
+						pos:        position{line: 84, col: 12, offset: 1798},
 						val:        "[0-9]",
 						ranges:     []rune{'0', '9'},
 						ignoreCase: false,
@@ -353,11 +352,11 @@ var g = &grammar{
 		},
 		{
 			name: "EOT",
-			pos:  position{line: 113, col: 1, offset: 2473},
+			pos:  position{line: 93, col: 1, offset: 1968},
 			expr: &notExpr{
-				pos: position{line: 113, col: 8, offset: 2480},
+				pos: position{line: 93, col: 8, offset: 1975},
 				expr: &anyMatcher{
-					line: 113, col: 9, offset: 2481,
+					line: 93, col: 9, offset: 1976,
 				},
 			},
 		},
@@ -375,15 +374,7 @@ func (p *parser) callonCommand1() (interface{}, error) {
 }
 
 func (c *current) onCalc1(calc, expr interface{}) (interface{}, error) {
-	exprNode := expr.(ast.Node)
-	return ast.NewCalc(
-		token.Token{
-			Type:    token.CALC,
-			Literal: string(calc.([]byte)),
-			Column:  c.pos.col,
-		},
-		exprNode,
-	), nil
+	return ast.NewCalc2(expr.(ast.Node)), nil
 }
 
 func (p *parser) callonCalc1() (interface{}, error) {
@@ -401,11 +392,9 @@ func (c *current) onIntExprAdditive1(first, rest interface{}) (interface{}, erro
 
 		switch op {
 		case "+":
-			tok := token.Token{Type: token.PLUS, Literal: op}
-			lastNode = ast.NewAdd(lastNode, tok, right)
+			lastNode = ast.NewAdd2(lastNode, right)
 		case "-":
-			tok := token.Token{Type: token.PLUS, Literal: op}
-			lastNode = ast.NewSubtract(lastNode, tok, right)
+			lastNode = ast.NewSubtract2(lastNode, right)
 		}
 	}
 
@@ -432,17 +421,15 @@ func (c *current) onIntExprMultitive1(first, rest interface{}) (interface{}, err
 
 		switch op {
 		case "*":
-			tok := token.Token{Type: token.ASTERISK, Literal: op}
-			lastNode = ast.NewMultiply(lastNode, tok, right)
+			lastNode = ast.NewMultiply2(lastNode, right)
 		case "/":
-			tok := token.Token{Type: token.SLASH, Literal: op}
 			switch roundingMethod {
 			case "U":
-				lastNode = ast.NewDivideWithRoundingUp(lastNode, tok, right)
+				lastNode = ast.NewDivideWithRoundingUp2(lastNode, right)
 			case "R":
-				lastNode = ast.NewDivideWithRounding(lastNode, tok, right)
+				lastNode = ast.NewDivideWithRounding2(lastNode, right)
 			case "":
-				lastNode = ast.NewDivideWithRoundingDown(lastNode, tok, right)
+				lastNode = ast.NewDivideWithRoundingDown2(lastNode, right)
 			}
 		}
 	}
@@ -477,8 +464,7 @@ func (p *parser) callonIntExprUnaryPlus1() (interface{}, error) {
 }
 
 func (c *current) onIntExprUnaryMinus1(e interface{}) (interface{}, error) {
-	tok := token.Token{Type: token.MINUS, Literal: "-"}
-	return ast.NewUnaryMinus(tok, e.(ast.Node)), nil
+	return ast.NewUnaryMinus2(e.(ast.Node)), nil
 }
 
 func (p *parser) callonIntExprUnaryMinus1() (interface{}, error) {
@@ -493,14 +479,7 @@ func (c *current) onInteger1() (interface{}, error) {
 	// TODO: 整数が大きすぎるときなどのエラー処理が必要
 	value, _ := strconv.Atoi(s)
 
-	return ast.NewInt(
-		value,
-		token.Token{
-			Type:    token.INT,
-			Literal: s,
-			Column:  c.pos.col,
-		},
-	), nil
+	return ast.NewInt2(value), nil
 }
 
 func (p *parser) callonInteger1() (interface{}, error) {

@@ -202,3 +202,48 @@ func NewDivideWithRoundingDown(dividend Node, tok token.Token, divisor Node) *Di
 		},
 	}
 }
+
+// NewDivideWithRoundingUp2 は小数点以下を切り上げる除算の新しいノードを返す。
+//
+// dividend: 被除数のノード,
+// divisor: 除数のノード。
+func NewDivideWithRoundingUp2(dividend Node, divisor Node) *DivideWithRoundingUp {
+	return &DivideWithRoundingUp{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            dividend,
+			operator:        "/U",
+			operatorForSExp: "/U",
+			right:           divisor,
+		},
+	}
+}
+
+// NewDivideWithRounding2 は小数点以下を四捨五入する除算の新しいノードを返す。
+//
+// dividend: 被除数のノード,
+// divisor: 除数のノード。
+func NewDivideWithRounding2(dividend Node, divisor Node) *DivideWithRounding {
+	return &DivideWithRounding{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            dividend,
+			operator:        "/R",
+			operatorForSExp: "/R",
+			right:           divisor,
+		},
+	}
+}
+
+// NewDivideWithRoundingDown2 は小数点以下を切り捨てる除算の新しいノードを返す。
+//
+// dividend: 被除数のノード,
+// divisor: 除数のノード。
+func NewDivideWithRoundingDown2(dividend Node, divisor Node) *DivideWithRoundingDown {
+	return &DivideWithRoundingDown{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            dividend,
+			operator:        "/",
+			operatorForSExp: "/",
+			right:           divisor,
+		},
+	}
+}

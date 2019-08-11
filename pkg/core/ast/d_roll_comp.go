@@ -33,6 +33,17 @@ func NewDRollComp(tok token.Token, expression Node) *DRollComp {
 	}
 }
 
+// NewDRollComp2 は新しい加算ロール式の成功判定のノードを返す。
+//
+// expression: 式。
+func NewDRollComp2(expression Node) *DRollComp {
+	return &DRollComp{
+		CommandImpl: CommandImpl{
+			expr: expression,
+		},
+	}
+}
+
 // Type はノードの種類を返す。
 func (n *DRollComp) Type() NodeType {
 	return D_ROLL_COMP_NODE

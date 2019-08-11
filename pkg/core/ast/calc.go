@@ -32,6 +32,17 @@ func NewCalc(tok token.Token, expression Node) *Calc {
 	}
 }
 
+// NewCalc2 は新しい計算コマンドを返す。
+//
+// expression: 式。
+func NewCalc2(expression Node) *Calc {
+	return &Calc{
+		CommandImpl: CommandImpl{
+			expr: expression,
+		},
+	}
+}
+
 // Type はノードの種類を返す。
 func (n *Calc) Type() NodeType {
 	return CALC_NODE

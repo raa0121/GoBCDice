@@ -48,3 +48,18 @@ func NewMultiply(multiplicand Node, tok token.Token, multiplier Node) *Multiply 
 		InfixExpressionImpl: *NewInfixExpression(multiplicand, tok, multiplier),
 	}
 }
+
+// NewMultiply2 は新しい乗算のノードを返す。
+//
+// multiplicand: 被乗数のノード,
+// multiplier: 乗数のノード。
+func NewMultiply2(multiplicand Node, multiplier Node) *Multiply {
+	return &Multiply{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            multiplicand,
+			operator:        "*",
+			operatorForSExp: "*",
+			right:           multiplier,
+		},
+	}
+}

@@ -33,6 +33,17 @@ func NewDRollExpr(tok token.Token, expression Node) *DRollExpr {
 	}
 }
 
+// NewDRollExpr2 は新しい加算ロール式のノードを返す。
+//
+// expression: 式。
+func NewDRollExpr2(expression Node) *DRollExpr {
+	return &DRollExpr{
+		CommandImpl: CommandImpl{
+			expr: expression,
+		},
+	}
+}
+
 // Type はノードの種類を返す。
 func (n *DRollExpr) Type() NodeType {
 	return D_ROLL_EXPR_NODE

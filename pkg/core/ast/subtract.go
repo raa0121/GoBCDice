@@ -38,7 +38,7 @@ func (n *Subtract) IsRightAssociative() bool {
 	return false
 }
 
-// NewSubtractは、減算のノードを返す
+// NewSubtract は、減算のノードを返す
 //
 // left: 引かれる数のノード,
 // tok: 対応するトークン,
@@ -46,5 +46,20 @@ func (n *Subtract) IsRightAssociative() bool {
 func NewSubtract(left Node, tok token.Token, right Node) *Subtract {
 	return &Subtract{
 		InfixExpressionImpl: *NewInfixExpression(left, tok, right),
+	}
+}
+
+// NewSubtract2 は、減算のノードを返す
+//
+// left: 引かれる数のノード,
+// right: 引く数のノード。
+func NewSubtract2(left Node, right Node) *Subtract {
+	return &Subtract{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            left,
+			operator:        "-",
+			operatorForSExp: "-",
+			right:           right,
+		},
 	}
 }

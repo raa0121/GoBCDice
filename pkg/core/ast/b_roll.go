@@ -68,3 +68,18 @@ func NewBRoll(num Node, tok token.Token, sides Node) *BRoll {
 		},
 	}
 }
+
+// NewBRoll2 はバラバラロールのノードを返す。
+//
+// num: 振るダイスの数のノード,
+// sides: ダイスの面数のノード。
+func NewBRoll2(num Node, sides Node) *BRoll {
+	return &BRoll{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            num,
+			operator:        "B",
+			operatorForSExp: "BRoll",
+			right:           sides,
+		},
+	}
+}

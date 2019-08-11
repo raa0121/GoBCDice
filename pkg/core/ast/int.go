@@ -51,3 +51,12 @@ func NewInt(value int, tok token.Token) *Int {
 		Value: value,
 	}
 }
+
+// NewInt2 は新しい整数のノードを返す。
+//
+// value: 数値,
+func NewInt2(value int) *Int {
+	return &Int{
+		Value: value,
+	}
+}
