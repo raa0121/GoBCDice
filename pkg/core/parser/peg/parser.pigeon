@@ -59,7 +59,7 @@ func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, er
 
 }
 
-Command <- n:(Calc / DRollExprCommand) EOT {
+Command <- ResetRandCount n:(Calc / DRollCompCommand / DRollExprCommand) EOT {
 	return n, nil
 }
 
@@ -67,15 +67,20 @@ Calc <- calc:'C'i '(' expr:IntExpr ')' {
 	return ast.NewCalc2(expr.(ast.Node)), nil
 }
 
-DRollExprCommand <- #{
-	c.state["RandCount"] = 0
-	return nil
-} expr:DRollExpr {
+DRollExprCommand <- expr:DRollExpr {
 	if c.state["RandCount"].(int) < 1 {
 		return nil, fmt.Errorf("random element not found")
 	}
 
 	return ast.NewDRollExpr2(expr.(ast.Node)), nil
+}
+
+DRollCompCommand <- expr:DRollComp {
+	if c.state["RandCount"].(int) < 1 {
+		return nil, fmt.Errorf("random element not found")
+	}
+
+	return ast.NewDRollComp2(expr.(ast.Node)), nil
 }
 
 IntExpr <- IntExprAdditive
@@ -100,6 +105,14 @@ IntExprUnaryPlus <- '+' e:IntExprPrimary {
 
 IntExprUnaryMinus <- '-' e:IntExprPrimary {
 	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+}
+
+DRollComp <- left:DRollExprAdditive op:("=" / "<>" / "<=" / "<" / ">=" / ">") right:IntExpr {
+	return ast.NewCompare2(
+		left.(ast.Node),
+		string(op.([]byte)),
+		right.(ast.Node),
+	), nil
 }
 
 DRollExpr <- DRollExprAdditive
@@ -167,6 +180,11 @@ Rand <- '[' min:RandOperand "..." max:RandOperand ']' IncRandCount {
 }
 
 RandOperand <- Integer / ParenthesizedIntExpr
+
+ResetRandCount <- #{
+	c.state["RandCount"] = 0
+	return nil
+}
 
 IncRandCount <- #{
 	c.state["RandCount"] = c.state["RandCount"].(int) + 1
