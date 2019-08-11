@@ -110,9 +110,9 @@ func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult,
 	numOfSuccesses := 0
 	for _, el := range valuesArray.Elements {
 		valueNode := ast.NewInt(el.(*object.Integer).Value, token.Token{})
-		valueCompareNode := ast.NewCompare(
+		valueCompareNode := ast.NewCompare2(
 			valueNode,
-			compareNode.Token(),
+			compareNode.Operator(),
 			evaluatedTargetNode,
 		)
 

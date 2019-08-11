@@ -6,6 +6,22 @@ import (
 	"testing"
 )
 
+// 構文解析の例。
+func Example() {
+	// 構文解析する
+	r, err := Parse("Example", []byte("(2*3-4)d6-1d4+1"))
+	if err != nil {
+		return
+	}
+
+	// 得られた抽象構文木のS式を出力する
+	if node, ok := r.(ast.Node); ok {
+		fmt.Println(node.SExp())
+	}
+	// Output:
+	// (DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))
+}
+
 func TestParse(t *testing.T) {
 	testCases := []struct {
 		input        string
@@ -163,6 +179,23 @@ func TestParse(t *testing.T) {
 		{"2b6+3b8+5b12", "(BRollList (BRoll 2 6) (BRoll 3 8) (BRoll 5 12))", false},
 		{"2b6+1", "", true},
 		{"1+2b6", "", true},
+
+		// バラバラロールの成功数カウント
+		{"2b6=3", "(BRollComp (= (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6<>3", "(BRollComp (<> (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6>3", "(BRollComp (> (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6<3", "(BRollComp (< (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6>=3", "(BRollComp (>= (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6<=3", "(BRollComp (<= (BRollList (BRoll 2 6)) 3))", false},
+		{"2b6>4-1", "(BRollComp (> (BRollList (BRoll 2 6)) (- 4 1)))", false},
+		{"2b6+4b10>4", "(BRollComp (> (BRollList (BRoll 2 6) (BRoll 4 10)) 4))", false},
+		{"2b6>-(-1*3)", "(BRollComp (> (BRollList (BRoll 2 6)) (- (* (- 1) 3))))", false},
+		{"2b6+1>3", "", true},
+		{"1+2b6>3", "", true},
+		{"3<2b6", "", true},
+		{"1<2b6<5", "", true},
+		{"2b6<4<5", "", true},
+		{"1<2<2b6", "", true},
 	}
 
 	for _, test := range testCases {
