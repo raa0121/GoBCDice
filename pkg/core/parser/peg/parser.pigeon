@@ -27,57 +27,51 @@ Calc <- calc:"C"i '(' expr:IntExpr ')' {
 
 IntExpr <- IntExprAdditive
 
-IntExprAdditive <- left:IntExprMultitive additives:(('+' / '-') IntExprMultitive)* {
-	leftNode := left.(ast.Node)
-
-	lastNode := leftNode
-	additiveSlice := additives.([]interface{})
-	for _, e := range additiveSlice {
-		es := e.([]interface{})
-		op := string(es[0].([]byte))
-		oper := es[1].(ast.Node)
+IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
+	lastNode := first.(ast.Node)
+	for _, r := range rest.([]interface{}) {
+		rs := r.([]interface{})
+		op := string(rs[0].([]byte))
+		right := rs[1].(ast.Node)
 
 		switch op {
 		case "+":
 			tok := token.Token{Type: token.PLUS, Literal: op}
-			lastNode = ast.NewAdd(lastNode, tok, oper)
+			lastNode = ast.NewAdd(lastNode, tok, right)
 		case "-":
 			tok := token.Token{Type: token.PLUS, Literal: op}
-			lastNode = ast.NewSubtract(lastNode, tok, oper)
+			lastNode = ast.NewSubtract(lastNode, tok, right)
 		}
 	}
 
 	return lastNode, nil
 }
 
-IntExprMultitive <- left:IntExprPrimary multitives:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
-	leftNode := left.(ast.Node)
+IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
+	lastNode := first.(ast.Node)
+	for _, r := range rest.([]interface{}) {
+		rs := r.([]interface{})
+		op := string(rs[0].([]byte))
+		right := rs[1].(ast.Node)
 
-	lastNode := leftNode
-	multitiveSlice := multitives.([]interface{})
-	for _, e := range multitiveSlice {
-		es := e.([]interface{})
-		op := string(es[0].([]byte))
-		oper := es[1].(ast.Node)
-
-		var roundingMethod string
-		if len(es) >= 3 {
-			roundingMethod = strings.ToUpper(string(es[2].([]byte)))
+		roundingMethod := ""
+		if len(rs) >= 3 {
+			roundingMethod = strings.ToUpper(string(rs[2].([]byte)))
 		}
 
 		switch op {
 		case "*":
 			tok := token.Token{Type: token.ASTERISK, Literal: op}
-			lastNode = ast.NewMultiply(lastNode, tok, oper)
+			lastNode = ast.NewMultiply(lastNode, tok, right)
 		case "/":
 			tok := token.Token{Type: token.SLASH, Literal: op}
 			switch roundingMethod {
 			case "U":
-				lastNode = ast.NewDivideWithRoundingUp(lastNode, tok, oper)
+				lastNode = ast.NewDivideWithRoundingUp(lastNode, tok, right)
 			case "R":
-				lastNode = ast.NewDivideWithRounding(lastNode, tok, oper)
+				lastNode = ast.NewDivideWithRounding(lastNode, tok, right)
 			case "":
-				lastNode = ast.NewDivideWithRoundingDown(lastNode, tok, oper)
+				lastNode = ast.NewDivideWithRoundingDown(lastNode, tok, right)
 			}
 		}
 	}
@@ -95,7 +89,7 @@ IntExprUnaryPlus <- "+" e:IntExpr {
 	return e.(ast.Node), nil
 }
 
-IntExprUnaryMinus <- "-" e:(Integer / IntExprUnaryMinus / IntExprParenthesize) {
+IntExprUnaryMinus <- "-" e:IntExprPrimary {
 	tok := token.Token{Type: token.MINUS, Literal: "-"}
 	return ast.NewUnaryMinus(tok, e.(ast.Node)), nil
 }
