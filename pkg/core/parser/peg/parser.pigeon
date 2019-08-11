@@ -59,7 +59,7 @@ func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, er
 
 }
 
-Command <- ResetRandCount n:(Calc / DRollCompCommand / DRollExprCommand) EOT {
+Command <- ResetRandCount n:(Calc / BRollList / DRollCompCommand / DRollExprCommand) EOT {
 	return n, nil
 }
 
@@ -81,6 +81,18 @@ DRollCompCommand <- expr:DRollComp {
 	}
 
 	return ast.NewDRollComp2(expr.(ast.Node)), nil
+}
+
+BRollList <- first:BRoll rest:('+' BRoll)* {
+	bRollList := ast.NewBRollList2(first.(*ast.BRoll))
+
+	for _, r := range rest.([]interface{}) {
+		rs := r.([]interface{})
+		b := rs[1].(*ast.BRoll)
+		bRollList.Append(b)
+	}
+
+	return bRollList, nil
 }
 
 IntExpr <- IntExprAdditive
@@ -168,6 +180,13 @@ DRoll <- num:RollOperand 'D'i sides:RollOperand IncRandCount {
 	sidesNode := sides.(ast.Node)
 
 	return ast.NewDRoll2(numNode, sidesNode), nil
+}
+
+BRoll <- num:RollOperand 'B'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
+
+	return ast.NewBRoll2(numNode, sidesNode), nil
 }
 
 RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
