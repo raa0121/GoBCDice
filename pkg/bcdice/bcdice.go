@@ -68,6 +68,15 @@ func (b *BCDice) ExecuteCommand(c string) (*command.Result, error) {
 		}
 	}
 
+	// FIXME: CHOICEコマンドの実装の都合上、空白ありの状態で一度実行してみて、
+	// 失敗したら最初の部分のみで実行するという、無駄の多い処理になっている。
+	// これはPEG構文解析器を導入した場合に不要となる予定。
+	{
+		result, err := b.ExecuteBasicCommand(c)
+		if err == nil {
+			return result, nil
+		}
+	}
 	{
 		result, err := b.ExecuteBasicCommand(firstPart)
 		if err == nil {
