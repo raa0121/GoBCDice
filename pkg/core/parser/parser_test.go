@@ -192,6 +192,23 @@ func TestParse(t *testing.T) {
 		{"1<2b6<5", "", true},
 		{"2b6<4<5", "", true},
 		{"1<2<2b6", "", true},
+
+		// ランダム選択
+		{"choice[A,B,C]どれにしよう", `(Choice "A" "B" "C")`, false},
+		{"choice[A,B, ]", `(Choice "A" "B")`, false},
+		{"Choice[ A, B,   C     ,D ]", `(Choice "A" "B" "C" "D")`, false},
+		{
+			input:        "CHOICE[Call of Cthulhu, Sword World, Double Cross]",
+			expectedSExp: `(Choice "Call of Cthulhu" "Sword World" "Double Cross")`,
+			err:          false,
+		},
+		{
+			input:        "CHOICE[日本語, でも,　だいじょうぶ]",
+			expectedSExp: `(Choice "日本語" "でも" "だいじょうぶ")`,
+			err:          false,
+		},
+		{"choice[1+2, (3*4), 5d6]", `(Choice "1+2" "(3*4)" "5d6")`, false},
+		{"choice[forgetting R_BRACKET!", "", true},
 	}
 
 	for _, test := range testCases {

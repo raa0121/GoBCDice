@@ -11,6 +11,7 @@ func TestObject_Type(t *testing.T) {
 	}{
 		{&Integer{}, "INTEGER"},
 		{&Boolean{}, "BOOLEAN"},
+		{&String{}, "STRING"},
 		{&Array{}, "ARRAY"},
 		{&BRollCompResult{}, "B_ROLL_COMP_RESULT"},
 	}

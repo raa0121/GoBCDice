@@ -511,6 +511,20 @@ func TestInfixNotation(t *testing.T) {
 		{"2b6>4-1", "2B6>4-1"},
 		{"2b6+4b10>4", "2B6+4B10>4"},
 		{"2b6>-(-1*3)", "2B6>-(-1*3)"},
+
+		// ランダム選択
+		{"choice[A,B,C]どれにしよう", "CHOICE[A,B,C]"},
+		{"choice[A,B, ]", "CHOICE[A,B]"},
+		{"Choice[ A, B,   C     ,D ]", "CHOICE[A,B,C,D]"},
+		{
+			input:    "CHOICE[Call of Cthulhu, Sword World, Double Cross]",
+			expected: "CHOICE[Call of Cthulhu,Sword World,Double Cross]",
+		},
+		{
+			input:    "CHOICE[日本語, でも,　だいじょうぶ]",
+			expected: "CHOICE[日本語,でも,だいじょうぶ]",
+		},
+		{"choice[1+2, (3*4), 5d6]", "CHOICE[1+2,(3*4),5d6]"},
 	}
 
 	for _, test := range testcase {

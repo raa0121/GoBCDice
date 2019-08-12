@@ -45,6 +45,8 @@ const (
 	IDENT
 	// 整数
 	INT
+	// 文字列
+	STRING
 
 	// プラス "+"
 	PLUS
@@ -76,6 +78,8 @@ const (
 	L_BRACKET
 	// 閉じ角括弧 "]"
 	R_BRACKET
+	// カンマ ","
+	COMMA
 
 	// ダイスロール：加算ロールとD66ロール "D"
 	D
@@ -92,16 +96,20 @@ const (
 
 	// 計算 "C"
 	CALC
-	// ランダム選択 "CHOICE"
-	CHOICE
+
+	// ランダム選択の開始 "CHOICE["
+	CHOICE_BEGIN
+	// ランダム選択の終了 "]"
+	CHOICE_END
 )
 
 var tokenTypeString = map[TokenType]string{
 	EOT:     "EOT",
 	ILLEGAL: "ILLEGAL",
 
-	IDENT: "IDENT",
-	INT:   "INT",
+	IDENT:  "IDENT",
+	INT:    "INT",
+	STRING: "STRING",
 
 	PLUS:     "+",
 	MINUS:    "-",
@@ -119,6 +127,7 @@ var tokenTypeString = map[TokenType]string{
 	R_PAREN:   ")",
 	L_BRACKET: "[",
 	R_BRACKET: "]",
+	COMMA:     ",",
 
 	D:      "D",
 	B:      "B",
@@ -127,19 +136,20 @@ var tokenTypeString = map[TokenType]string{
 	SECRET: "SECRET",
 	DOTS:   "...",
 
-	CALC:   "CALC",
-	CHOICE: "CHOICE",
+	CALC: "CALC",
+
+	CHOICE_BEGIN: "CHOICE[",
+	CHOICE_END:   "]",
 }
 
 // 識別子 -> キーワードの対応表
 var keywords = map[string]TokenType{
-	"D":      D,
-	"B":      B,
-	"R":      R,
-	"U":      U,
-	"S":      SECRET,
-	"C":      CALC,
-	"CHOICE": CHOICE,
+	"D": D,
+	"B": B,
+	"R": R,
+	"U": U,
+	"S": SECRET,
+	"C": CALC,
 }
 
 // LookUpIdentは、identがキーワードかどうかを調べ、トークンの種類を返す

@@ -67,7 +67,7 @@ The optional syntaxes are as follows:
 The core dice roller also supports the following commands:
 
 * [x] Calculation (arithmetic operation, C): `C(1+2-3*4/5)` etc.
-* [ ] Random sampling (choice): `CHOICE[A,B,C]` etc.
+* [x] Random sampling (choice): `CHOICE[A,B,C]` etc.
 
 ### Operators
 
