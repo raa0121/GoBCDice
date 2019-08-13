@@ -6,10 +6,27 @@ package lexer
 import (
 	"github.com/raa0121/GoBCDice/pkg/core/token"
 	"strings"
+	"unicode"
+)
+
+// LexerState は字句解析器の状態の型。
+type LexerStateType int
+
+const (
+	// 初期状態
+	STATE_INIT LexerStateType = iota
+	// 数式を読み取る状態
+	STATE_EXPRESSION
+	// ランダム選択の選択肢を読み取る状態
+	STATE_CHOICE
+	// 読み取りを終了した状態
+	STATE_END
 )
 
 // 字句解析器を表す構造体。
 type Lexer struct {
+	// 現在の字句解析器の状態
+	state LexerStateType
 	// 入力文字列
 	input []rune
 	// 現在の文字の位置
@@ -44,6 +61,56 @@ var oneCharTokenType = map[rune]token.TokenType{
 
 // NextToken は次のトークンを返す。
 func (l *Lexer) NextToken() token.Token {
+	if l.state == STATE_INIT {
+		// 初期状態のときのみ、ランダム選択かどうかを判断する
+		if tok, foundChoiceBegin := l.nextTokenOnInit(); foundChoiceBegin {
+			l.state = STATE_CHOICE
+			return tok
+		} else {
+			// ランダム選択ではないので、数式読み取り状態に遷移する
+			l.state = STATE_EXPRESSION
+		}
+	}
+
+	switch l.state {
+	case STATE_EXPRESSION:
+		return l.nextTokenOnExpresion()
+	case STATE_CHOICE:
+		return l.nextTokenOnChoice()
+	default:
+		{
+			// 読み取り終了
+
+			// トークンが何文字目で発見されたか
+			// 利用者に示すものなので、1-indexed
+			column := l.position + 1
+
+			return newEOT(column)
+		}
+	}
+}
+
+// nextTokenOnInit は次のトークンを返す（初期状態）。
+func (l *Lexer) nextTokenOnInit() (tok token.Token, foundChoiceBegin bool) {
+	// トークンが何文字目で発見されたか
+	// 利用者に示すものなので、1-indexed
+	column := l.position + 1
+
+	if l.ch == 'C' || l.ch == 'c' {
+		if literal, ok := l.tryRead("HOICE["); ok {
+			return token.Token{
+				Type:    token.CHOICE_BEGIN,
+				Literal: literal,
+				Column:  column,
+			}, true
+		}
+	}
+
+	return token.Token{}, false
+}
+
+// nextTokenOnInit は次のトークンを返す（数式読み取り状態）。
+func (l *Lexer) nextTokenOnExpresion() token.Token {
 	// トークンが何文字目で発見されたか
 	// 利用者に示すものなので、1-indexed
 	column := l.position + 1
@@ -93,9 +160,7 @@ func (l *Lexer) NextToken() token.Token {
 
 			tok = newToken(token.GT, l.ch, column)
 		case 0:
-			tok.Type = token.EOT
-			tok.Literal = ""
-			tok.Column = column
+			tok = newEOT(column)
 		default:
 			if isDigit(l.ch) {
 				// tok.Column は必ず readNumber() の前に設定する
@@ -119,6 +184,38 @@ func (l *Lexer) NextToken() token.Token {
 
 			tok = newToken(token.ILLEGAL, l.ch, column)
 		}
+	}
+
+	l.readChar()
+
+	return tok
+}
+
+// nextTokenOnInit は次のトークンを返す（ランダム選択の選択肢読み取り状態）。
+func (l *Lexer) nextTokenOnChoice() token.Token {
+	l.skipSpaces()
+
+	// トークンが何文字目で発見されたか
+	// 利用者に示すものなので、1-indexed
+	column := l.position + 1
+
+	var tok token.Token
+	switch l.ch {
+	case ']':
+		tok = newToken(token.CHOICE_END, l.ch, column)
+		l.state = STATE_END
+	case ',':
+		tok = newToken(token.COMMA, l.ch, column)
+	case 0:
+		tok = newEOT(column)
+	default:
+		// tok.Column は必ず readItemInList() の前に設定する
+		tok.Column = column
+
+		tok.Type = token.STRING
+		tok.Literal = l.readItemInList()
+
+		return tok
 	}
 
 	l.readChar()
@@ -163,6 +260,13 @@ func (l *Lexer) setPosition(pos int) {
 	l.readPosition = pos + 1
 }
 
+// skipSpaces は空白を読み飛ばす。
+func (l *Lexer) skipSpaces() {
+	for unicode.IsSpace(l.ch) {
+		l.readChar()
+	}
+}
+
 // newToken は新しいトークンを返す
 //
 // tokenTypeにはトークンの種類を指定する。
@@ -177,6 +281,15 @@ func newToken(tokenType token.TokenType, ch rune, column int) token.Token {
 	}
 }
 
+// newEOT は新しいEOT（入力終端）トークンを返す。
+func newEOT(column int) token.Token {
+	return token.Token{
+		Type:    token.EOT,
+		Literal: "",
+		Column:  column,
+	}
+}
+
 // charTestは、文字の種類が条件を満たしているか調べる関数の型。
 type charTest func(rune) bool
 
@@ -186,7 +299,7 @@ type charTest func(rune) bool
 func (l *Lexer) readCharsWhile(test charTest) string {
 	position := l.position
 
-	for test(l.ch) {
+	for l.ch != 0 && test(l.ch) {
 		l.readChar()
 	}
 
@@ -203,15 +316,22 @@ func (l *Lexer) readNumber() string {
 	return l.readCharsWhile(isDigit)
 }
 
+// readItemInList はリスト [...] の項目を読み込んで返す。
+func (l *Lexer) readItemInList() string {
+	return strings.TrimSpace(l.readCharsWhile(isNotSpecialCharInList))
+}
+
 // tryRead は文字列expectedの読み込みを試す。
 // expected を読み込めた場合、literalでリテラルを、okでtrueを返す。
 // 読み込めなかった場合、okでfalseを返す。
+//
+// 読み込み時は大文字小文字を無視する。
 func (l *Lexer) tryRead(expected string) (literal string, ok bool) {
 	expectedChars := []rune(expected)
 	n := len(expectedChars)
 
 	for i := 0; i < n; i++ {
-		if l.peekChar(i+1) != expectedChars[i] {
+		if unicode.ToUpper(l.peekChar(i+1)) != unicode.ToUpper(expectedChars[i]) {
 			return string(l.ch), false
 		}
 	}
@@ -234,4 +354,9 @@ func isLetter(ch rune) bool {
 // isDigit はchが数字かどうかを返す。
 func isDigit(ch rune) bool {
 	return ch >= '0' && ch <= '9'
+}
+
+// isNotSpecialCharInList はリスト [...] における特別な意味の文字でないかを返す。
+func isNotSpecialCharInList(ch rune) bool {
+	return ch != ',' && ch != ']'
 }

@@ -15,6 +15,7 @@ func TestNode_Type(t *testing.T) {
 		{&BRollList{}, "BRollList"},
 		{&BRollComp{}, "BRollComp"},
 		{&Calc{}, "Calc"},
+		{&Choice{}, "Choice"},
 
 		{&PrefixExpressionImpl{}, "PrefixExpression"},
 		{&UnaryMinus{}, "UnaryMinus"},
@@ -32,6 +33,7 @@ func TestNode_Type(t *testing.T) {
 		{&RandomNumber{}, "RandomNumber"},
 
 		{&Int{}, "Int"},
+		{&String{}, "String"},
 		{&SumRollResult{}, "SumRollResult"},
 	}
 
@@ -55,6 +57,7 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&BRollList{}, false},
 		{&BRollComp{}, false},
 		{&Calc{}, false},
+		{&Choice{}, false},
 
 		{&PrefixExpressionImpl{}, false},
 		{&UnaryMinus{}, false},
@@ -73,6 +76,7 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&RandomNumber{}, true},
 
 		{&Int{}, true},
+		{&String{}, true},
 		{&SumRollResult{}, true},
 	}
 
@@ -251,6 +255,14 @@ func TestNode_IsVariable(t *testing.T) {
 					NewInt(7, token.Token{token.INT, "7", 5}),
 				),
 			),
+			expected: true,
+		},
+		{
+			node:     NewString("hello", token.Token{token.STRING, "hello", 1}),
+			expected: false,
+		},
+		{
+			node:     NewChoice(NewString("hello", token.Token{token.STRING, "hello", 8})),
 			expected: true,
 		},
 	}

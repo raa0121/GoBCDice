@@ -1,0 +1,83 @@
+input:
+choice[abc,def]
+output:
+DiceBot : (CHOICE[abc,def]) ＞ abc
+rand:1/2
+============================
+input:
+choice[A,B,C,D]どれにしよう
+output:
+DiceBot : (CHOICE[A,B,C,D]) ＞ A
+rand:1/4
+============================
+input:
+choice[A,B,C,D]どれにしよう
+output:
+DiceBot : (CHOICE[A,B,C,D]) ＞ B
+rand:2/4
+============================
+input:
+choice[A,B,C,D]どれにしよう
+output:
+DiceBot : (CHOICE[A,B,C,D]) ＞ C
+rand:3/4
+============================
+input:
+choice[A,B,C,D]どれにしよう
+output:
+DiceBot : (CHOICE[A,B,C,D]) ＞ D
+rand:4/4
+============================
+input:
+CHOICE[Call of Cthulhu, Sword World, Double Cross]
+output:
+DiceBot : (CHOICE[Call of Cthulhu,Sword World,Double Cross]) ＞ Call of Cthulhu
+rand:1/3
+============================
+input:
+CHOICE[Call of Cthulhu, Sword World, Double Cross]
+output:
+DiceBot : (CHOICE[Call of Cthulhu,Sword World,Double Cross]) ＞ Sword World
+rand:2/3
+============================
+input:
+CHOICE[Call of Cthulhu, Sword World, Double Cross]
+output:
+DiceBot : (CHOICE[Call of Cthulhu,Sword World,Double Cross]) ＞ Double Cross
+rand:3/3
+============================
+input:
+CHOICE[日本語, でも,　だいじょうぶ]
+output:
+DiceBot : (CHOICE[日本語,でも,だいじょうぶ]) ＞ 日本語
+rand:1/3
+============================
+input:
+CHOICE[日本語, でも,　だいじょうぶ]
+output:
+DiceBot : (CHOICE[日本語,でも,だいじょうぶ]) ＞ でも
+rand:2/3
+============================
+input:
+CHOICE[日本語, でも,　だいじょうぶ]
+output:
+DiceBot : (CHOICE[日本語,でも,だいじょうぶ]) ＞ だいじょうぶ
+rand:3/3
+============================
+input:
+choice[1+2, (3*4), 5d6]
+output:
+DiceBot : (CHOICE[1+2,(3*4),5d6]) ＞ 1+2
+rand:1/3
+============================
+input:
+choice[1+2, (3*4), 5d6]
+output:
+DiceBot : (CHOICE[1+2,(3*4),5d6]) ＞ (3*4)
+rand:2/3
+============================
+input:
+choice[1+2, (3*4), 5d6]
+output:
+DiceBot : (CHOICE[1+2,(3*4),5d6]) ＞ 5d6
+rand:3/3

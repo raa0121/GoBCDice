@@ -22,12 +22,15 @@ import (
 	node ast.Node
 	bRoll *ast.BRoll
 	bRollList *ast.BRollList
+	choiceItemList *ast.Choice
+	str *ast.String
 }
 
 %token<token> ILLEGAL
 
 %token<token> IDENT
 %token<token> INT
+%token<token> STRING
 
 %token<token> PLUS
 %token<token> MINUS
@@ -45,6 +48,7 @@ import (
 %token<token> R_PAREN
 %token<token> L_BRACKET
 %token<token> R_BRACKET
+%token<token> COMMA
 
 %token<token> D
 %token<token> B
@@ -54,9 +58,12 @@ import (
 %token<token> DOTS
 
 %token<token> CALC
-%token<token> CHOICE
+
+%token<token> CHOICE_BEGIN
+%token<token> CHOICE_END
 
 %type<node> command
+%type<choiceItemList> choice_item_list
 %type<node> int_expr
 %type<node> int_rand_expr
 %type<node> d_roll_expr
@@ -69,6 +76,7 @@ import (
 %type<node> rand_operand
 %type<node> rand
 %type<node> int
+%type<str> string
 
 %nonassoc EQ, LT, GT, LTEQ, GTEQ, DIAMOND
 %left PLUS, MINUS
@@ -105,6 +113,12 @@ command
 		$$ = ast.NewCalc($1, $3)
 		yylex.(*LexerWrapper).ast = $$
 	}
+	| CHOICE_BEGIN choice_item_list comma_opt CHOICE_END
+	{
+		$$ = $2
+		yylex.(*LexerWrapper).ast = $$
+	}
+
 
 int_expr
 	: int
@@ -334,6 +348,20 @@ b_roll_comp
 		$$ = ast.NewCompare($1, $2, $3)
 	}
 
+choice_item_list
+	: string
+	{
+		$$ = ast.NewChoice($1)
+	}
+	| choice_item_list COMMA string
+	{
+		$$.Append($3)
+	}
+
+comma_opt
+	:
+	| COMMA
+
 roll_operand
 	: int
 	| rand
@@ -376,6 +404,12 @@ int
 		$$ = ast.NewInt(value, $1)
 	}
 
+string
+	: STRING
+	{
+		$$ = ast.NewString($1.Literal, $1)
+	}
+
 %%
 
 // 字句解析器をyyParseで使用できるようにするためのラッパー。
@@ -398,6 +432,7 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 
 	token.IDENT: IDENT,
 	token.INT: INT,
+	token.STRING: STRING,
 
 	token.PLUS: PLUS,
 	token.MINUS: MINUS,
@@ -415,6 +450,7 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.R_PAREN: R_PAREN,
 	token.L_BRACKET: L_BRACKET,
 	token.R_BRACKET: R_BRACKET,
+	token.COMMA: COMMA,
 
 	token.D: D,
 	token.B: B,
@@ -424,7 +460,9 @@ var tokenTypeToYYTokenType = map[token.TokenType]int {
 	token.DOTS: DOTS,
 
 	token.CALC: CALC,
-	token.CHOICE: CHOICE,
+
+	token.CHOICE_BEGIN: CHOICE_BEGIN,
+	token.CHOICE_END: CHOICE_END,
 }
 
 // newLexerWrapper は新しい字句解析器ラッパーを作る。

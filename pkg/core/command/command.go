@@ -35,6 +35,8 @@ func Execute(
 		return executeBRollList(c, gameID, evaluator)
 	case *ast.BRollComp:
 		return executeBRollComp(c, gameID, evaluator)
+	case *ast.Choice:
+		return executeChoice(c, gameID, evaluator)
 	}
 
 	return nil, fmt.Errorf("command execution not implemented: %s", node.Type())
@@ -239,6 +241,38 @@ func executeBRollComp(
 	result.appendMessagePart(notation.Parenthesize(infixNotation))
 	result.appendMessagePart(resultObj.Values.JoinedElements(","))
 	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
+
+	return result, nil
+}
+
+// executeChoice はランダム選択を実行する。
+func executeChoice(
+	node *ast.Choice,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameID: gameID,
+	}
+
+	// 中置表記を記録しておく
+	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
+	if infixNotationErr != nil {
+		return nil, infixNotationErr
+	}
+
+	// 抽象構文木を評価する
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	resultObj := obj.(*object.String)
+	result.RolledDice = evaluator.RolledDice()
+
+	// 結果のメッセージを作る
+	result.appendMessagePart(notation.Parenthesize(infixNotation))
+	result.appendMessagePart(resultObj.Value)
 
 	return result, nil
 }

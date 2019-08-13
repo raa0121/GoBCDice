@@ -20,6 +20,7 @@ const (
 
 	INTEGER_OBJ
 	BOOLEAN_OBJ
+	STRING_OBJ
 	ARRAY_OBJ
 	B_ROLL_COMP_RESULT_OBJ
 )
@@ -30,6 +31,7 @@ var objectTypeString = map[ObjectType]string{
 
 	INTEGER_OBJ:            "INTEGER",
 	BOOLEAN_OBJ:            "BOOLEAN",
+	STRING_OBJ:             "STRING",
 	ARRAY_OBJ:              "ARRAY",
 	B_ROLL_COMP_RESULT_OBJ: "B_ROLL_COMP_RESULT",
 }
