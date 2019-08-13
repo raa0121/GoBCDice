@@ -59,7 +59,11 @@ func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, er
 
 }
 
-Command <- ResetRandCount n:(Calc / BRollComp / BRollList / DRollCompCommand / DRollExprCommand) EOT {
+Command <- ResetRandCount n:(Calc / CommandWithExpression) {
+	return n, nil
+}
+
+CommandWithExpression <- n:(BRollComp / BRollList / DRollCompCommand / DRollExprCommand) EOT {
 	return n, nil
 }
 

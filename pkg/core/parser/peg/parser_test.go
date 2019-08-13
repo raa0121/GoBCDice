@@ -63,6 +63,7 @@ func TestParse(t *testing.T) {
 		{"C(-(1+2))", "(Calc (- (+ 1 2)))", false},
 		{"C(+(1+2))", "(Calc (+ 1 2))", false},
 		{"CC(1)", "", true},
+		{"C(10+5) mokekeke", "(Calc (+ 10 5))", false},
 
 		// 計算コマンド内でのランダム数値は無効にする
 		{"C([1...3])", "", true},
