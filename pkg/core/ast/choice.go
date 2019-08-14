@@ -27,6 +27,15 @@ func NewChoice(first *String) *Choice {
 	}
 }
 
+// NewChoice2 は新しいランダム選択ノードを返す。
+//
+// first: 最初の選択肢。
+func NewChoice2(first *String) *Choice {
+	return &Choice{
+		Items: []*String{first},
+	}
+}
+
 // Type はノードの種類を返す。
 func (n *Choice) Type() NodeType {
 	return CHOICE_NODE

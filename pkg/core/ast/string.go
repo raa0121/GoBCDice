@@ -50,3 +50,12 @@ func NewString(value string, tok token.Token) *String {
 		Value: value,
 	}
 }
+
+// NewString2 は新しい文字列のノードを返す。
+//
+// value: 文字列,
+func NewString2(value string) *String {
+	return &String{
+		Value: value,
+	}
+}

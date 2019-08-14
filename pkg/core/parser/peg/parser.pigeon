@@ -9,10 +9,17 @@ import (
 	"strings"
 )
 
+func toIfaceSlice(v interface{}) []interface{} {
+    if v == nil {
+        return nil
+    }
+    return v.([]interface{})
+}
+
 func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
-	for _, r := range rest.([]interface{}) {
-		rs := r.([]interface{})
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
 		op := string(rs[0].([]byte))
 		right := rs[1].(ast.Node)
 
@@ -29,8 +36,8 @@ func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, err
 
 func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
-	for _, r := range rest.([]interface{}) {
-		rs := r.([]interface{})
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
 		op := string(rs[0].([]byte))
 		right := rs[1].(ast.Node)
 
@@ -59,7 +66,7 @@ func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, er
 
 }
 
-Command <- ResetRandCount n:(Calc / CommandWithExpression) {
+Command <- ResetRandCount n:(Choice / Calc / CommandWithExpression) {
 	return n, nil
 }
 
@@ -67,7 +74,33 @@ CommandWithExpression <- n:(BRollComp / BRollList / DRollCompCommand / DRollExpr
 	return n, nil
 }
 
-Calc <- calc:'C'i '(' expr:IntExpr ')' {
+Choice <- "CHOICE["i items:ChoiceItems (',' [\pZ]*)? ']' {
+	return items, nil
+}
+
+ChoiceItems <- first:ChoiceItem rest:(',' ChoiceItem)* {
+	firstString := first.(*ast.String)
+	choice := ast.NewChoice(firstString)
+
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		i := rs[1].(*ast.String)
+
+		choice.Append(i)
+	}
+
+	return choice, nil
+}
+
+ChoiceItem <- [\pZ]* s:ChoiceItemChars {
+	return s, nil
+}
+
+ChoiceItemChars <- [^\],]+ {
+	return ast.NewString2(strings.TrimSpace(string(c.text))), nil
+}
+
+Calc <- 'C'i '(' expr:IntExpr ')' {
 	return ast.NewCalc2(expr.(ast.Node)), nil
 }
 
@@ -90,8 +123,8 @@ DRollCompCommand <- expr:DRollComp {
 BRollList <- first:BRoll rest:('+' BRoll)* {
 	bRollList := ast.NewBRollList2(first.(*ast.BRoll))
 
-	for _, r := range rest.([]interface{}) {
-		rs := r.([]interface{})
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
 		b := rs[1].(*ast.BRoll)
 		bRollList.Append(b)
 	}
