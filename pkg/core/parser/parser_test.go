@@ -198,6 +198,24 @@ func TestParse(t *testing.T) {
 		{"2b6<4<5", "", true},
 		{"1<2<2b6", "", true},
 
+		// 個数振り足しロール
+		{"3r6=4", "(RRollComp (= (RRollList nil (RRoll 3 6)) 4))", false},
+		{"3r6<>4", "(RRollComp (<> (RRollList nil (RRoll 3 6)) 4))", false},
+		{"3r6>4", "(RRollComp (> (RRollList nil (RRoll 3 6)) 4))", false},
+		{"3r6<4", "(RRollComp (< (RRollList nil (RRoll 3 6)) 4))", false},
+		{"3r6>=4", "(RRollComp (>= (RRollList nil (RRoll 3 6)) 4))", false},
+		{"3r6<=4", "(RRollComp (<= (RRollList nil (RRoll 3 6)) 4))", false},
+		{"3r6+2r6<=2", "(RRollComp (<= (RRollList nil (RRoll 3 6) (RRoll 2 6)) 2))", false},
+		{"(3+2)r6>=5", "(RRollComp (>= (RRollList nil (RRoll (+ 3 2) 6)) 5))", false},
+		{"1r(2*3)>=4", "(RRollComp (>= (RRollList nil (RRoll 1 (* 2 3))) 4))", false},
+		{"3r6>1*4", "(RRollComp (> (RRollList nil (RRoll 3 6)) (* 1 4)))", false},
+		{"2r6", "(RRollList nil (RRoll 2 6))", false},
+		{"2r6[5]", "(RRollList 5 (RRoll 2 6))", false},
+		{"3r6+2r6[2]", "(RRollList 2 (RRoll 3 6) (RRoll 2 6))", false},
+		{"6R6[6]>=5", "(RRollComp (>= (RRollList 6 (RRoll 6 6)) 5))", false},
+		{"6R6[2*3]>=5", "(RRollComp (>= (RRollList (* 2 3) (RRoll 6 6)) 5))", false},
+		{"2r6+1>=4", "", true},
+
 		// ランダム選択
 		{"choice[A,B,C]どれにしよう", `(Choice "A" "B" "C")`, false},
 		{"choice[A,B, ]", `(Choice "A" "B")`, false},
