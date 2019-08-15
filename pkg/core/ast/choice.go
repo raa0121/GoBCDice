@@ -6,8 +6,6 @@ import (
 
 // ランダム選択のノード。
 type Choice struct {
-	NodeImpl
-
 	// 選択肢のスライス。
 	Items []*String
 }
@@ -19,18 +17,6 @@ var _ Node = (*Choice)(nil)
 //
 // first: 最初の選択肢。
 func NewChoice(first *String) *Choice {
-	return &Choice{
-		NodeImpl: NodeImpl{
-			tok: first.tok,
-		},
-		Items: []*String{first},
-	}
-}
-
-// NewChoice2 は新しいランダム選択ノードを返す。
-//
-// first: 最初の選択肢。
-func NewChoice2(first *String) *Choice {
 	return &Choice{
 		Items: []*String{first},
 	}

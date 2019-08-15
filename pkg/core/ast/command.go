@@ -12,8 +12,6 @@ type Command interface {
 
 // Command が共通して持つ要素。
 type CommandImpl struct {
-	NodeImpl
-
 	// コマンドの引数である式のノード
 	expr Node
 }

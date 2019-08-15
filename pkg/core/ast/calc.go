@@ -2,7 +2,6 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 計算コマンドのノード。
@@ -19,23 +18,8 @@ var _ Command = (*Calc)(nil)
 
 // NewCalc は新しい計算コマンドを返す。
 //
-// tok: 対応するトークン,
 // expression: 式。
-func NewCalc(tok token.Token, expression Node) *Calc {
-	return &Calc{
-		CommandImpl: CommandImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
-			expr: expression,
-		},
-	}
-}
-
-// NewCalc2 は新しい計算コマンドを返す。
-//
-// expression: 式。
-func NewCalc2(expression Node) *Calc {
+func NewCalc(expression Node) *Calc {
 	return &Calc{
 		CommandImpl: CommandImpl{
 			expr: expression,

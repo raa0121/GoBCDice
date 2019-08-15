@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // ランダム数値取り出しのノード。
 // 一次式、可変ノード、中置式。
 type RandomNumber struct {
@@ -50,30 +46,11 @@ func (n *RandomNumber) IsVariable() bool {
 	return true
 }
 
-// NewRand はランダム数値取り出しのノードを返す。
-//
-// min: 最小値のノード,
-// tok: 対応するトークン,
-// max: 最大値のノード。
-func NewRandomNumber(min Node, tok token.Token, max Node) *RandomNumber {
-	return &RandomNumber{
-		InfixExpressionImpl: InfixExpressionImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
-			left:            min,
-			operator:        "...",
-			operatorForSExp: "Rand",
-			right:           max,
-		},
-	}
-}
-
-// NewRand2 はランダム数値取り出しのノードを返す。
+// NewRandomNumber はランダム数値取り出しのノードを返す。
 //
 // min: 最小値のノード,
 // max: 最大値のノード。
-func NewRandomNumber2(min Node, max Node) *RandomNumber {
+func NewRandomNumber(min Node, max Node) *RandomNumber {
 	return &RandomNumber{
 		InfixExpressionImpl: InfixExpressionImpl{
 			left:            min,

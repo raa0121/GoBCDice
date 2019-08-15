@@ -1,6 +1,6 @@
 {
 
-package peg_parser
+package parser
 
 import (
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
@@ -10,10 +10,10 @@ import (
 )
 
 func toIfaceSlice(v interface{}) []interface{} {
-    if v == nil {
-        return nil
-    }
-    return v.([]interface{})
+	if v == nil {
+		return nil
+	}
+	return v.([]interface{})
 }
 
 func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, error) {
@@ -25,9 +25,9 @@ func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, err
 
 		switch op {
 		case "+":
-			lastNode = ast.NewAdd2(lastNode, right)
+			lastNode = ast.NewAdd(lastNode, right)
 		case "-":
-			lastNode = ast.NewSubtract2(lastNode, right)
+			lastNode = ast.NewSubtract(lastNode, right)
 		}
 	}
 
@@ -48,15 +48,15 @@ func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, er
 
 		switch op {
 		case "*":
-			lastNode = ast.NewMultiply2(lastNode, right)
+			lastNode = ast.NewMultiply(lastNode, right)
 		case "/":
 			switch roundingMethod {
 			case "U":
-				lastNode = ast.NewDivideWithRoundingUp2(lastNode, right)
+				lastNode = ast.NewDivideWithRoundingUp(lastNode, right)
 			case "R":
-				lastNode = ast.NewDivideWithRounding2(lastNode, right)
+				lastNode = ast.NewDivideWithRounding(lastNode, right)
 			case "":
-				lastNode = ast.NewDivideWithRoundingDown2(lastNode, right)
+				lastNode = ast.NewDivideWithRoundingDown(lastNode, right)
 			}
 		}
 	}
@@ -97,11 +97,11 @@ ChoiceItem <- [\pZ]* s:ChoiceItemChars {
 }
 
 ChoiceItemChars <- [^\],]+ {
-	return ast.NewString2(strings.TrimSpace(string(c.text))), nil
+	return ast.NewString(strings.TrimSpace(string(c.text))), nil
 }
 
 Calc <- 'C'i '(' expr:IntExpr ')' {
-	return ast.NewCalc2(expr.(ast.Node)), nil
+	return ast.NewCalc(expr.(ast.Node)), nil
 }
 
 DRollExprCommand <- expr:DRollExpr {
@@ -109,7 +109,7 @@ DRollExprCommand <- expr:DRollExpr {
 		return nil, fmt.Errorf("random element not found")
 	}
 
-	return ast.NewDRollExpr2(expr.(ast.Node)), nil
+	return ast.NewDRollExpr(expr.(ast.Node)), nil
 }
 
 DRollCompCommand <- expr:DRollComp {
@@ -117,11 +117,11 @@ DRollCompCommand <- expr:DRollComp {
 		return nil, fmt.Errorf("random element not found")
 	}
 
-	return ast.NewDRollComp2(expr.(ast.Node)), nil
+	return ast.NewDRollComp(expr.(ast.Node)), nil
 }
 
 BRollList <- first:BRoll rest:('+' BRoll)* {
-	bRollList := ast.NewBRollList2(first.(*ast.BRoll))
+	bRollList := ast.NewBRollList(first.(*ast.BRoll))
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
@@ -133,8 +133,8 @@ BRollList <- first:BRoll rest:('+' BRoll)* {
 }
 
 BRollComp <- left:BRollList op:CompareOp right:IntExpr {
-	return ast.NewBRollComp2(
-		ast.NewCompare2(
+	return ast.NewBRollComp(
+		ast.NewCompare(
 			left.(ast.Node),
 			string(op.([]byte)),
 			right.(ast.Node),
@@ -163,11 +163,11 @@ IntExprUnaryPlus <- '+' e:IntExprPrimary {
 }
 
 IntExprUnaryMinus <- '-' e:IntExprPrimary {
-	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+	return ast.NewUnaryMinus(e.(ast.Node)), nil
 }
 
 DRollComp <- left:DRollExprAdditive op:CompareOp right:IntExpr {
-	return ast.NewCompare2(
+	return ast.NewCompare(
 		left.(ast.Node),
 		string(op.([]byte)),
 		right.(ast.Node),
@@ -195,7 +195,7 @@ DRollExprUnaryPlus <- '+' e:DRollExprPrimary {
 }
 
 DRollExprUnaryMinus <- '-' e:DRollExprPrimary {
-	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+	return ast.NewUnaryMinus(e.(ast.Node)), nil
 }
 
 IntRandExpr <- IntRandExprAdditive
@@ -219,21 +219,21 @@ IntRandExprUnaryPlus <- '+' e:IntRandExprPrimary {
 }
 
 IntRandExprUnaryMinus <- '-' e:IntRandExprPrimary {
-	return ast.NewUnaryMinus2(e.(ast.Node)), nil
+	return ast.NewUnaryMinus(e.(ast.Node)), nil
 }
 
 DRoll <- num:RollOperand 'D'i sides:RollOperand IncRandCount {
 	numNode := num.(ast.Node)
 	sidesNode := sides.(ast.Node)
 
-	return ast.NewDRoll2(numNode, sidesNode), nil
+	return ast.NewDRoll(numNode, sidesNode), nil
 }
 
 BRoll <- num:RollOperand 'B'i sides:RollOperand IncRandCount {
 	numNode := num.(ast.Node)
 	sidesNode := sides.(ast.Node)
 
-	return ast.NewBRoll2(numNode, sidesNode), nil
+	return ast.NewBRoll(numNode, sidesNode), nil
 }
 
 RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
@@ -242,7 +242,7 @@ Rand <- '[' min:RandOperand "..." max:RandOperand ']' IncRandCount {
 	minNode := min.(ast.Node)
 	maxNode := max.(ast.Node)
 
-	return ast.NewRandomNumber2(minNode, maxNode), nil
+	return ast.NewRandomNumber(minNode, maxNode), nil
 }
 
 RandOperand <- Integer / ParenthesizedIntExpr
@@ -263,7 +263,7 @@ Integer <- [0-9]+ {
 	// TODO: 整数が大きすぎるときなどのエラー処理が必要
 	value, _ := strconv.Atoi(s)
 
-	return ast.NewInt2(value), nil
+	return ast.NewInt(value), nil
 }
 
 CompareOp <- "=" / "<>" / "<=" / "<" / ">=" / ">"

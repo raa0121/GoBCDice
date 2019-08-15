@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // 除算の端数処理の方法を表す型。
 type RoundingMethodType int
 
@@ -149,14 +145,10 @@ func (n *DivideWithRoundingDown) RoundingMethod() RoundingMethodType {
 // NewDivideWithRoundingUp は小数点以下を切り上げる除算の新しいノードを返す。
 //
 // dividend: 被除数のノード,
-// tok: 対応するトークン,
 // divisor: 除数のノード。
-func NewDivideWithRoundingUp(dividend Node, tok token.Token, divisor Node) *DivideWithRoundingUp {
+func NewDivideWithRoundingUp(dividend Node, divisor Node) *DivideWithRoundingUp {
 	return &DivideWithRoundingUp{
 		InfixExpressionImpl: InfixExpressionImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
 			left:            dividend,
 			operator:        "/U",
 			operatorForSExp: "/U",
@@ -168,14 +160,10 @@ func NewDivideWithRoundingUp(dividend Node, tok token.Token, divisor Node) *Divi
 // NewDivideWithRounding は小数点以下を四捨五入する除算の新しいノードを返す。
 //
 // dividend: 被除数のノード,
-// tok: 対応するトークン,
 // divisor: 除数のノード。
-func NewDivideWithRounding(dividend Node, tok token.Token, divisor Node) *DivideWithRounding {
+func NewDivideWithRounding(dividend Node, divisor Node) *DivideWithRounding {
 	return &DivideWithRounding{
 		InfixExpressionImpl: InfixExpressionImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
 			left:            dividend,
 			operator:        "/R",
 			operatorForSExp: "/R",
@@ -187,57 +175,8 @@ func NewDivideWithRounding(dividend Node, tok token.Token, divisor Node) *Divide
 // NewDivideWithRoundingDown は小数点以下を切り捨てる除算の新しいノードを返す。
 //
 // dividend: 被除数のノード,
-// tok: 対応するトークン,
 // divisor: 除数のノード。
-func NewDivideWithRoundingDown(dividend Node, tok token.Token, divisor Node) *DivideWithRoundingDown {
-	return &DivideWithRoundingDown{
-		InfixExpressionImpl: InfixExpressionImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
-			left:            dividend,
-			operator:        "/",
-			operatorForSExp: "/",
-			right:           divisor,
-		},
-	}
-}
-
-// NewDivideWithRoundingUp2 は小数点以下を切り上げる除算の新しいノードを返す。
-//
-// dividend: 被除数のノード,
-// divisor: 除数のノード。
-func NewDivideWithRoundingUp2(dividend Node, divisor Node) *DivideWithRoundingUp {
-	return &DivideWithRoundingUp{
-		InfixExpressionImpl: InfixExpressionImpl{
-			left:            dividend,
-			operator:        "/U",
-			operatorForSExp: "/U",
-			right:           divisor,
-		},
-	}
-}
-
-// NewDivideWithRounding2 は小数点以下を四捨五入する除算の新しいノードを返す。
-//
-// dividend: 被除数のノード,
-// divisor: 除数のノード。
-func NewDivideWithRounding2(dividend Node, divisor Node) *DivideWithRounding {
-	return &DivideWithRounding{
-		InfixExpressionImpl: InfixExpressionImpl{
-			left:            dividend,
-			operator:        "/R",
-			operatorForSExp: "/R",
-			right:           divisor,
-		},
-	}
-}
-
-// NewDivideWithRoundingDown2 は小数点以下を切り捨てる除算の新しいノードを返す。
-//
-// dividend: 被除数のノード,
-// divisor: 除数のノード。
-func NewDivideWithRoundingDown2(dividend Node, divisor Node) *DivideWithRoundingDown {
+func NewDivideWithRoundingDown(dividend Node, divisor Node) *DivideWithRoundingDown {
 	return &DivideWithRoundingDown{
 		InfixExpressionImpl: InfixExpressionImpl{
 			left:            dividend,

@@ -18,7 +18,6 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 	"math"
 )
 
@@ -116,16 +115,14 @@ func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult,
 	}
 
 	valuesArray := valuesObj.(*object.Array)
-	evaluatedTargetNode := ast.NewInt(
-		evaluatedTargetObj.(*object.Integer).Value,
-		token.Token{},
-	)
+	evaluatedTargetNode :=
+		ast.NewInt(evaluatedTargetObj.(*object.Integer).Value)
 
 	// 振られた各ダイスに対して成功判定を行い、成功数を数える
 	numOfSuccesses := 0
 	for _, el := range valuesArray.Elements {
-		valueNode := ast.NewInt(el.(*object.Integer).Value, token.Token{})
-		valueCompareNode := ast.NewCompare2(
+		valueNode := ast.NewInt(el.(*object.Integer).Value)
+		valueCompareNode := ast.NewCompare(
 			valueNode,
 			compareNode.Operator(),
 			evaluatedTargetNode,

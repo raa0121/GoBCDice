@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // 加算ロールのノード。
 // 一次式、可変ノード、中置式。
 type DRoll struct {
@@ -53,27 +49,8 @@ func (n *DRoll) IsVariable() bool {
 // NewDRoll は加算ロールのノードを返す。
 //
 // num: 振るダイスの数のノード,
-// tok: 対応するトークン,
 // sides: ダイスの面数のノード。
-func NewDRoll(num Node, tok token.Token, sides Node) *DRoll {
-	return &DRoll{
-		InfixExpressionImpl: InfixExpressionImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
-			left:            num,
-			operator:        "D",
-			operatorForSExp: "DRoll",
-			right:           sides,
-		},
-	}
-}
-
-// NewDRoll2 は加算ロールのノードを返す。
-//
-// num: 振るダイスの数のノード,
-// sides: ダイスの面数のノード。
-func NewDRoll2(num Node, sides Node) *DRoll {
+func NewDRoll(num Node, sides Node) *DRoll {
 	return &DRoll{
 		InfixExpressionImpl: InfixExpressionImpl{
 			left:            num,

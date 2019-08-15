@@ -162,7 +162,7 @@ func TestExecuteBRollComp(t *testing.T) {
 			dice.FormatDiceWithoutSpaces(test.dice),
 		)
 		t.Run(name, func(t *testing.T) {
-			root, parseErr := parser.Parse(test.input)
+			root, parseErr := parser.Parse("test", []byte(test.input))
 			if parseErr != nil {
 				t.Fatalf("構文エラー: %s", parseErr)
 				return

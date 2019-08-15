@@ -13,7 +13,7 @@ import (
 // 加算ロールコマンドの例。
 func ExampleExecute_sumRoll() {
 	// 構文解析する
-	root, parseErr := parser.Parse("(2*3-4)d6-1d4+1")
+	root, parseErr := parser.Parse("ExampleExecute_sumRoll", []byte("(2*3-4)d6-1d4+1"))
 	if parseErr != nil {
 		return
 	}

@@ -2,13 +2,11 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 加算ロール式のノード。
 // コマンド。
 type DRollExpr struct {
-	NodeImpl
 	CommandImpl
 }
 
@@ -20,23 +18,8 @@ var _ Command = (*DRollExpr)(nil)
 
 // NewDRollExpr は新しい加算ロール式のノードを返す。
 //
-// tok: 対応するトークン,
 // expression: 式。
-func NewDRollExpr(tok token.Token, expression Node) *DRollExpr {
-	return &DRollExpr{
-		CommandImpl: CommandImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
-			expr: expression,
-		},
-	}
-}
-
-// NewDRollExpr2 は新しい加算ロール式のノードを返す。
-//
-// expression: 式。
-func NewDRollExpr2(expression Node) *DRollExpr {
+func NewDRollExpr(expression Node) *DRollExpr {
 	return &DRollExpr{
 		CommandImpl: CommandImpl{
 			expr: expression,

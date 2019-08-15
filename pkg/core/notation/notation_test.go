@@ -2,6 +2,7 @@ package notation
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"testing"
 )
@@ -9,13 +10,15 @@ import (
 // 加算ロール式の中置表記の例。
 func ExampleInfixNotation_sumRoll() {
 	// 構文解析する
-	ast, parseErr := parser.Parse("(2*3-4)d6-1d4+1")
+	r, parseErr := parser.Parse("ExampleInfixNotation_sumRoll", []byte("(2*3-4)d6-1d4+1"))
 	if parseErr != nil {
 		return
 	}
 
+	node := r.(ast.Node)
+
 	// 中置表記を生成する
-	infixNotation, notationErr := InfixNotation(ast, true)
+	infixNotation, notationErr := InfixNotation(node, true)
 	if notationErr != nil {
 		return
 	}
@@ -37,13 +40,15 @@ func ExampleParenthesize() {
 // 演算子の優先順位が "-" < "/" であるため、"/" の左側には括弧が必要。
 func ExampleInfixNotation_operatorPrecedence() {
 	// 構文解析する
-	ast, parseErr := parser.Parse("C((1-(2*3))/4)")
+	r, parseErr := parser.Parse("ExampleInfixNotation_operatorPrecedence", []byte("C((1-(2*3))/4)"))
 	if parseErr != nil {
 		return
 	}
 
+	node := r.(ast.Node)
+
 	// 中置表記を生成する
-	infixNotation, notationErr := InfixNotation(ast, true)
+	infixNotation, notationErr := InfixNotation(node, true)
 	if notationErr != nil {
 		return
 	}
@@ -59,13 +64,15 @@ func ExampleInfixNotation_operatorPrecedence() {
 // "-" は右結合性でないため、"-(3-4)" では括弧が必要。
 func ExampleInfixNotation_associativity() {
 	// 構文解析する
-	ast, parseErr := parser.Parse("C(1+(2-(3-4)))")
+	r, parseErr := parser.Parse("ExampleInfixNotation_associativity", []byte("C(1+(2-(3-4)))"))
 	if parseErr != nil {
 		return
 	}
 
+	node := r.(ast.Node)
+
 	// 中置表記を生成する
-	infixNotation, notationErr := InfixNotation(ast, true)
+	infixNotation, notationErr := InfixNotation(node, true)
 	if notationErr != nil {
 		return
 	}
@@ -529,13 +536,15 @@ func TestInfixNotation(t *testing.T) {
 
 	for _, test := range testcase {
 		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
-			ast, parseErr := parser.Parse(test.input)
+			r, parseErr := parser.Parse("test", []byte(test.input))
 			if parseErr != nil {
 				t.Fatalf("構文エラー: %s", parseErr)
 				return
 			}
 
-			actual, notationErr := InfixNotation(ast, true)
+			node := r.(ast.Node)
+
+			actual, notationErr := InfixNotation(node, true)
 			if notationErr != nil {
 				t.Fatalf("中置表記生成エラー: %s", notationErr)
 				return

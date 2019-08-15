@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // EvalVarArgs は可変ノードの引数を評価して整数に変換する。
@@ -50,8 +49,8 @@ func (e *Evaluator) evalVarArgsOfRoll(node ast.InfixExpression) error {
 		return rightErr
 	}
 
-	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value, token.Token{})
-	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value, token.Token{})
+	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value)
+	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
 
 	node.SetLeft(evaluatedLeft)
 	node.SetRight(evaluatedRight)

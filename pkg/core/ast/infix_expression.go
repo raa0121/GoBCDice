@@ -2,7 +2,6 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 中置式のインターフェース。
@@ -33,8 +32,6 @@ type InfixExpression interface {
 
 // 中置式のノードが共通して持つ要素。
 type InfixExpressionImpl struct {
-	NodeImpl
-
 	// 左のノード
 	left Node
 	// 演算子
@@ -122,22 +119,4 @@ func (n *InfixExpressionImpl) IsPrimaryExpression() bool {
 // 左右の両方のノードが可変ノードでない場合はfalseを返す。
 func (n *InfixExpressionImpl) IsVariable() bool {
 	return n.Left().IsVariable() || n.Right().IsVariable()
-}
-
-// NewInfixExpression は新しい中置式のノードを返す。
-// 評価時とS式とで演算子を変更しなくてもよい場合に使う。
-//
-// left: 左のノード,
-// tok: 対応するトークン,
-// right: 右のノード。
-func NewInfixExpression(left Node, tok token.Token, right Node) *InfixExpressionImpl {
-	return &InfixExpressionImpl{
-		NodeImpl: NodeImpl{
-			tok: tok,
-		},
-		left:            left,
-		operator:        tok.Literal,
-		operatorForSExp: tok.Literal,
-		right:           right,
-	}
 }

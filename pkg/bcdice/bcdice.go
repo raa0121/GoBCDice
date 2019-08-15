@@ -6,7 +6,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
-	"github.com/raa0121/GoBCDice/pkg/core/parser/peg"
+	"github.com/raa0121/GoBCDice/pkg/core/parser"
 	"github.com/raa0121/GoBCDice/pkg/dicebot"
 	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
 	"regexp"
@@ -103,7 +103,7 @@ func (b *BCDice) ExecuteDiceBotCommand(c string) (*command.Result, error) {
 
 // ExecuteBasicCommand はBCDiceの基本コマンドを実行する。
 func (b *BCDice) ExecuteBasicCommand(c string) (*command.Result, error) {
-	node, parseErr := peg_parser.Parse("input", []byte(c))
+	node, parseErr := parser.Parse("input", []byte(c))
 	if parseErr != nil {
 		return nil, parseErr
 	}
