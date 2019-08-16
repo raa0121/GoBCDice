@@ -78,6 +78,17 @@ func (e *Evaluator) evalVarArgsInBRollList(node *ast.BRollList) error {
 
 // evalVarArgsInRRollList は個数振り足しロール列内の可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) evalVarArgsInRRollList(node *ast.RRollList) error {
+	// 振り足しの閾値を評価する
+	if node.Threshold.Type() != ast.NIL_NODE {
+		thresholdObj, thresholdEvalErr := e.Eval(node.Threshold)
+		if thresholdEvalErr != nil {
+			return thresholdEvalErr
+		}
+
+		node.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+	}
+
+	// 個数振り足しロールの引数を評価して整数に変換する
 	for _, r := range node.RRolls {
 		err := e.evalVarArgsOfVariableExpr(r)
 		if err != nil {
