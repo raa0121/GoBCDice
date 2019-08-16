@@ -126,10 +126,9 @@ func executeDRollComp(
 	}
 
 	// 左辺の可変ノードの引数および右辺を評価する
-	infixNotation1, evalVarArgsAndRightErr :=
-		evalCompareVarArgsAndRight(compareNode, evaluator)
-	if evalVarArgsAndRightErr != nil {
-		return nil, evalVarArgsAndRightErr
+	infixNotation1, evalVarArgsErr := evalVarArgs(compareNode, evaluator)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
 	}
 
 	// 加算ロールなどの可変ノードの値を決定する
@@ -220,12 +219,12 @@ func executeBRollComp(
 	}
 
 	// 左辺の可変ノードの引数および右辺を評価する
-	infixNotation, evalVarArgsAndRightErr := evalCompareVarArgsAndRight(
+	infixNotation, evalVarArgsErr := evalVarArgs(
 		node.Expression().(*ast.Compare),
 		evaluator,
 	)
-	if evalVarArgsAndRightErr != nil {
-		return nil, evalVarArgsAndRightErr
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
 	}
 
 	// 変換された抽象構文木を評価する
@@ -299,25 +298,6 @@ func determineValues(node ast.Node, evaluator *evaluator.Evaluator) (string, err
 	determineValuesErr := evaluator.DetermineValues(node)
 	if determineValuesErr != nil {
 		return "", determineValuesErr
-	}
-
-	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
-	if infixNotationErr != nil {
-		return "", infixNotationErr
-	}
-
-	return infixNotation, nil
-}
-
-// evalCompareVarArgsAndRight は、比較式の左辺の可変ノードの引数および右辺を評価する。
-// 返り値はその結果の中置表記とエラー。
-func evalCompareVarArgsAndRight(
-	node *ast.Compare,
-	evaluator *evaluator.Evaluator,
-) (string, error) {
-	evalVarArgsAndRightErr := evaluator.EvalCompareVarArgsAndRight(node)
-	if evalVarArgsAndRightErr != nil {
-		return "", evalVarArgsAndRightErr
 	}
 
 	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
