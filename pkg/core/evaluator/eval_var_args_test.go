@@ -161,6 +161,26 @@ func TestEvalVarArgs(t *testing.T) {
 			input:    "(1*2)b(2+4)+(8/2)b(101/10R)",
 			expected: "(BRollList (BRoll 2 6) (BRoll 4 10))",
 		},
+		{
+			input:    "(3+2)r6>=5",
+			expected: "(RRollComp (>= (RRollList nil (RRoll 5 6)) 5))",
+		},
+		{
+			input:    "1r(2*3)>=4",
+			expected: "(RRollComp (>= (RRollList nil (RRoll 1 6)) 4))",
+		},
+		{
+			input:    "3r6>1*4",
+			expected: "(RRollComp (> (RRollList nil (RRoll 3 6)) 4))",
+		},
+		{
+			input:    "(1*3)r6+2r(5+1)<=2",
+			expected: "(RRollComp (<= (RRollList nil (RRoll 3 6) (RRoll 2 6)) 2))",
+		},
+		{
+			input:    "6R6[2*3]>=5",
+			expected: "(RRollComp (>= (RRollList 6 (RRoll 6 6)) 5))",
+		},
 	}
 
 	for _, test := range testcases {
