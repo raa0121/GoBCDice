@@ -32,6 +32,8 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 		return infixNotationOfCalc(n, walkingToLeft)
 	case *ast.BRollList:
 		return infixNotationOfBRollList(n)
+	case *ast.RRollList:
+		return infixNotationOfRRollList(n)
 	case *ast.Choice:
 		return infixNotationOfChoice(n)
 	case ast.Command:
@@ -75,7 +77,7 @@ func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
 	return fmt.Sprintf("C(%s)", expr), nil
 }
 
-// infixNotationOfBRollList はバラバラロールのリストの中置表記を返す。
+// infixNotationOfBRollList はバラバラロール列の中置表記を返す。
 func infixNotationOfBRollList(node *ast.BRollList) (string, error) {
 	infixNotations := make([]string, 0, len(node.BRolls))
 	for _, b := range node.BRolls {
@@ -88,6 +90,36 @@ func infixNotationOfBRollList(node *ast.BRollList) (string, error) {
 	}
 
 	return strings.Join(infixNotations, "+"), nil
+}
+
+// infixNotationOfRRollList は個数振り足しロール列の中置表記を返す。
+func infixNotationOfRRollList(node *ast.RRollList) (string, error) {
+	var out bytes.Buffer
+
+	infixNotations := make([]string, 0, len(node.RRolls))
+	for _, r := range node.RRolls {
+		n, err := InfixNotation(r, true)
+		if err != nil {
+			return "", err
+		}
+
+		infixNotations = append(infixNotations, n)
+	}
+
+	out.WriteString(strings.Join(infixNotations, "+"))
+
+	if !node.Threshold.IsNil() {
+		infixNotationOfThreshold, err := InfixNotation(node.Threshold, true)
+		if err != nil {
+			return "", err
+		}
+
+		out.WriteString("[")
+		out.WriteString(infixNotationOfThreshold)
+		out.WriteString("]")
+	}
+
+	return out.String(), nil
 }
 
 func infixNotationOfChoice(node *ast.Choice) (string, error) {
