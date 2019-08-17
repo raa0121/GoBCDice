@@ -85,19 +85,6 @@ func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
 	return object.NewArrayByMove(elements), nil
 }
 
-// evalChoice はランダム選択を評価する。
-func (e *Evaluator) evalChoice(node *ast.Choice) (*object.String, error) {
-	rolledDice, err := e.RollDice(1, len(node.Items))
-	if err != nil {
-		return nil, err
-	}
-
-	index := rolledDice[0].Value - 1
-	value := node.Items[index].Value
-
-	return object.NewString(value), nil
-}
-
 // evalBRollComp はバラバラロールの成功数カウントを評価する。
 func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult, error) {
 	compareNode := node.Expression().(*ast.Compare)
@@ -139,6 +126,19 @@ func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult,
 	}
 
 	return object.NewBRollCompResult(valuesArray, object.NewInteger(numOfSuccesses)), nil
+}
+
+// evalChoice はランダム選択を評価する。
+func (e *Evaluator) evalChoice(node *ast.Choice) (*object.String, error) {
+	rolledDice, err := e.RollDice(1, len(node.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	index := rolledDice[0].Value - 1
+	value := node.Items[index].Value
+
+	return object.NewString(value), nil
 }
 
 // evalPrefixExpression は前置式を評価する。
