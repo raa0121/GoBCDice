@@ -32,11 +32,7 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 // このメソッドは、ノードの型に合わせて処理を振り分ける。
 func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
 	switch node.Type() {
-	case ast.D_ROLL_NODE:
-		fallthrough
-	case ast.B_ROLL_NODE:
-		fallthrough
-	case ast.R_ROLL_NODE:
+	case ast.D_ROLL_NODE, ast.B_ROLL_NODE, ast.R_ROLL_NODE:
 		return e.evalVarArgsOfRoll(node.(ast.InfixExpression))
 	}
 

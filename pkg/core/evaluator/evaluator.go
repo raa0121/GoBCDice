@@ -51,6 +51,8 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 		return e.evalBRollList(n)
 	case *ast.BRollComp:
 		return e.evalBRollComp(n)
+	case *ast.RRollList:
+		return e.evalRRollList(n)
 	case *ast.Choice:
 		return e.evalChoice(n)
 	case ast.Command:
@@ -68,7 +70,7 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
 }
 
-// evalBRollList はバラバラロールのリストを評価する。
+// evalBRollList はバラバラロール列を評価する。
 func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
 	elements := []object.Object{}
 
@@ -126,6 +128,75 @@ func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult,
 	}
 
 	return object.NewBRollCompResult(valuesArray, object.NewInteger(numOfSuccesses)), nil
+}
+
+// evalRRollList は個数振り足しロール列を評価する。
+//
+// TODO: シャドウラン4版のグリッチに対応する。
+func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
+	if node.Threshold.IsNil() {
+		return nil, fmt.Errorf("evalRRollList: threshold is nil")
+	}
+
+	// 閾値を評価する
+	thresholdObj, evalThresholdErr := e.Eval(node.Threshold)
+	if evalThresholdErr != nil {
+		return nil, evalThresholdErr
+	}
+	thresholdInt := thresholdObj.(*object.Integer)
+	threshold := thresholdInt.Value
+
+	// ダイスロールのキュー。
+	// ダイスロール後、条件を満たす出目が得られるたびに、このキューに
+	// そのダイスロールを追加する。
+	rollQueue := make([]*ast.RRoll, len(node.RRolls))
+	copy(rollQueue, node.RRolls)
+
+	// 最大ロール数
+	// TODO: ダイスボットの設定で変更できるようにする
+	maxRollCount := 1000
+
+	// ダイスロール結果を格納する配列
+	rolls := []object.Object{}
+	for i := 0; i < maxRollCount && len(rollQueue) > 0; i++ {
+		// キューの最初のダイスロールを取り出す
+		rRoll := rollQueue[0]
+		if len(rollQueue) < 2 {
+			rollQueue = nil
+		} else {
+			rollQueue = rollQueue[1:len(rollQueue)]
+		}
+
+		// ダイスロールを行う
+		o, err := e.Eval(rRoll)
+		if err != nil {
+			return nil, err
+		}
+
+		// 出目を結果の配列に格納する
+		values := o.(*object.Array)
+		rolls = append(rolls, values)
+
+		// 成功数を数える
+		numOfSuccesses := 0
+		for _, v := range values.Elements {
+			// TODO: 演算子 ">=" 以外も振り足しの条件に設定できるようにする
+			if vi := v.(*object.Integer); vi.Value >= threshold {
+				numOfSuccesses++
+			}
+		}
+
+		// 成功した分だけ追加のダイスロールをキューに追加する
+		if numOfSuccesses > 0 {
+			numNode := ast.NewInt(numOfSuccesses)
+			sidesNode := rRoll.Right()
+			newRRoll := ast.NewRRoll(numNode, sidesNode)
+
+			rollQueue = append(rollQueue, newRRoll)
+		}
+	}
+
+	return object.NewArrayByMove(rolls), nil
 }
 
 // evalChoice はランダム選択を評価する。
@@ -247,7 +318,7 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		return object.NewInteger(leftValue * rightValue), nil
 	case "D":
 		return e.evalSumRoll(left, right)
-	case "B":
+	case "B", "R":
 		return e.evalBasicRoll(left, right)
 	case "...":
 		return e.evalRandomNumber(left, right)
