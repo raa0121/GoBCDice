@@ -7,6 +7,8 @@ import (
 
 // 個数振り足しロール列のノード。
 type RRollList struct {
+	NonNilNode
+
 	// 個数振り足しロールのスライス。
 	RRolls []*RRoll
 	// 個数振り足しの閾値。

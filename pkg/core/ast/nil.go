@@ -15,6 +15,11 @@ func (n *Nil) Type() NodeType {
 	return NIL_NODE
 }
 
+// IsNil はnilかどうかを返す。
+func (n *Nil) IsNil() bool {
+	return true
+}
+
 // SExp はノードのS式を返す。
 func (n *Nil) SExp() string {
 	return "nil"

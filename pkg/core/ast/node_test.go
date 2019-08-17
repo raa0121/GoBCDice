@@ -49,6 +49,52 @@ func TestNode_Type(t *testing.T) {
 	}
 }
 
+func TestNode_IsNil(t *testing.T) {
+	testcases := []struct {
+		node     Node
+		expected bool
+	}{
+		{&DRollExpr{}, false},
+		{&DRollComp{}, false},
+		{&BRollList{}, false},
+		{&BRollComp{}, false},
+		{&RRollList{}, false},
+		{&Calc{}, false},
+		{&Choice{}, false},
+
+		{&PrefixExpressionImpl{}, false},
+		{&UnaryMinus{}, false},
+
+		{&InfixExpressionImpl{}, false},
+		{&Compare{}, false},
+		{&Add{}, false},
+		{&Subtract{}, false},
+		{&Multiply{}, false},
+		{&DivideWithRoundingUp{}, false},
+		{&DivideWithRounding{}, false},
+		{&DivideWithRoundingDown{}, false},
+
+		{&DRoll{}, false},
+		{&BRoll{}, false},
+		{&RRoll{}, false},
+		{&RandomNumber{}, false},
+
+		{&Int{}, false},
+		{&String{}, false},
+		{&Nil{}, true},
+		{&SumRollResult{}, false},
+	}
+
+	for _, test := range testcases {
+		t.Run(test.node.Type().String(), func(t *testing.T) {
+			actual := test.node.IsNil()
+			if actual != test.expected {
+				t.Errorf("got: %v, want: %v", actual, test.expected)
+			}
+		})
+	}
+}
+
 func TestNode_IsPrimaryExpression(t *testing.T) {
 	testcases := []struct {
 		node     Node

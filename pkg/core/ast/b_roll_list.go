@@ -7,6 +7,8 @@ import (
 
 // バラバラロール列のノード。
 type BRollList struct {
+	NonNilNode
+
 	// バラバラロールのスライス。
 	// 2b6+4d10のように連続してダイスロールを行えるように、複数のバラバラロールを格納する。
 	BRolls []*BRoll
