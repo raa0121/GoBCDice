@@ -153,10 +153,10 @@ func TestEvalRRollList(t *testing.T) {
 				return
 			}
 
-			for i, a := range test.expected {
+			for i, expectedValues := range test.expected {
 				ei := elements[i]
 
-				t.Run(fmt.Sprintf("%v", a), func(t *testing.T) {
+				t.Run(fmt.Sprintf("%v", expectedValues), func(t *testing.T) {
 					eiArray, eiTypeMatched := ei.(*object.Array)
 					if !eiTypeMatched {
 						t.Fatalf("配列オブジェクトでない: %T (%+v)", ei, ei)
@@ -164,12 +164,13 @@ func TestEvalRRollList(t *testing.T) {
 					}
 
 					eiElements := eiArray.Elements
-					if len(eiElements) != len(test.expected[i]) {
-						t.Fatalf("異なる配列の長さ（振られたダイスの数）: got=%d, want=%d", len(eiElements), len(test.expected[i]))
+					if len(eiElements) != len(expectedValues) {
+						t.Fatalf("異なる配列の長さ（振られたダイスの数）: got=%d, want=%d",
+							len(eiElements), len(expectedValues))
 						return
 					}
 
-					for j, e := range test.expected[i] {
+					for j, e := range expectedValues {
 						ej := eiElements[j]
 
 						t.Run(fmt.Sprintf("%d", e), func(t *testing.T) {

@@ -53,6 +53,8 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 		return e.evalBRollComp(n)
 	case *ast.RRollList:
 		return e.evalRRollList(n)
+	case *ast.RRollComp:
+		return e.evalRRollComp(n)
 	case *ast.Choice:
 		return e.evalChoice(n)
 	case ast.Command:
@@ -123,7 +125,7 @@ func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult,
 		}
 
 		if success := r.(*object.Boolean).Value; success {
-			numOfSuccesses += 1
+			numOfSuccesses++
 		}
 	}
 
@@ -157,7 +159,7 @@ func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
 	maxRollCount := 1000
 
 	// ダイスロール結果を格納する配列
-	rolls := []object.Object{}
+	valueGroups := []object.Object{}
 	for i := 0; i < maxRollCount && len(rollQueue) > 0; i++ {
 		// キューの最初のダイスロールを取り出す
 		rRoll := rollQueue[0]
@@ -175,7 +177,7 @@ func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
 
 		// 出目を結果の配列に格納する
 		values := o.(*object.Array)
-		rolls = append(rolls, values)
+		valueGroups = append(valueGroups, values)
 
 		// 成功数を数える
 		numOfSuccesses := 0
@@ -196,7 +198,56 @@ func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
 		}
 	}
 
-	return object.NewArrayByMove(rolls), nil
+	return object.NewArrayByMove(valueGroups), nil
+}
+
+// evalRRollComp は個数振り足しロールの成功数カウントを評価する。
+func (e *Evaluator) evalRRollComp(node *ast.RRollComp) (*object.RRollCompResult, error) {
+	compareNode := node.Expression().(*ast.Compare)
+
+	// 左辺を評価する
+	valueGroupsObj, evalRRollListErr := e.Eval(compareNode.Left())
+	if evalRRollListErr != nil {
+		return nil, evalRRollListErr
+	}
+
+	// 右辺を評価する
+	evaluatedTargetObj, evalTargetErr := e.Eval(compareNode.Right())
+	if evalTargetErr != nil {
+		return nil, evalTargetErr
+	}
+
+	valueGroupsArray := valueGroupsObj.(*object.Array)
+	evaluatedTargetNode :=
+		ast.NewInt(evaluatedTargetObj.(*object.Integer).Value)
+
+	// 振られた各ダイスに対して成功判定を行い、成功数を数える
+	numOfSuccesses := 0
+	for _, vg := range valueGroupsArray.Elements {
+		valuesArray := vg.(*object.Array)
+		for _, el := range valuesArray.Elements {
+			valueNode := ast.NewInt(el.(*object.Integer).Value)
+			valueCompareNode := ast.NewCompare(
+				valueNode,
+				compareNode.Operator(),
+				evaluatedTargetNode,
+			)
+
+			r, compErr := e.Eval(valueCompareNode)
+			if compErr != nil {
+				return nil, compErr
+			}
+
+			if success := r.(*object.Boolean).Value; success {
+				numOfSuccesses++
+			}
+		}
+	}
+
+	return object.NewRRollCompResult(
+		valueGroupsArray,
+		object.NewInteger(numOfSuccesses),
+	), nil
 }
 
 // evalChoice はランダム選択を評価する。

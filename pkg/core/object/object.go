@@ -23,6 +23,7 @@ const (
 	STRING_OBJ
 	ARRAY_OBJ
 	B_ROLL_COMP_RESULT_OBJ
+	R_ROLL_COMP_RESULT_OBJ
 )
 
 // オブジェクトの種類とそれを表す文字列との対応
@@ -34,6 +35,7 @@ var objectTypeString = map[ObjectType]string{
 	STRING_OBJ:             "STRING",
 	ARRAY_OBJ:              "ARRAY",
 	B_ROLL_COMP_RESULT_OBJ: "B_ROLL_COMP_RESULT",
+	R_ROLL_COMP_RESULT_OBJ: "R_ROLL_COMP_RESULT",
 }
 
 // オブジェクトが持つインターフェース。
