@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
 )
@@ -21,6 +22,27 @@ func (e *Evaluator) SetRerollThreshold(node *ast.RRollComp) error {
 	}
 
 	rRollList.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+
+	return nil
+}
+
+// CheckRerollThreshold は振り足しの閾値をチェックする。
+func (e *Evaluator) CheckRerollThreshold(node *ast.RRollList) error {
+	if node.Threshold.IsNil() {
+		return fmt.Errorf("2R6>=5 あるいは 2R6[5] のように振り足し目標値を指定してください")
+	}
+
+	thresholdObj, evalErr := e.Eval(node.Threshold)
+	if evalErr != nil {
+		return fmt.Errorf("閾値評価エラー: %s", evalErr)
+	}
+
+	thresholdInt := thresholdObj.(*object.Integer)
+	threshold := thresholdInt.Value
+
+	if threshold < 2 {
+		return fmt.Errorf("振り足し目標値として2以上の整数を指定してください")
+	}
 
 	return nil
 }

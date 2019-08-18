@@ -49,3 +49,54 @@ func TestSetRerollThreshold(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckRerollThreshold(t *testing.T) {
+	testcases := []struct {
+		input      string
+		err        bool
+		errMessage string
+	}{
+		{"2r6[4]", false, ""},
+		{"6R6[6]", false, ""},
+		{"2r6", true, "2R6>=5 あるいは 2R6[5] のように振り足し目標値を指定してください"},
+		{"2r6[0]", true, "振り足し目標値として2以上の整数を指定してください"},
+		{"2r6+3r4[1]", true, "振り足し目標値として2以上の整数を指定してください"},
+	}
+
+	for _, test := range testcases {
+		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
+			r, parseErr := parser.Parse("test", []byte(test.input))
+			if parseErr != nil {
+				t.Fatalf("構文エラー: %s", parseErr)
+				return
+			}
+
+			node := r.(*ast.RRollList)
+
+			// 可変ノードの引数を評価する
+			dieFeeder := feeder.NewEmptyQueue()
+			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
+
+			checkErr := evaluator.CheckRerollThreshold(node)
+			if checkErr != nil {
+				if !test.err {
+					t.Fatalf("閾値チェックエラー: %s", checkErr)
+					return
+				}
+
+				if checkErr.Error() != test.errMessage {
+					t.Fatalf("異なるエラーメッセージ: got=%q, want=%q",
+						checkErr.Error(), test.errMessage)
+					return
+				}
+
+				return
+			}
+
+			if test.err {
+				t.Fatal("エラーが発生しない")
+				return
+			}
+		})
+	}
+}
