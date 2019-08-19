@@ -32,9 +32,9 @@ func JSONResponseObject(c echo.Context, statusCode int, object Responsible) erro
 
 func JSONResponse(c echo.Context, statusCode int, body ResponseMap) error {
 	if statusCode != 200 {
-		body["success"] = false
+		body["ok"] = false
 	} else {
-		body["success"] = true
+		body["ok"] = true
 	}
 	return c.JSON(statusCode, body)
 }
@@ -48,9 +48,7 @@ func JSONResponseArray(c echo.Context, statusCode int, collection []ResponseMap)
 }
 
 func JSONResponseError(c echo.Context, err *ResponseError) error {
-	body := ResponseMap{"success": false, "message": err.Message}
+	body := ResponseMap{"ok": false, "message": err.Message}
 
 	return JSONResponse(c, err.Code, body)
 }
-
-// vi:syntax=go
