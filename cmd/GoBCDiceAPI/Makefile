@@ -1,6 +1,7 @@
 TARGET := GoBCDiceAPI
+SRCS := $(shell find . -type f -name '*.go')
 
-$(TARGET):
+$(TARGET): $(SRCS)
 	go build
 
 .PHONY: clean
