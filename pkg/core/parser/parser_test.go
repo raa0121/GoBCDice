@@ -2,19 +2,22 @@ package parser
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"testing"
 )
 
 // 構文解析の例。
 func Example() {
 	// 構文解析する
-	ast, err := Parse("(2*3-4)d6-1d4+1")
+	r, err := Parse("Example", []byte("(2*3-4)d6-1d4+1"))
 	if err != nil {
 		return
 	}
 
 	// 得られた抽象構文木のS式を出力する
-	fmt.Println(ast.SExp())
+	if node, ok := r.(ast.Node); ok {
+		fmt.Println(node.SExp())
+	}
 	// Output:
 	// (DRollExpr (+ (- (DRoll (- (* 2 3) 4) 6) (DRoll 1 4)) 1))
 }
@@ -60,6 +63,7 @@ func TestParse(t *testing.T) {
 		{"C(-(1+2))", "(Calc (- (+ 1 2)))", false},
 		{"C(+(1+2))", "(Calc (+ 1 2))", false},
 		{"CC(1)", "", true},
+		{"C(10+5) mokekeke", "(Calc (+ 10 5))", false},
 
 		// 計算コマンド内でのランダム数値は無効にする
 		{"C([1...3])", "", true},
@@ -79,6 +83,7 @@ func TestParse(t *testing.T) {
 		{"+2D6", "(DRollExpr (DRoll 2 6))", false},
 		{"2D6+1", "(DRollExpr (+ (DRoll 2 6) 1))", false},
 		{"1+2D6", "(DRollExpr (+ 1 (DRoll 2 6)))", false},
+		{"1+2D6+2", "(DRollExpr (+ (+ 1 (DRoll 2 6)) 2))", false},
 		{"-2D6+1", "(DRollExpr (+ (- (DRoll 2 6)) 1))", false},
 		{"+2D6+1", "(DRollExpr (+ (DRoll 2 6) 1))", false},
 		{"2d6+1-1-2-3-4", "(DRollExpr (- (- (- (- (+ (DRoll 2 6) 1) 1) 2) 3) 4))", false},
@@ -213,7 +218,7 @@ func TestParse(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
-			actual, err := Parse(test.input)
+			r, err := Parse("test", []byte(test.input))
 
 			if err != nil {
 				// エラーが発生した！
@@ -234,12 +239,19 @@ func TestParse(t *testing.T) {
 				return
 			}
 
-			if actual == nil {
+			node, ok := r.(ast.Node)
+
+			if !ok {
+				t.Fatalf("not returned a node: %s", r)
+				return
+			}
+
+			if node == nil {
 				t.Fatal("got nil node")
 				return
 			}
 
-			actualSExp := actual.SExp()
+			actualSExp := node.SExp()
 
 			if actualSExp != test.expectedSExp {
 				t.Errorf("wrong SExp: got: %q, want: %q",

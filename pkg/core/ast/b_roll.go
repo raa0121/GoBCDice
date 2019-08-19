@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // バラバラロールのノード。
 // 一次式、可変ノード、中置式。
 type BRoll struct {
@@ -53,14 +49,10 @@ func (n *BRoll) IsVariable() bool {
 // NewBRoll はバラバラロールのノードを返す。
 //
 // num: 振るダイスの数のノード,
-// tok: 対応するトークン,
 // sides: ダイスの面数のノード。
-func NewBRoll(num Node, tok token.Token, sides Node) *BRoll {
+func NewBRoll(num Node, sides Node) *BRoll {
 	return &BRoll{
 		InfixExpressionImpl: InfixExpressionImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
 			left:            num,
 			operator:        "B",
 			operatorForSExp: "BRoll",

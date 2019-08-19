@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
@@ -51,17 +52,19 @@ func TestEvalCalc(t *testing.T) {
 
 	for _, test := range testcases {
 		t.Run(test.input, func(t *testing.T) {
-			ast, parseErr := parser.Parse(test.input)
+			r, parseErr := parser.Parse("test", []byte(test.input))
 			if parseErr != nil {
 				t.Errorf("構文解析エラー: %s", parseErr)
 				return
 			}
 
+			node := r.(ast.Node)
+
 			// ノードを評価する
 			dieFeeder := feeder.NewEmptyQueue()
 			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-			evaluated, evalErr := evaluator.Eval(ast)
+			evaluated, evalErr := evaluator.Eval(node)
 			if evalErr != nil {
 				t.Errorf("評価エラー: %s", evalErr)
 				return

@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
@@ -11,24 +12,26 @@ import (
 
 // 可変ノードの値を決定する例。
 func ExampleEvaluator_DetermineValues() {
-	ast, parseErr := parser.Parse("2d6*3-1d6+1")
+	r, parseErr := parser.Parse("ExampleEvaluator_DetermineValues", []byte("2d6*3-1d6+1"))
 	if parseErr != nil {
 		return
 	}
 
-	fmt.Println("構文解析直後の抽象構文木: " + ast.SExp())
+	node := r.(ast.Node)
+
+	fmt.Println("構文解析直後の抽象構文木: " + node.SExp())
 
 	// 可変ノードの値を決定する
 	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {2, 6}, {3, 6}})
 	evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-	err := evaluator.DetermineValues(ast)
+	err := evaluator.DetermineValues(node)
 	if err != nil {
 		return
 	}
 
 	fmt.Println("ダイスロール結果: " + dice.FormatDice(evaluator.RolledDice()))
-	fmt.Println("値決定後の抽象構文木: " + ast.SExp())
+	fmt.Println("値決定後の抽象構文木: " + node.SExp())
 	// Output:
 	// 構文解析直後の抽象構文木: (DRollExpr (+ (- (* (DRoll 2 6) 3) (DRoll 1 6)) 1))
 	// ダイスロール結果: 6/6, 2/6, 3/6
@@ -145,23 +148,25 @@ func TestDetermineValues(t *testing.T) {
 
 	for _, test := range testcases {
 		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
-			ast, parseErr := parser.Parse(test.input)
+			r, parseErr := parser.Parse("test", []byte(test.input))
 			if parseErr != nil {
 				t.Fatalf("構文エラー: %s", parseErr)
 				return
 			}
 
+			node := r.(ast.Node)
+
 			// 可変ノードの値を決定する
 			dieFeeder := feeder.NewQueue(test.dice)
 			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-			err := evaluator.DetermineValues(ast)
+			err := evaluator.DetermineValues(node)
 			if err != nil {
 				t.Fatalf("評価エラー: %s", err)
 				return
 			}
 
-			actual := ast.SExp()
+			actual := node.SExp()
 			if actual != test.expected {
 				t.Errorf("異なる評価結果: got=%q, want=%q", actual, test.expected)
 			}

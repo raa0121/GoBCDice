@@ -2,7 +2,6 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 前置式のインターフェース。
@@ -23,8 +22,6 @@ type PrefixExpression interface {
 
 // 前置式のノードが共通して持つ要素。
 type PrefixExpressionImpl struct {
-	NodeImpl
-
 	// 演算子
 	operator string
 	// S式で表示する演算子
@@ -92,20 +89,4 @@ func (n *PrefixExpressionImpl) IsPrimaryExpression() bool {
 // 右のノードが可変ノードでない場合はfalseを返す。
 func (n *PrefixExpressionImpl) IsVariable() bool {
 	return n.Right().IsVariable()
-}
-
-// NewPrefixExpression は新しい前置式のノードを返す。
-// 評価時とS式とで演算子を変更しなくてもよい場合に使う。
-//
-// tok: 対応するトークン,
-// right: 右のノード。
-func NewPrefixExpression(tok token.Token, right Node) *PrefixExpressionImpl {
-	return &PrefixExpressionImpl{
-		NodeImpl: NodeImpl{
-			tok: tok,
-		},
-		operator:        tok.Literal,
-		operatorForSExp: tok.Literal,
-		right:           right,
-	}
 }

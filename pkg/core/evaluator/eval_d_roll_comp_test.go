@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
@@ -133,17 +134,19 @@ func TestEvalDRollComp(t *testing.T) {
 		name := fmt.Sprintf("%q[%s]",
 			test.input, dice.FormatDiceWithoutSpaces(test.dice))
 		t.Run(name, func(t *testing.T) {
-			ast, parseErr := parser.Parse(test.input)
+			r, parseErr := parser.Parse("test", []byte(test.input))
 			if parseErr != nil {
 				t.Fatalf("構文エラー: %s", parseErr)
 				return
 			}
 
+			node := r.(ast.Node)
+
 			// ノードを評価する
 			dieFeeder := feeder.NewQueue(test.dice)
 			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-			evaluated, evalErr := evaluator.Eval(ast)
+			evaluated, evalErr := evaluator.Eval(node)
 			if evalErr != nil {
 				t.Fatalf("評価エラー: %s", evalErr)
 				return

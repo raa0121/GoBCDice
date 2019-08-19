@@ -1,0 +1,271 @@
+{
+
+package parser
+
+import (
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
+	"github.com/raa0121/GoBCDice/pkg/core/token"
+	"strconv"
+	"strings"
+)
+
+func toIfaceSlice(v interface{}) []interface{} {
+	if v == nil {
+		return nil
+	}
+	return v.([]interface{})
+}
+
+func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, error) {
+	lastNode := first.(ast.Node)
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		op := string(rs[0].([]byte))
+		right := rs[1].(ast.Node)
+
+		switch op {
+		case "+":
+			lastNode = ast.NewAdd(lastNode, right)
+		case "-":
+			lastNode = ast.NewSubtract(lastNode, right)
+		}
+	}
+
+	return lastNode, nil
+}
+
+func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, error) {
+	lastNode := first.(ast.Node)
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		op := string(rs[0].([]byte))
+		right := rs[1].(ast.Node)
+
+		roundingMethod := ""
+		if len(rs) >= 3 {
+			roundingMethod = strings.ToUpper(string(rs[2].([]byte)))
+		}
+
+		switch op {
+		case "*":
+			lastNode = ast.NewMultiply(lastNode, right)
+		case "/":
+			switch roundingMethod {
+			case "U":
+				lastNode = ast.NewDivideWithRoundingUp(lastNode, right)
+			case "R":
+				lastNode = ast.NewDivideWithRounding(lastNode, right)
+			case "":
+				lastNode = ast.NewDivideWithRoundingDown(lastNode, right)
+			}
+		}
+	}
+
+	return lastNode, nil
+}
+
+}
+
+Command <- ResetRandCount n:(Choice / Calc / CommandWithExpression) {
+	return n, nil
+}
+
+CommandWithExpression <- n:(BRollComp / BRollList / DRollCompCommand / DRollExprCommand) EOT {
+	return n, nil
+}
+
+Choice <- "CHOICE["i items:ChoiceItems (',' [\pZ]*)? ']' {
+	return items, nil
+}
+
+ChoiceItems <- first:ChoiceItem rest:(',' ChoiceItem)* {
+	firstString := first.(*ast.String)
+	choice := ast.NewChoice(firstString)
+
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		i := rs[1].(*ast.String)
+
+		choice.Append(i)
+	}
+
+	return choice, nil
+}
+
+ChoiceItem <- [\pZ]* s:ChoiceItemChars {
+	return s, nil
+}
+
+ChoiceItemChars <- [^\],]+ {
+	return ast.NewString(strings.TrimSpace(string(c.text))), nil
+}
+
+Calc <- 'C'i '(' expr:IntExpr ')' {
+	return ast.NewCalc(expr.(ast.Node)), nil
+}
+
+DRollExprCommand <- expr:DRollExpr {
+	if c.state["RandCount"].(int) < 1 {
+		return nil, fmt.Errorf("random element not found")
+	}
+
+	return ast.NewDRollExpr(expr.(ast.Node)), nil
+}
+
+DRollCompCommand <- expr:DRollComp {
+	if c.state["RandCount"].(int) < 1 {
+		return nil, fmt.Errorf("random element not found")
+	}
+
+	return ast.NewDRollComp(expr.(ast.Node)), nil
+}
+
+BRollList <- first:BRoll rest:('+' BRoll)* {
+	bRollList := ast.NewBRollList(first.(*ast.BRoll))
+
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		b := rs[1].(*ast.BRoll)
+		bRollList.Append(b)
+	}
+
+	return bRollList, nil
+}
+
+BRollComp <- left:BRollList op:CompareOp right:IntExpr {
+	return ast.NewBRollComp(
+		ast.NewCompare(
+			left.(ast.Node),
+			string(op.([]byte)),
+			right.(ast.Node),
+		),
+	), nil
+}
+
+IntExpr <- IntExprAdditive
+
+IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
+	return leftAssociativeAdditive(first, rest)
+}
+
+IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
+	return leftAssociativeMultitive(first, rest)
+}
+
+IntExprPrimary <- Integer / IntExprUnaryPlus / IntExprUnaryMinus / ParenthesizedIntExpr
+
+ParenthesizedIntExpr <- '(' e:IntExpr ')' {
+	return e.(ast.Node), nil
+}
+
+IntExprUnaryPlus <- '+' e:IntExprPrimary {
+	return e.(ast.Node), nil
+}
+
+IntExprUnaryMinus <- '-' e:IntExprPrimary {
+	return ast.NewUnaryMinus(e.(ast.Node)), nil
+}
+
+DRollComp <- left:DRollExprAdditive op:CompareOp right:IntExpr {
+	return ast.NewCompare(
+		left.(ast.Node),
+		string(op.([]byte)),
+		right.(ast.Node),
+	), nil
+}
+
+DRollExpr <- DRollExprAdditive
+
+DRollExprAdditive <- first:DRollExprMultitive rest:(('+' / '-') DRollExprMultitive)* {
+	return leftAssociativeAdditive(first, rest)
+}
+
+DRollExprMultitive <- first:DRollExprPrimary rest:('/' DRollExprPrimary [ur]i / (('*' / '/') DRollExprPrimary))* {
+	return leftAssociativeMultitive(first, rest)
+}
+
+DRollExprPrimary <- DRoll / Rand / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
+
+ParenthesizedDRollExpr <- '(' e:DRollExpr ')' {
+	return e.(ast.Node), nil
+}
+
+DRollExprUnaryPlus <- '+' e:DRollExprPrimary {
+	return e.(ast.Node), nil
+}
+
+DRollExprUnaryMinus <- '-' e:DRollExprPrimary {
+	return ast.NewUnaryMinus(e.(ast.Node)), nil
+}
+
+IntRandExpr <- IntRandExprAdditive
+
+IntRandExprAdditive <- first:IntRandExprMultitive rest:(('+' / '-') IntRandExprMultitive)* {
+	return leftAssociativeAdditive(first, rest)
+}
+
+IntRandExprMultitive <- first:IntRandExprPrimary rest:('/' IntRandExprPrimary [ur]i / (('*' / '/') IntRandExprPrimary))* {
+	return leftAssociativeMultitive(first, rest)
+}
+
+IntRandExprPrimary <- Integer / Rand / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
+
+ParenthesizedIntRandExpr <- '(' e:IntRandExpr ')' {
+	return e.(ast.Node), nil
+}
+
+IntRandExprUnaryPlus <- '+' e:IntRandExprPrimary {
+	return e.(ast.Node), nil
+}
+
+IntRandExprUnaryMinus <- '-' e:IntRandExprPrimary {
+	return ast.NewUnaryMinus(e.(ast.Node)), nil
+}
+
+DRoll <- num:RollOperand 'D'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
+
+	return ast.NewDRoll(numNode, sidesNode), nil
+}
+
+BRoll <- num:RollOperand 'B'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
+
+	return ast.NewBRoll(numNode, sidesNode), nil
+}
+
+RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
+
+Rand <- '[' min:RandOperand "..." max:RandOperand ']' IncRandCount {
+	minNode := min.(ast.Node)
+	maxNode := max.(ast.Node)
+
+	return ast.NewRandomNumber(minNode, maxNode), nil
+}
+
+RandOperand <- Integer / ParenthesizedIntExpr
+
+ResetRandCount <- #{
+	c.state["RandCount"] = 0
+	return nil
+}
+
+IncRandCount <- #{
+	c.state["RandCount"] = c.state["RandCount"].(int) + 1
+	return nil
+}
+
+Integer <- [0-9]+ {
+	s := string(c.text)
+
+	// TODO: 整数が大きすぎるときなどのエラー処理が必要
+	value, _ := strconv.Atoi(s)
+
+	return ast.NewInt(value), nil
+}
+
+CompareOp <- "=" / "<>" / "<=" / "<" / ">=" / ">"
+
+EOT <- !.

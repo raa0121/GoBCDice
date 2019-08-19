@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
@@ -11,18 +12,20 @@ import (
 // 抽象構文木を評価し、値のオブジェクトに変換する例。
 func ExampleEvaluator_Eval() {
 	// 構文解析する
-	ast, parseErr := parser.Parse("(2*3-4)d6-1d4+1")
+	r, parseErr := parser.Parse("ExampleEvaluator_Eval", []byte("(2*3-4)d6-1d4+1"))
 	if parseErr != nil {
 		return
 	}
 
-	fmt.Println("抽象構文木: " + ast.SExp())
+	node := r.(ast.Node)
+
+	fmt.Println("抽象構文木: " + node.SExp())
 
 	// ノードを評価する
 	dieFeeder := feeder.NewQueue([]dice.Die{{6, 6}, {2, 6}, {3, 4}})
 	evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-	obj, evalErr := evaluator.Eval(ast)
+	obj, evalErr := evaluator.Eval(node)
 	if evalErr != nil {
 		return
 	}

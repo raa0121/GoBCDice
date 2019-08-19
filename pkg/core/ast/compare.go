@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // 比較のノード。
 // 中置式。
 type Compare struct {
@@ -41,10 +37,15 @@ func (n *Compare) IsRightAssociative() bool {
 // NewCompare は新しい比較のノードを返す。
 //
 // left: 左辺のノード,
-// tok: 対応するトークン,
+// op: 比較演算子,
 // right: 右辺のノード。
-func NewCompare(left Node, tok token.Token, right Node) *Compare {
+func NewCompare(left Node, op string, right Node) *Compare {
 	return &Compare{
-		InfixExpressionImpl: *NewInfixExpression(left, tok, right),
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            left,
+			operator:        op,
+			operatorForSExp: op,
+			right:           right,
+		},
 	}
 }

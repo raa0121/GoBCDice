@@ -3,7 +3,6 @@ package evaluator
 import (
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // EvalCompareVarArgsAndRight は、比較式の左辺の可変ノードの引数および右辺を評価する。
@@ -20,7 +19,7 @@ func (e *Evaluator) EvalCompareVarArgsAndRight(node *ast.Compare) error {
 		return rightEvalErr
 	}
 
-	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value, token.Token{})
+	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
 	node.SetRight(evaluatedRight)
 
 	return nil
@@ -33,7 +32,7 @@ func (e *Evaluator) EvalCompareLeft(node *ast.Compare) (object.Object, error) {
 		return nil, leftEvalErr
 	}
 
-	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value, token.Token{})
+	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value)
 	node.SetLeft(evaluatedLeft)
 
 	return leftObj, nil

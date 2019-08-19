@@ -1,5 +1,5 @@
-parser.go: parser.go.y
-	goyacc -o $@ $<
+parser.go: parser.pigeon
+	pigeon -o $@ $<
 
 .PHONY: clean
 

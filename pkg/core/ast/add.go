@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // 加算のノード。
 // 中置式。
 type Add struct {
@@ -41,10 +37,14 @@ func (n *Add) IsRightAssociative() bool {
 // NewAdd は新しい加算のノードを返す。
 //
 // left: 加えられる数のノード,
-// tok: 対応するトークン,
 // right: 加える数のノード。
-func NewAdd(left Node, tok token.Token, right Node) *Add {
+func NewAdd(left Node, right Node) *Add {
 	return &Add{
-		InfixExpressionImpl: *NewInfixExpression(left, tok, right),
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            left,
+			operator:        "+",
+			operatorForSExp: "+",
+			right:           right,
+		},
 	}
 }

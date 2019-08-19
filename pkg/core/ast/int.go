@@ -2,14 +2,11 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 整数のノード。
 // 一次式。
 type Int struct {
-	NodeImpl
-
 	// 数値
 	Value int
 }
@@ -42,12 +39,8 @@ func (n *Int) IsVariable() bool {
 // NewInt は新しい整数のノードを返す。
 //
 // value: 数値,
-// tok: 対応するトークン。
-func NewInt(value int, tok token.Token) *Int {
+func NewInt(value int) *Int {
 	return &Int{
-		NodeImpl: NodeImpl{
-			tok: tok,
-		},
 		Value: value,
 	}
 }

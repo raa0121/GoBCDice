@@ -1,6 +1,7 @@
 package bcdice
 
 import (
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/command"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
@@ -102,7 +103,7 @@ func (b *BCDice) ExecuteDiceBotCommand(c string) (*command.Result, error) {
 
 // ExecuteBasicCommand はBCDiceの基本コマンドを実行する。
 func (b *BCDice) ExecuteBasicCommand(c string) (*command.Result, error) {
-	node, parseErr := parser.Parse(c)
+	node, parseErr := parser.Parse("input", []byte(c))
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -110,5 +111,5 @@ func (b *BCDice) ExecuteBasicCommand(c string) (*command.Result, error) {
 	env := evaluator.NewEnvironment()
 	ev := evaluator.NewEvaluator(b.diceRoller, env)
 
-	return command.Execute(node, b.DiceBot.GameID(), ev)
+	return command.Execute(node.(ast.Node), b.DiceBot.GameID(), ev)
 }

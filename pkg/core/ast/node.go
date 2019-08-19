@@ -1,9 +1,5 @@
 package ast
 
-import (
-	"github.com/raa0121/GoBCDice/pkg/core/token"
-)
-
 // NodeType はノードの種類を表す型。
 type NodeType int
 
@@ -79,8 +75,6 @@ var nodeTypeString = map[NodeType]string{
 
 // 抽象構文木のノードのインターフェース。
 type Node interface {
-	// Token は対応するトークンを返す。
-	Token() token.Token
 	// Type はノードの種類を返す。
 	Type() NodeType
 	// SExp はノードのS式を返す。
@@ -90,15 +84,4 @@ type Node interface {
 	// IsVariable は可変ノードかどうかを返す。
 	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、実行のたびに値が変わり得るノードのこと。
 	IsVariable() bool
-}
-
-// Node が共通して持つ要素。
-type NodeImpl struct {
-	// 対応するトークン
-	tok token.Token
-}
-
-// Token は対応するトークンを返す。
-func (n *NodeImpl) Token() token.Token {
-	return n.tok
 }

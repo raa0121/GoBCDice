@@ -2,13 +2,11 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 加算ロール式の成功判定のノード。
 // コマンド。
 type DRollComp struct {
-	NodeImpl
 	CommandImpl
 }
 
@@ -20,14 +18,10 @@ var _ Command = (*DRollComp)(nil)
 
 // NewDRollComp は新しい加算ロール式の成功判定のノードを返す。
 //
-// tok: 対応するトークン,
 // expression: 式。
-func NewDRollComp(tok token.Token, expression Node) *DRollComp {
+func NewDRollComp(expression Node) *DRollComp {
 	return &DRollComp{
 		CommandImpl: CommandImpl{
-			NodeImpl: NodeImpl{
-				tok: tok,
-			},
 			expr: expression,
 		},
 	}

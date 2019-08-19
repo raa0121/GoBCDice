@@ -2,13 +2,10 @@ package ast
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 )
 
 // 文字列のノード。
 type String struct {
-	NodeImpl
-
 	// 文字列
 	Value string
 }
@@ -41,12 +38,8 @@ func (n *String) IsVariable() bool {
 // NewString は新しい文字列のノードを返す。
 //
 // value: 文字列,
-// tok: 対応するトークン。
-func NewString(value string, tok token.Token) *String {
+func NewString(value string) *String {
 	return &String{
-		NodeImpl: NodeImpl{
-			tok: tok,
-		},
 		Value: value,
 	}
 }

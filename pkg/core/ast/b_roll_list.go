@@ -6,8 +6,6 @@ import (
 
 // バラバラロール列のノード。
 type BRollList struct {
-	NodeImpl
-
 	// バラバラロールのスライス。
 	// 2b6+4d10のように連続してダイスロールを行えるように、複数のバラバラロールを格納する。
 	BRolls []*BRoll
@@ -21,9 +19,6 @@ var _ Node = (*BRollList)(nil)
 // first: 最初のバラバラロール
 func NewBRollList(first *BRoll) *BRollList {
 	return &BRollList{
-		NodeImpl: NodeImpl{
-			tok: first.tok,
-		},
 		BRolls: []*BRoll{first},
 	}
 }

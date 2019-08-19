@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"github.com/chzyer/readline"
 	"github.com/raa0121/GoBCDice/pkg/bcdice"
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
-	"github.com/raa0121/GoBCDice/pkg/core/lexer"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
-	"github.com/raa0121/GoBCDice/pkg/core/token"
 	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
 	dicebottesting "github.com/raa0121/GoBCDice/pkg/dicebot/testing"
 	"io"
@@ -35,7 +34,6 @@ const (
 	// 結果の初めに出力する文字列
 	RESULT_HEADER = ESC_CYAN + "=>" + ESC_RESET + " "
 
-	COMMAND_TOKEN          = "token"
 	COMMAND_AST            = "ast"
 	COMMAND_EVAL           = "eval"
 	COMMAND_ROLL           = "roll"
@@ -103,12 +101,6 @@ type REPL struct {
 // init はパッケージを初期化する。
 func init() {
 	commands = []Command{
-		{
-			Name:            COMMAND_TOKEN,
-			ArgsDescription: "BCDiceコマンド",
-			Description:     "入力されたBCDiceコマンドのトークンを出力します",
-			Handler:         printTokens,
-		},
 		{
 			Name:            COMMAND_AST,
 			ArgsDescription: "BCDiceコマンド",
@@ -300,19 +292,6 @@ func (r *REPL) printError(err error) {
 	fmt.Fprintln(r.out, ESC_RED+err.Error()+ESC_RESET)
 }
 
-// printTokens は、inputを字句解析し、得られたトークン列を出力する。
-func printTokens(r *REPL, c *Command, input string) {
-	if input == "" {
-		r.printCommandUsage(c)
-		return
-	}
-
-	l := lexer.New(input)
-	for tok := l.NextToken(); tok.Type != token.EOT; tok = l.NextToken() {
-		fmt.Fprintln(r.out, tok)
-	}
-}
-
 // printSExp は、inputを構文解析し、得られたASTをS式の形で出力する。
 func printSExp(r *REPL, c *Command, input string) {
 	if input == "" {
@@ -320,13 +299,15 @@ func printSExp(r *REPL, c *Command, input string) {
 		return
 	}
 
-	ast, err := parser.Parse(input)
+	parseResult, err := parser.Parse("REPL", []byte(input))
 	if err != nil {
 		r.printError(err)
 		return
 	}
 
-	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, ast.SExp())
+	node := parseResult.(ast.Node)
+
+	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, node.SExp())
 }
 
 // eval はinputを構文解析して評価し、その結果を出力する。
