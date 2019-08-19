@@ -23,7 +23,7 @@ var _ = Suite(&S{})
 
 func (s *S) SetUpSuite(c *C) {
 	s.Server = echo.New()
-	controllers.Setup(s.Server)
+	controllers.Setup(s.Server.Router())
 }
 
 func (s *S) TearDownSuite(c *C) {
