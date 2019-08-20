@@ -36,6 +36,8 @@ func Execute(
 		return executeBRollList(c, gameID, evaluator)
 	case *ast.BRollComp:
 		return executeBRollComp(c, gameID, evaluator)
+	case *ast.RRollList:
+		return executeRRollList(c, gameID, evaluator)
 	case *ast.RRollComp:
 		return executeRRollComp(c, gameID, evaluator)
 	case *ast.Choice:
@@ -188,7 +190,7 @@ func executeBRollList(
 		GameID: gameID,
 	}
 
-	// 加算ロールなどの可変ノードの引数を評価して整数に変換する
+	// 可変ノードの引数を評価して整数に変換する
 	infixNotation, evalVarArgsErr := evalVarArgs(node, evaluator)
 	if evalVarArgsErr != nil {
 		return nil, evalVarArgsErr
@@ -247,6 +249,53 @@ func executeBRollComp(
 	return result, nil
 }
 
+// executeRRollList は個数振り足しロールを実行する。
+func executeRRollList(
+	node *ast.RRollList,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameID: gameID,
+	}
+
+	// 可変ノードの引数を評価して整数に変換する
+	evalVarArgsErr := evaluator.EvalVarArgs(node)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
+	}
+
+	// 中置表記を生成する
+	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
+	if infixNotationErr != nil {
+		return nil, infixNotationErr
+	}
+
+	result.appendMessagePart(notation.Parenthesize(infixNotation))
+
+	// 振り足しの閾値を確認する
+	checkRerollThresholdErr := evaluator.CheckRerollThreshold(node)
+	if checkRerollThresholdErr != nil {
+		result.appendMessagePart(checkRerollThresholdErr.Error())
+		return result, nil
+	}
+
+	// 変換された抽象構文木を評価する
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	valueGroups := obj.(*object.Array)
+	result.RolledDice = evaluator.RolledDice()
+
+	// 結果のメッセージを作る
+	result.appendMessagePart(formatRRollValues(valueGroups))
+
+	return result, nil
+}
+
+// executeRRollComp は個数振り足しロールの成功数カウントを実行する。
 func executeRRollComp(
 	node *ast.RRollComp,
 	gameID string,
@@ -296,13 +345,7 @@ func executeRRollComp(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	valueGroupStrs := make([]string, 0, len(resultObj.ValueGroups.Elements))
-	for _, valuesObj := range resultObj.ValueGroups.Elements {
-		valuesArray := valuesObj.(*object.Array)
-		valueGroupStrs = append(valueGroupStrs, valuesArray.JoinedElements(","))
-	}
-	result.appendMessagePart(strings.Join(valueGroupStrs, " + "))
-
+	result.appendMessagePart(formatRRollValues(resultObj.ValueGroups))
 	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
 
 	return result, nil
@@ -386,4 +429,15 @@ func determineCompareValues(node *ast.Compare, evaluator *evaluator.Evaluator) (
 	}
 
 	return infixNotation, nil
+}
+
+// formatRRollValues は個数振り足しロールの出目を整形する。
+func formatRRollValues(valueGroups *object.Array) string {
+	valueGroupStrs := make([]string, 0, len(valueGroups.Elements))
+	for _, valuesObj := range valueGroups.Elements {
+		valuesArray := valuesObj.(*object.Array)
+		valueGroupStrs = append(valueGroupStrs, valuesArray.JoinedElements(","))
+	}
+
+	return strings.Join(valueGroupStrs, " + ")
 }
