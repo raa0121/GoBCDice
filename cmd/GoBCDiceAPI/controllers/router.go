@@ -2,18 +2,17 @@ package controllers
 
 import (
 	"github.com/labstack/echo"
-	"github.com/raa0121/GoBCDice/cmd/GoBCDiceAPI/controllers/base"
 	"github.com/raa0121/GoBCDice/cmd/GoBCDiceAPI/controllers/v1"
 )
 
-var (
-	VERSION_1_PREFIX = "/v1"
-)
-
-// Setup sets up all controllers.
-func Setup(router *echo.Router) {
-	version := v1.VersionController{&base.BaseController{router}}
-	version.Setup()
+// Setup はすべてのコントローラの初期設定を行う。
+func Setup(e *echo.Echo) {
+	gV1 := e.Group("/v1")
+	setupV1(gV1)
 }
 
-// vi:syntax=go
+// setupV1 は v1/ 以下のコントローラの初期設定を行う。
+func setupV1(g *echo.Group) {
+	version := v1.NewVersionController(g)
+	version.Setup()
+}
