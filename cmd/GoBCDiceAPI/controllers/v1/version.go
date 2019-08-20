@@ -20,12 +20,9 @@ func NewVersionController(g *echo.Group) *VersionController {
 
 // getVersion はGoBCDiceAPIのバージョン情報を返す。
 func (controller *VersionController) getVersion(c echo.Context) error {
-	c.Request().ParseForm()
-
 	version := models.NewVersion()
-	versionResponse := version.ToResponseMap()
 
-	return helpers.JSONResponse(c, 200, versionResponse)
+	return helpers.JSONResponseObject(c, 200, version)
 }
 
 // Setup はコントローラの初期設定を行う。
