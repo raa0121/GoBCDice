@@ -22,7 +22,7 @@ func main() {
 	e := echo.New()
 
 	config.Setup(e)
-	controllers.Setup(e.Router())
+	controllers.Setup(e)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Nothing to see here.")
@@ -33,5 +33,3 @@ func main() {
 		panic(err)
 	}
 }
-
-// vi:syntax=go
