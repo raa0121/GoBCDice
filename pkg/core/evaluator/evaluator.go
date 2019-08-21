@@ -25,6 +25,9 @@ import (
 type Evaluator struct {
 	diceRoller *roller.DiceRoller
 	env        *Environment
+	// 個数振り足しロールにおける最大振り足し数
+	// TODO: 外部から変更するためのインターフェースを作る
+	MaxRerolls int
 }
 
 // NewEvaluator は新しい評価器を返す。
@@ -35,6 +38,7 @@ func NewEvaluator(diceRoller *roller.DiceRoller, env *Environment) *Evaluator {
 	return &Evaluator{
 		diceRoller: diceRoller,
 		env:        env,
+		MaxRerolls: 10000,
 	}
 }
 
@@ -154,13 +158,9 @@ func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
 	rollQueue := make([]*ast.RRoll, len(node.RRolls))
 	copy(rollQueue, node.RRolls)
 
-	// 最大ロール数
-	// TODO: ダイスボットの設定で変更できるようにする
-	maxRollCount := 1000
-
 	// ダイスロール結果を格納する配列
 	valueGroups := []object.Object{}
-	for i := 0; i < maxRollCount && len(rollQueue) > 0; i++ {
+	for i := 0; i < e.MaxRerolls && len(rollQueue) > 0; i++ {
 		// キューの最初のダイスロールを取り出す
 		rRoll := rollQueue[0]
 		if len(rollQueue) < 2 {
