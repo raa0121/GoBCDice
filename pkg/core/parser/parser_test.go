@@ -215,6 +215,28 @@ func TestParse(t *testing.T) {
 		{"6R6[6]>=5", "(RRollComp (>= (RRollList 6 (RRoll 6 6)) 5))", false},
 		{"6R6[2*3]>=5", "(RRollComp (>= (RRollList (* 2 3) (RRoll 6 6)) 5))", false},
 		{"2r6+1>=4", "", true},
+		{"1<3r6<4", "", true},
+
+		// 上方無限ロール
+		{"3u6", "(URollExpr (URollList nil (URoll 3 6)))", false},
+		{"(1*3)u6", "(URollExpr (URollList nil (URoll (* 1 3) 6)))", false},
+		{"3u(5+1)", "(URollExpr (URollList nil (URoll 3 (+ 5 1))))", false},
+		{"3u6[6]", "(URollExpr (URollList 6 (URoll 3 6)))", false},
+		{"3u6[2+4]", "(URollExpr (URollList (+ 2 4) (URoll 3 6)))", false},
+		{"3u6+5u6[6]", "(URollExpr (URollList 6 (URoll 3 6) (URoll 5 6)))", false},
+		{"3u6[6]+1", "(URollExpr (+ (URollList 6 (URoll 3 6)) 1))", false},
+		{"1U100[96]+3", "(URollExpr (+ (URollList 96 (URoll 1 100)) 3))", false},
+		{"3u6[6]=10", "(URollComp (= (URollExpr (URollList 6 (URoll 3 6))) 10))", false},
+		{"3u6[6]<>10", "(URollComp (<> (URollExpr (URollList 6 (URoll 3 6))) 10))", false},
+		{"3u6[6]>10", "(URollComp (> (URollExpr (URollList 6 (URoll 3 6))) 10))", false},
+		{"3u6[6]<10", "(URollComp (< (URollExpr (URollList 6 (URoll 3 6))) 10))", false},
+		{"3u6[6]>=10", "(URollComp (>= (URollExpr (URollList 6 (URoll 3 6))) 10))", false},
+		{"3u6[6]<=10", "(URollComp (<= (URollExpr (URollList 6 (URoll 3 6))) 10))", false},
+		{"3u6[6]>=2+8", "(URollComp (>= (URollExpr (URollList 6 (URoll 3 6))) (+ 2 8)))", false},
+		{"3u6[6]+1>=10", "(URollComp (>= (URollExpr (+ (URollList 6 (URoll 3 6)) 1)) 10))", false},
+		{"3u6+5u6[6]>=7", "(URollComp (>= (URollExpr (URollList 6 (URoll 3 6) (URoll 5 6))) 7))", false},
+		{"(5+6)u10[10]+5>=8", "(URollComp (>= (URollExpr (+ (URollList 10 (URoll (+ 5 6) 10)) 5)) 8))", false},
+		{"5<3u6[6]<10", "", true},
 
 		// ランダム選択
 		{"choice[A,B,C]どれにしよう", `(Choice "A" "B" "C")`, false},
