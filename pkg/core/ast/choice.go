@@ -6,6 +6,8 @@ import (
 
 // ランダム選択のノード。
 type Choice struct {
+	NonNilNode
+
 	// 選択肢のスライス。
 	Items []*String
 }

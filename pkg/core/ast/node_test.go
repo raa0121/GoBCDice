@@ -13,6 +13,7 @@ func TestNode_Type(t *testing.T) {
 		{&DRollComp{}, "DRollComp"},
 		{&BRollList{}, "BRollList"},
 		{&BRollComp{}, "BRollComp"},
+		{&RRollList{}, "RRollList"},
 		{&Calc{}, "Calc"},
 		{&Choice{}, "Choice"},
 
@@ -29,10 +30,12 @@ func TestNode_Type(t *testing.T) {
 		{&DivideWithRoundingDown{}, "DivideWithRoundingDown"},
 		{&DRoll{}, "DRoll"},
 		{&BRoll{}, "BRoll"},
+		{&RRoll{}, "RRoll"},
 		{&RandomNumber{}, "RandomNumber"},
 
 		{&Int{}, "Int"},
 		{&String{}, "String"},
+		{&Nil{}, "Nil"},
 		{&SumRollResult{}, "SumRollResult"},
 	}
 
@@ -41,6 +44,52 @@ func TestNode_Type(t *testing.T) {
 			actual := test.node.Type().String()
 			if actual != test.expected {
 				t.Errorf("got: %q, want: %q", actual, test.expected)
+			}
+		})
+	}
+}
+
+func TestNode_IsNil(t *testing.T) {
+	testcases := []struct {
+		node     Node
+		expected bool
+	}{
+		{&DRollExpr{}, false},
+		{&DRollComp{}, false},
+		{&BRollList{}, false},
+		{&BRollComp{}, false},
+		{&RRollList{}, false},
+		{&Calc{}, false},
+		{&Choice{}, false},
+
+		{&PrefixExpressionImpl{}, false},
+		{&UnaryMinus{}, false},
+
+		{&InfixExpressionImpl{}, false},
+		{&Compare{}, false},
+		{&Add{}, false},
+		{&Subtract{}, false},
+		{&Multiply{}, false},
+		{&DivideWithRoundingUp{}, false},
+		{&DivideWithRounding{}, false},
+		{&DivideWithRoundingDown{}, false},
+
+		{&DRoll{}, false},
+		{&BRoll{}, false},
+		{&RRoll{}, false},
+		{&RandomNumber{}, false},
+
+		{&Int{}, false},
+		{&String{}, false},
+		{&Nil{}, true},
+		{&SumRollResult{}, false},
+	}
+
+	for _, test := range testcases {
+		t.Run(test.node.Type().String(), func(t *testing.T) {
+			actual := test.node.IsNil()
+			if actual != test.expected {
+				t.Errorf("got: %v, want: %v", actual, test.expected)
 			}
 		})
 	}
@@ -55,6 +104,7 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&DRollComp{}, false},
 		{&BRollList{}, false},
 		{&BRollComp{}, false},
+		{&RRollList{}, false},
 		{&Calc{}, false},
 		{&Choice{}, false},
 
@@ -72,10 +122,12 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 
 		{&DRoll{}, true},
 		{&BRoll{}, true},
+		{&RRoll{}, true},
 		{&RandomNumber{}, true},
 
 		{&Int{}, true},
 		{&String{}, true},
+		{&Nil{}, true},
 		{&SumRollResult{}, true},
 	}
 
@@ -95,6 +147,10 @@ func TestNode_IsVariable(t *testing.T) {
 		expected bool
 	}{
 		{
+			node:     NilInstance(),
+			expected: false,
+		},
+		{
 			node:     NewInt(42),
 			expected: false,
 		},
@@ -107,6 +163,13 @@ func TestNode_IsVariable(t *testing.T) {
 		},
 		{
 			node: NewBRoll(
+				NewInt(2),
+				NewInt(6),
+			),
+			expected: true,
+		},
+		{
+			node: NewRRoll(
 				NewInt(2),
 				NewInt(6),
 			),
@@ -228,6 +291,32 @@ func TestNode_IsVariable(t *testing.T) {
 					),
 					">",
 					NewInt(7),
+				),
+			),
+			expected: true,
+		},
+		{
+			node: NewRRollList(
+				NewRRoll(
+					NewInt(2),
+					NewInt(6),
+				),
+				NilInstance(),
+			),
+			expected: true,
+		},
+		{
+			node: NewRRollComp(
+				NewCompare(
+					NewRRollList(
+						NewRRoll(
+							NewInt(2),
+							NewInt(6),
+						),
+						NilInstance(),
+					),
+					">=",
+					NewInt(3),
 				),
 			),
 			expected: true,

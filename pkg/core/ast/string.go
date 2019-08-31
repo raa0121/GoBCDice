@@ -6,6 +6,8 @@ import (
 
 // 文字列のノード。
 type String struct {
+	NonNilNode
+
 	// 文字列
 	Value string
 }

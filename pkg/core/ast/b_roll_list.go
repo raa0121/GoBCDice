@@ -1,11 +1,14 @@
 package ast
 
 import (
+	"bytes"
 	"strings"
 )
 
 // バラバラロール列のノード。
 type BRollList struct {
+	NonNilNode
+
 	// バラバラロールのスライス。
 	// 2b6+4d10のように連続してダイスロールを行えるように、複数のバラバラロールを格納する。
 	BRolls []*BRoll
@@ -30,12 +33,18 @@ func (n *BRollList) Type() NodeType {
 
 // SExp はノードのS式を返す。
 func (n *BRollList) SExp() string {
+	var out bytes.Buffer
+
 	bRollSExps := make([]string, 0, len(n.BRolls))
 	for _, bRoll := range n.BRolls {
 		bRollSExps = append(bRollSExps, bRoll.SExp())
 	}
 
-	return "(BRollList " + strings.Join(bRollSExps, " ") + ")"
+	out.WriteString("(BRollList ")
+	out.WriteString(strings.Join(bRollSExps, " "))
+	out.WriteString(")")
+
+	return out.String()
 }
 
 // IsPrimaryExpression は一次式かどうかを返す。

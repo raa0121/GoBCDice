@@ -25,6 +25,9 @@ import (
 type Evaluator struct {
 	diceRoller *roller.DiceRoller
 	env        *Environment
+	// 個数振り足しロールにおける最大振り足し数
+	// TODO: 外部から変更するためのインターフェースを作る
+	MaxRerolls int
 }
 
 // NewEvaluator は新しい評価器を返す。
@@ -35,6 +38,7 @@ func NewEvaluator(diceRoller *roller.DiceRoller, env *Environment) *Evaluator {
 	return &Evaluator{
 		diceRoller: diceRoller,
 		env:        env,
+		MaxRerolls: 10000,
 	}
 }
 
@@ -51,6 +55,10 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 		return e.evalBRollList(n)
 	case *ast.BRollComp:
 		return e.evalBRollComp(n)
+	case *ast.RRollList:
+		return e.evalRRollList(n)
+	case *ast.RRollComp:
+		return e.evalRRollComp(n)
 	case *ast.Choice:
 		return e.evalChoice(n)
 	case ast.Command:
@@ -68,7 +76,7 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
 }
 
-// evalBRollList はバラバラロールのリストを評価する。
+// evalBRollList はバラバラロール列を評価する。
 func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
 	elements := []object.Object{}
 
@@ -83,19 +91,6 @@ func (e *Evaluator) evalBRollList(node *ast.BRollList) (*object.Array, error) {
 	}
 
 	return object.NewArrayByMove(elements), nil
-}
-
-// evalChoice はランダム選択を評価する。
-func (e *Evaluator) evalChoice(node *ast.Choice) (*object.String, error) {
-	rolledDice, err := e.RollDice(1, len(node.Items))
-	if err != nil {
-		return nil, err
-	}
-
-	index := rolledDice[0].Value - 1
-	value := node.Items[index].Value
-
-	return object.NewString(value), nil
 }
 
 // evalBRollComp はバラバラロールの成功数カウントを評価する。
@@ -134,11 +129,138 @@ func (e *Evaluator) evalBRollComp(node *ast.BRollComp) (*object.BRollCompResult,
 		}
 
 		if success := r.(*object.Boolean).Value; success {
-			numOfSuccesses += 1
+			numOfSuccesses++
 		}
 	}
 
 	return object.NewBRollCompResult(valuesArray, object.NewInteger(numOfSuccesses)), nil
+}
+
+// evalRRollList は個数振り足しロール列を評価する。
+//
+// TODO: シャドウラン4版のグリッチに対応する。
+func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
+	if node.Threshold.IsNil() {
+		return nil, fmt.Errorf("evalRRollList: threshold is nil")
+	}
+
+	// 閾値を評価する
+	thresholdObj, evalThresholdErr := e.Eval(node.Threshold)
+	if evalThresholdErr != nil {
+		return nil, evalThresholdErr
+	}
+	thresholdInt := thresholdObj.(*object.Integer)
+	threshold := thresholdInt.Value
+
+	// ダイスロールのキュー。
+	// ダイスロール後、条件を満たす出目が得られるたびに、このキューに
+	// そのダイスロールを追加する。
+	rollQueue := make([]*ast.RRoll, len(node.RRolls))
+	copy(rollQueue, node.RRolls)
+
+	// ダイスロール結果を格納する配列
+	valueGroups := []object.Object{}
+	for i := 0; i < e.MaxRerolls && len(rollQueue) > 0; i++ {
+		// キューの最初のダイスロールを取り出す
+		rRoll := rollQueue[0]
+		if len(rollQueue) < 2 {
+			rollQueue = nil
+		} else {
+			rollQueue = rollQueue[1:len(rollQueue)]
+		}
+
+		// ダイスロールを行う
+		o, err := e.Eval(rRoll)
+		if err != nil {
+			return nil, err
+		}
+
+		// 出目を結果の配列に格納する
+		values := o.(*object.Array)
+		valueGroups = append(valueGroups, values)
+
+		// 成功数を数える
+		numOfSuccesses := 0
+		for _, v := range values.Elements {
+			// TODO: 演算子 ">=" 以外も振り足しの条件に設定できるようにする
+			if vi := v.(*object.Integer); vi.Value >= threshold {
+				numOfSuccesses++
+			}
+		}
+
+		// 成功した分だけ追加のダイスロールをキューに追加する
+		if numOfSuccesses > 0 {
+			numNode := ast.NewInt(numOfSuccesses)
+			sidesNode := rRoll.Right()
+			newRRoll := ast.NewRRoll(numNode, sidesNode)
+
+			rollQueue = append(rollQueue, newRRoll)
+		}
+	}
+
+	return object.NewArrayByMove(valueGroups), nil
+}
+
+// evalRRollComp は個数振り足しロールの成功数カウントを評価する。
+func (e *Evaluator) evalRRollComp(node *ast.RRollComp) (*object.RRollCompResult, error) {
+	compareNode := node.Expression().(*ast.Compare)
+
+	// 左辺を評価する
+	valueGroupsObj, evalRRollListErr := e.Eval(compareNode.Left())
+	if evalRRollListErr != nil {
+		return nil, evalRRollListErr
+	}
+
+	// 右辺を評価する
+	evaluatedTargetObj, evalTargetErr := e.Eval(compareNode.Right())
+	if evalTargetErr != nil {
+		return nil, evalTargetErr
+	}
+
+	valueGroupsArray := valueGroupsObj.(*object.Array)
+	evaluatedTargetNode :=
+		ast.NewInt(evaluatedTargetObj.(*object.Integer).Value)
+
+	// 振られた各ダイスに対して成功判定を行い、成功数を数える
+	numOfSuccesses := 0
+	for _, vg := range valueGroupsArray.Elements {
+		valuesArray := vg.(*object.Array)
+		for _, el := range valuesArray.Elements {
+			valueNode := ast.NewInt(el.(*object.Integer).Value)
+			valueCompareNode := ast.NewCompare(
+				valueNode,
+				compareNode.Operator(),
+				evaluatedTargetNode,
+			)
+
+			r, compErr := e.Eval(valueCompareNode)
+			if compErr != nil {
+				return nil, compErr
+			}
+
+			if success := r.(*object.Boolean).Value; success {
+				numOfSuccesses++
+			}
+		}
+	}
+
+	return object.NewRRollCompResult(
+		valueGroupsArray,
+		object.NewInteger(numOfSuccesses),
+	), nil
+}
+
+// evalChoice はランダム選択を評価する。
+func (e *Evaluator) evalChoice(node *ast.Choice) (*object.String, error) {
+	rolledDice, err := e.RollDice(1, len(node.Items))
+	if err != nil {
+		return nil, err
+	}
+
+	index := rolledDice[0].Value - 1
+	value := node.Items[index].Value
+
+	return object.NewString(value), nil
 }
 
 // evalPrefixExpression は前置式を評価する。
@@ -247,7 +369,7 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		return object.NewInteger(leftValue * rightValue), nil
 	case "D":
 		return e.evalSumRoll(left, right)
-	case "B":
+	case "B", "R":
 		return e.evalBasicRoll(left, right)
 	case "...":
 		return e.evalRandomNumber(left, right)

@@ -19,6 +19,8 @@ const (
 	D_ROLL_COMP_NODE
 	B_ROLL_LIST_NODE
 	B_ROLL_COMP_NODE
+	R_ROLL_LIST_NODE
+	R_ROLL_COMP_NODE
 	CALC_NODE
 	CHOICE_NODE
 
@@ -35,10 +37,12 @@ const (
 	DIVIDE_WITH_ROUNDING_DOWN_NODE
 	D_ROLL_NODE
 	B_ROLL_NODE
+	R_ROLL_NODE
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
 	STRING_NODE
+	NIL_NODE
 	SUM_ROLL_RESULT_NODE
 )
 
@@ -50,6 +54,8 @@ var nodeTypeString = map[NodeType]string{
 	D_ROLL_COMP_NODE: "DRollComp",
 	B_ROLL_LIST_NODE: "BRollList",
 	B_ROLL_COMP_NODE: "BRollComp",
+	R_ROLL_LIST_NODE: "RRollList",
+	R_ROLL_COMP_NODE: "RRollComp",
 	CALC_NODE:        "Calc",
 	CHOICE_NODE:      "Choice",
 
@@ -66,10 +72,12 @@ var nodeTypeString = map[NodeType]string{
 	DIVIDE_WITH_ROUNDING_DOWN_NODE: "DivideWithRoundingDown",
 	D_ROLL_NODE:                    "DRoll",
 	B_ROLL_NODE:                    "BRoll",
+	R_ROLL_NODE:                    "RRoll",
 	RANDOM_NUMBER_NODE:             "RandomNumber",
 
 	INT_NODE:             "Int",
 	STRING_NODE:          "String",
+	NIL_NODE:             "Nil",
 	SUM_ROLL_RESULT_NODE: "SumRollResult",
 }
 
@@ -79,9 +87,19 @@ type Node interface {
 	Type() NodeType
 	// SExp はノードのS式を返す。
 	SExp() string
+	// IsNil はnilかどうかを返す。
+	IsNil() bool
 	// IsPrimaryExpression は一次式かどうかを返す。
 	IsPrimaryExpression() bool
 	// IsVariable は可変ノードかどうかを返す。
 	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、実行のたびに値が変わり得るノードのこと。
 	IsVariable() bool
+}
+
+// NonNilNode はnilでないノードの型。
+type NonNilNode struct{}
+
+// IsNil はnilかどうかを返す。
+func (n *NonNilNode) IsNil() bool {
+	return false
 }

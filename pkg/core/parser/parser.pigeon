@@ -70,7 +70,7 @@ Command <- ResetRandCount n:(Choice / Calc / CommandWithExpression) {
 	return n, nil
 }
 
-CommandWithExpression <- n:(BRollComp / BRollList / DRollCompCommand / DRollExprCommand) EOT {
+CommandWithExpression <- n:(BRollComp / BRollList / RRollComp / RRollList / DRollCompCommand / DRollExprCommand) EOT {
 	return n, nil
 }
 
@@ -134,6 +134,35 @@ BRollList <- first:BRoll rest:('+' BRoll)* {
 
 BRollComp <- left:BRollList op:CompareOp right:IntExpr {
 	return ast.NewBRollComp(
+		ast.NewCompare(
+			left.(ast.Node),
+			string(op.([]byte)),
+			right.(ast.Node),
+		),
+	), nil
+}
+
+RRollList <- first:RRoll rest:('+' RRoll)* th:('[' IntExpr ']')? {
+	ths := toIfaceSlice(th)
+
+	var threshold ast.Node = ast.NilInstance()
+	if ths != nil {
+		threshold = ths[1].(ast.Node)
+	}
+
+	rRollList := ast.NewRRollList(first.(*ast.RRoll), threshold)
+
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		rr := rs[1].(*ast.RRoll)
+		rRollList.Append(rr)
+	}
+
+	return rRollList, nil
+}
+
+RRollComp <- left:RRollList op:CompareOp right:IntExpr {
+	return ast.NewRRollComp(
 		ast.NewCompare(
 			left.(ast.Node),
 			string(op.([]byte)),
@@ -234,6 +263,13 @@ BRoll <- num:RollOperand 'B'i sides:RollOperand IncRandCount {
 	sidesNode := sides.(ast.Node)
 
 	return ast.NewBRoll(numNode, sidesNode), nil
+}
+
+RRoll <- num:RollOperand 'R'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
+
+	return ast.NewRRoll(numNode, sidesNode), nil
 }
 
 RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
