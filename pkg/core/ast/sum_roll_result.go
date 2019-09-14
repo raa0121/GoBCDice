@@ -8,6 +8,8 @@ import (
 // 加算ロールの結果を表すノード。
 // 一次式。
 type SumRollResult struct {
+	NonNilNode
+
 	// 振られたダイスの配列
 	Dice []dice.Die
 }

@@ -32,6 +32,8 @@ type InfixExpression interface {
 
 // 中置式のノードが共通して持つ要素。
 type InfixExpressionImpl struct {
+	NonNilNode
+
 	// 左のノード
 	left Node
 	// 演算子

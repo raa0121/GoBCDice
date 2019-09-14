@@ -16,7 +16,7 @@ var _ Node = (*BRollComp)(nil)
 // BRollComp がCommandを実装していることの確認。
 var _ Command = (*BRollComp)(nil)
 
-// NewDRollComp は新しいバラバラロールの成功数カウントのノードを返す。
+// NewBRollComp は新しいバラバラロールの成功数カウントのノードを返す。
 //
 // expression: 式。
 func NewBRollComp(expression Node) *BRollComp {

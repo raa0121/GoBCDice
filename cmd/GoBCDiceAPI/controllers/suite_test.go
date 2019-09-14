@@ -23,7 +23,7 @@ var _ = Suite(&S{})
 
 func (s *S) SetUpSuite(c *C) {
 	s.Server = echo.New()
-	controllers.Setup(s.Server.Router())
+	controllers.Setup(s.Server)
 }
 
 func (s *S) TearDownSuite(c *C) {
@@ -56,5 +56,3 @@ func (s *S) PerformRequest(method string, path string, params url.Values) *httpt
 	s.Server.ServeHTTP(response, request)
 	return response
 }
-
-// vi:syntax=go

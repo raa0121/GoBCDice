@@ -7,6 +7,8 @@ import (
 // 整数のノード。
 // 一次式。
 type Int struct {
+	NonNilNode
+
 	// 数値
 	Value int
 }

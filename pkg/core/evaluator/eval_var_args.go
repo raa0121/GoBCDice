@@ -11,8 +11,12 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 	switch n := node.(type) {
 	case *ast.BRollList:
 		return e.evalVarArgsInBRollList(n)
+	case *ast.RRollList:
+		return e.evalVarArgsInRRollList(n)
 	case ast.Command:
 		return e.evalVarArgsInCommand(n)
+	case *ast.Compare:
+		return e.evalVarArgsInCompare(n)
 	case ast.PrefixExpression:
 		return e.evalVarArgsInPrefixExpression(n)
 	case ast.InfixExpression:
@@ -27,11 +31,9 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 // このメソッドには、DRollなど、実際に引数を評価して整数に変換する必要がある、可変一次式のノードを渡す。
 // このメソッドは、ノードの型に合わせて処理を振り分ける。
 func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
-	switch n := node.(type) {
-	case *ast.DRoll:
-		return e.evalVarArgsOfRoll(n)
-	case *ast.BRoll:
-		return e.evalVarArgsOfRoll(n)
+	switch node.Type() {
+	case ast.D_ROLL_NODE, ast.B_ROLL_NODE, ast.R_ROLL_NODE:
+		return e.evalVarArgsOfRoll(node.(ast.InfixExpression))
 	}
 
 	return fmt.Errorf("evalVarArgsOfVariableExpr not implemented: %s", node.Type())
@@ -58,10 +60,33 @@ func (e *Evaluator) evalVarArgsOfRoll(node ast.InfixExpression) error {
 	return nil
 }
 
-// evalVarArgsInBRollList はバラバラロールリスト内の可変ノードの引数を評価して整数に変換する。
+// evalVarArgsInBRollList はバラバラロール列内の可変ノードの引数を評価して整数に変換する。
 func (e *Evaluator) evalVarArgsInBRollList(node *ast.BRollList) error {
 	for _, b := range node.BRolls {
 		err := e.evalVarArgsOfVariableExpr(b)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// evalVarArgsInRRollList は個数振り足しロール列内の可変ノードの引数を評価して整数に変換する。
+func (e *Evaluator) evalVarArgsInRRollList(node *ast.RRollList) error {
+	// 振り足しの閾値を評価する
+	if !node.Threshold.IsNil() {
+		thresholdObj, thresholdEvalErr := e.Eval(node.Threshold)
+		if thresholdEvalErr != nil {
+			return thresholdEvalErr
+		}
+
+		node.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+	}
+
+	// 個数振り足しロールの引数を評価して整数に変換する
+	for _, r := range node.RRolls {
+		err := e.evalVarArgsOfVariableExpr(r)
 		if err != nil {
 			return err
 		}
@@ -82,6 +107,26 @@ func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
 	}
 
 	return e.EvalVarArgs(expr)
+}
+
+// evalVarArgsInCompare は、比較式の左辺の可変ノードの引数および右辺を評価する。
+func (e *Evaluator) evalVarArgsInCompare(node *ast.Compare) error {
+	// 左辺の可変ノードの引数を評価して整数に変換する
+	leftEvalErr := e.EvalVarArgs(node.Left())
+	if leftEvalErr != nil {
+		return leftEvalErr
+	}
+
+	// 右辺（目標値）を評価して整数に変換する
+	rightObj, rightEvalErr := e.Eval(node.Right())
+	if rightEvalErr != nil {
+		return rightEvalErr
+	}
+
+	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
+	node.SetRight(evaluatedRight)
+
+	return nil
 }
 
 // evalVarArgsInCommand は前置式内の可変ノードの引数を評価して整数に変換する。

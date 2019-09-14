@@ -21,7 +21,7 @@ func main() {
 	e := echo.New()
 
 	config.Setup(e)
-	controllers.Setup(e.Router())
+	controllers.Setup(e)
 
 	err := e.Start(":" + getPort())
 	if err != nil {

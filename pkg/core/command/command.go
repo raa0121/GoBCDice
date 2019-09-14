@@ -12,6 +12,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/core/notation"
 	"github.com/raa0121/GoBCDice/pkg/core/object"
+	"strings"
 )
 
 // Execute は指定されたコマンドを実行する。
@@ -35,6 +36,10 @@ func Execute(
 		return executeBRollList(c, gameID, evaluator)
 	case *ast.BRollComp:
 		return executeBRollComp(c, gameID, evaluator)
+	case *ast.RRollList:
+		return executeRRollList(c, gameID, evaluator)
+	case *ast.RRollComp:
+		return executeRRollComp(c, gameID, evaluator)
 	case *ast.Choice:
 		return executeChoice(c, gameID, evaluator)
 	}
@@ -126,10 +131,9 @@ func executeDRollComp(
 	}
 
 	// 左辺の可変ノードの引数および右辺を評価する
-	infixNotation1, evalVarArgsAndRightErr :=
-		evalCompareVarArgsAndRight(compareNode, evaluator)
-	if evalVarArgsAndRightErr != nil {
-		return nil, evalVarArgsAndRightErr
+	infixNotation1, evalVarArgsErr := evalVarArgs(compareNode, evaluator)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
 	}
 
 	// 加算ロールなどの可変ノードの値を決定する
@@ -186,7 +190,7 @@ func executeBRollList(
 		GameID: gameID,
 	}
 
-	// 加算ロールなどの可変ノードの引数を評価して整数に変換する
+	// 可変ノードの引数を評価して整数に変換する
 	infixNotation, evalVarArgsErr := evalVarArgs(node, evaluator)
 	if evalVarArgsErr != nil {
 		return nil, evalVarArgsErr
@@ -220,12 +224,12 @@ func executeBRollComp(
 	}
 
 	// 左辺の可変ノードの引数および右辺を評価する
-	infixNotation, evalVarArgsAndRightErr := evalCompareVarArgsAndRight(
+	infixNotation, evalVarArgsErr := evalVarArgs(
 		node.Expression().(*ast.Compare),
 		evaluator,
 	)
-	if evalVarArgsAndRightErr != nil {
-		return nil, evalVarArgsAndRightErr
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
 	}
 
 	// 変換された抽象構文木を評価する
@@ -240,6 +244,108 @@ func executeBRollComp(
 	// 結果のメッセージを作る
 	result.appendMessagePart(notation.Parenthesize(infixNotation))
 	result.appendMessagePart(resultObj.Values.JoinedElements(","))
+	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
+
+	return result, nil
+}
+
+// executeRRollList は個数振り足しロールを実行する。
+func executeRRollList(
+	node *ast.RRollList,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameID: gameID,
+	}
+
+	// 可変ノードの引数を評価して整数に変換する
+	evalVarArgsErr := evaluator.EvalVarArgs(node)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
+	}
+
+	// 中置表記を生成する
+	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
+	if infixNotationErr != nil {
+		return nil, infixNotationErr
+	}
+
+	result.appendMessagePart(notation.Parenthesize(infixNotation))
+
+	// 振り足しの閾値を確認する
+	checkRerollThresholdErr := evaluator.CheckRerollThreshold(node)
+	if checkRerollThresholdErr != nil {
+		result.appendMessagePart(checkRerollThresholdErr.Error())
+		return result, nil
+	}
+
+	// 変換された抽象構文木を評価する
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	valueGroups := obj.(*object.Array)
+	result.RolledDice = evaluator.RolledDice()
+
+	// 結果のメッセージを作る
+	result.appendMessagePart(formatRRollValues(valueGroups))
+
+	return result, nil
+}
+
+// executeRRollComp は個数振り足しロールの成功数カウントを実行する。
+func executeRRollComp(
+	node *ast.RRollComp,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	result := &Result{
+		GameID: gameID,
+	}
+
+	compareNode := node.Expression().(*ast.Compare)
+
+	// 左辺の可変ノードの引数および右辺を評価する
+	evalVarArgsErr := evaluator.EvalVarArgs(compareNode)
+	if evalVarArgsErr != nil {
+		return nil, evalVarArgsErr
+	}
+
+	// 振り足しの閾値を設定する
+	setRerollThresholdErr := evaluator.SetRerollThreshold(node)
+	if setRerollThresholdErr != nil {
+		return nil, setRerollThresholdErr
+	}
+
+	// 中置表記を生成する
+	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
+	if infixNotationErr != nil {
+		return nil, infixNotationErr
+	}
+
+	result.appendMessagePart(notation.Parenthesize(infixNotation))
+
+	// 振り足しの閾値を確認する
+	checkRerollThresholdErr :=
+		evaluator.CheckRerollThreshold(compareNode.Left().(*ast.RRollList))
+	if checkRerollThresholdErr != nil {
+		result.appendMessagePart(checkRerollThresholdErr.Error())
+		return result, nil
+	}
+
+	// 変換された抽象構文木を評価する
+	obj, evalErr := evaluator.Eval(node)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	resultObj := obj.(*object.RRollCompResult)
+	result.RolledDice = evaluator.RolledDice()
+
+	// 結果のメッセージを作る
+	result.appendMessagePart(formatRRollValues(resultObj.ValueGroups))
 	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
 
 	return result, nil
@@ -309,25 +415,6 @@ func determineValues(node ast.Node, evaluator *evaluator.Evaluator) (string, err
 	return infixNotation, nil
 }
 
-// evalCompareVarArgsAndRight は、比較式の左辺の可変ノードの引数および右辺を評価する。
-// 返り値はその結果の中置表記とエラー。
-func evalCompareVarArgsAndRight(
-	node *ast.Compare,
-	evaluator *evaluator.Evaluator,
-) (string, error) {
-	evalVarArgsAndRightErr := evaluator.EvalCompareVarArgsAndRight(node)
-	if evalVarArgsAndRightErr != nil {
-		return "", evalVarArgsAndRightErr
-	}
-
-	infixNotation, infixNotationErr := notation.InfixNotation(node, true)
-	if infixNotationErr != nil {
-		return "", infixNotationErr
-	}
-
-	return infixNotation, nil
-}
-
 // determineCompareValues は比較式の可変ノードの値を決定する。
 // 返り値はその結果の中置表記とエラー。
 func determineCompareValues(node *ast.Compare, evaluator *evaluator.Evaluator) (string, error) {
@@ -342,4 +429,15 @@ func determineCompareValues(node *ast.Compare, evaluator *evaluator.Evaluator) (
 	}
 
 	return infixNotation, nil
+}
+
+// formatRRollValues は個数振り足しロールの出目を整形する。
+func formatRRollValues(valueGroups *object.Array) string {
+	valueGroupStrs := make([]string, 0, len(valueGroups.Elements))
+	for _, valuesObj := range valueGroups.Elements {
+		valuesArray := valuesObj.(*object.Array)
+		valueGroupStrs = append(valueGroupStrs, valuesArray.JoinedElements(","))
+	}
+
+	return strings.Join(valueGroupStrs, " + ")
 }
