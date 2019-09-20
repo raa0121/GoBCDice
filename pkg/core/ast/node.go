@@ -21,6 +21,9 @@ const (
 	B_ROLL_COMP_NODE
 	R_ROLL_LIST_NODE
 	R_ROLL_COMP_NODE
+	U_ROLL_EXPR_NODE
+	U_ROLL_COMP_NODE
+	U_ROLL_LIST_NODE
 	CALC_NODE
 	CHOICE_NODE
 
@@ -38,6 +41,7 @@ const (
 	D_ROLL_NODE
 	B_ROLL_NODE
 	R_ROLL_NODE
+	U_ROLL_NODE
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
@@ -56,6 +60,9 @@ var nodeTypeString = map[NodeType]string{
 	B_ROLL_COMP_NODE: "BRollComp",
 	R_ROLL_LIST_NODE: "RRollList",
 	R_ROLL_COMP_NODE: "RRollComp",
+	U_ROLL_EXPR_NODE: "URollExpr",
+	U_ROLL_COMP_NODE: "URollComp",
+	U_ROLL_LIST_NODE: "URollList",
 	CALC_NODE:        "Calc",
 	CHOICE_NODE:      "Choice",
 
@@ -73,6 +80,7 @@ var nodeTypeString = map[NodeType]string{
 	D_ROLL_NODE:                    "DRoll",
 	B_ROLL_NODE:                    "BRoll",
 	R_ROLL_NODE:                    "RRoll",
+	U_ROLL_NODE:                    "URoll",
 	RANDOM_NUMBER_NODE:             "RandomNumber",
 
 	INT_NODE:             "Int",

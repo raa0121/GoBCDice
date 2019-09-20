@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// toIfaceSlice は、vを任意の型のスライスに変換する。
 func toIfaceSlice(v interface{}) []interface{} {
 	if v == nil {
 		return nil
@@ -16,6 +17,7 @@ func toIfaceSlice(v interface{}) []interface{} {
 	return v.([]interface{})
 }
 
+// leftAssociativeAdditive は、複数の加算/減算項からなる抽象構文木を作る。
 func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range toIfaceSlice(rest) {
@@ -34,6 +36,7 @@ func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, err
 	return lastNode, nil
 }
 
+// leftAssociativeAdditive は、複数の乗算/除算項からなる抽象構文木を作る。
 func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range toIfaceSlice(rest) {
@@ -70,7 +73,7 @@ Command <- ResetRandCount n:(Choice / Calc / CommandWithExpression) {
 	return n, nil
 }
 
-CommandWithExpression <- n:(BRollComp / BRollList / RRollComp / RRollList / DRollCompCommand / DRollExprCommand) EOT {
+CommandWithExpression <- n:(BRollComp / BRollList / RRollComp / RRollList / URollComp / URollExpr / DRollCompCommand / DRollExprCommand) EOT {
 	return n, nil
 }
 
@@ -169,6 +172,56 @@ RRollComp <- left:RRollList op:CompareOp right:IntExpr {
 			right.(ast.Node),
 		),
 	), nil
+}
+
+URollComp <- left:URollExpr op:CompareOp right:IntExpr {
+	return ast.NewURollComp(
+		ast.NewCompare(
+			left.(ast.Node),
+			string(op.([]byte)),
+			right.(ast.Node),
+		),
+	), nil
+}
+
+URollExpr <- uRollList:URollList bonus:(('+' / '-') IntExprAdditive)? {
+	bonusSlice := toIfaceSlice(bonus)
+
+	var bonusNode ast.InfixExpression = nil
+	if bonusSlice != nil {
+		op := string(bonusSlice[0].([]byte))
+		right := bonusSlice[1].(ast.Node)
+
+		switch op {
+		case "+":
+			bonusNode = ast.NewAdd(nil, right)
+		case "-":
+			bonusNode = ast.NewSubtract(nil, right)
+		default:
+			return nil, fmt.Errorf("unknown operator: %s", op)
+		}
+	}
+
+	return ast.NewURollExpr(uRollList.(*ast.URollList), bonusNode), nil
+}
+
+URollList <- first:URoll rest:('+' URoll)* th:('[' IntExpr ']')? {
+	ths := toIfaceSlice(th)
+
+	var threshold ast.Node = ast.NilInstance()
+	if ths != nil {
+		threshold = ths[1].(ast.Node)
+	}
+
+	uRollList := ast.NewURollList(first.(*ast.URoll), threshold)
+
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		rr := rs[1].(*ast.URoll)
+		uRollList.Append(rr)
+	}
+
+	return uRollList, nil
 }
 
 IntExpr <- IntExprAdditive
@@ -270,6 +323,13 @@ RRoll <- num:RollOperand 'R'i sides:RollOperand IncRandCount {
 	sidesNode := sides.(ast.Node)
 
 	return ast.NewRRoll(numNode, sidesNode), nil
+}
+
+URoll <- num:RollOperand 'U'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
+
+	return ast.NewURoll(numNode, sidesNode), nil
 }
 
 RollOperand <- Integer / Rand / ParenthesizedIntRandExpr

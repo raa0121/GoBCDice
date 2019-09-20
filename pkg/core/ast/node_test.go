@@ -14,6 +14,9 @@ func TestNode_Type(t *testing.T) {
 		{&BRollList{}, "BRollList"},
 		{&BRollComp{}, "BRollComp"},
 		{&RRollList{}, "RRollList"},
+		{&URollExpr{}, "URollExpr"},
+		{&URollComp{}, "URollComp"},
+		{&URollList{}, "URollList"},
 		{&Calc{}, "Calc"},
 		{&Choice{}, "Choice"},
 
@@ -31,6 +34,7 @@ func TestNode_Type(t *testing.T) {
 		{&DRoll{}, "DRoll"},
 		{&BRoll{}, "BRoll"},
 		{&RRoll{}, "RRoll"},
+		{&URoll{}, "URoll"},
 		{&RandomNumber{}, "RandomNumber"},
 
 		{&Int{}, "Int"},
@@ -59,6 +63,9 @@ func TestNode_IsNil(t *testing.T) {
 		{&BRollList{}, false},
 		{&BRollComp{}, false},
 		{&RRollList{}, false},
+		{&URollExpr{}, false},
+		{&URollComp{}, false},
+		{&URollList{}, false},
 		{&Calc{}, false},
 		{&Choice{}, false},
 
@@ -77,6 +84,7 @@ func TestNode_IsNil(t *testing.T) {
 		{&DRoll{}, false},
 		{&BRoll{}, false},
 		{&RRoll{}, false},
+		{&URoll{}, false},
 		{&RandomNumber{}, false},
 
 		{&Int{}, false},
@@ -105,6 +113,8 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&BRollList{}, false},
 		{&BRollComp{}, false},
 		{&RRollList{}, false},
+		{&URollExpr{}, false},
+		{&URollList{}, false},
 		{&Calc{}, false},
 		{&Choice{}, false},
 
@@ -123,6 +133,7 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&DRoll{}, true},
 		{&BRoll{}, true},
 		{&RRoll{}, true},
+		{&URoll{}, true},
 		{&RandomNumber{}, true},
 
 		{&Int{}, true},
@@ -170,6 +181,13 @@ func TestNode_IsVariable(t *testing.T) {
 		},
 		{
 			node: NewRRoll(
+				NewInt(2),
+				NewInt(6),
+			),
+			expected: true,
+		},
+		{
+			node: NewURoll(
 				NewInt(2),
 				NewInt(6),
 			),
@@ -318,6 +336,61 @@ func TestNode_IsVariable(t *testing.T) {
 					">=",
 					NewInt(3),
 				),
+			),
+			expected: true,
+		},
+		{
+			node: NewURollExpr(
+				NewURollList(
+					NewURoll(
+						NewInt(2),
+						NewInt(6),
+					),
+					NilInstance(),
+				),
+				nil,
+			),
+			expected: true,
+		},
+		{
+			node: NewURollExpr(
+				NewURollList(
+					NewURoll(
+						NewInt(2),
+						NewInt(6),
+					),
+					NilInstance(),
+				),
+				NewAdd(nil, NewInt(1)),
+			),
+			expected: true,
+		},
+		{
+			node: NewURollComp(
+				NewCompare(
+					NewURollExpr(
+						NewURollList(
+							NewURoll(
+								NewInt(3),
+								NewInt(6),
+							),
+							NewInt(6),
+						),
+						nil,
+					),
+					">=",
+					NewInt(10),
+				),
+			),
+			expected: true,
+		},
+		{
+			node: NewURollList(
+				NewURoll(
+					NewInt(2),
+					NewInt(6),
+				),
+				NilInstance(),
 			),
 			expected: true,
 		},
