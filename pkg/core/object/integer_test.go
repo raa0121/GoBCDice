@@ -21,7 +21,7 @@ func TestInteger_Inspect(t *testing.T) {
 		t.Run(fmt.Sprintf("%d", test.obj.Value), func(t *testing.T) {
 			actual := test.obj.Inspect()
 			if actual != test.expected {
-				t.Fatalf("got=%s, want=%s", actual, test.expected)
+				t.Fatalf("got=%q, want=%q", actual, test.expected)
 			}
 		})
 	}
