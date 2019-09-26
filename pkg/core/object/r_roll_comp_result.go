@@ -29,7 +29,7 @@ func (r *RRollCompResult) Type() ObjectType {
 func (r *RRollCompResult) Inspect() string {
 	var out bytes.Buffer
 
-	out.WriteString("<RRollCompResult Values=")
+	out.WriteString("<RRollCompResult ValueGroups=")
 	out.WriteString(r.ValueGroups.Inspect())
 	out.WriteString(", NumOfSuccesses=")
 	out.WriteString(r.NumOfSuccesses.Inspect())
