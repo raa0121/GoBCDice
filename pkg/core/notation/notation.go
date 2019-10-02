@@ -10,8 +10,10 @@ package notation
 import (
 	"bytes"
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"strings"
+
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
+	"github.com/raa0121/GoBCDice/pkg/core/util"
 )
 
 // InfixNotation は構文解析木の中置表記を返す。
@@ -34,6 +36,10 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 		return infixNotationOfBRollList(n)
 	case *ast.RRollList:
 		return infixNotationOfRRollList(n)
+	case *ast.URollExpr:
+		return infixNotationOfURollExpr(n)
+	case *ast.URollList:
+		return infixNotationOfURollList(n)
 	case *ast.Choice:
 		return infixNotationOfChoice(n)
 	case ast.Command:
@@ -98,6 +104,76 @@ func infixNotationOfRRollList(node *ast.RRollList) (string, error) {
 
 	infixNotations := make([]string, 0, len(node.RRolls))
 	for _, r := range node.RRolls {
+		n, err := InfixNotation(r, true)
+		if err != nil {
+			return "", err
+		}
+
+		infixNotations = append(infixNotations, n)
+	}
+
+	out.WriteString(strings.Join(infixNotations, "+"))
+
+	if !node.Threshold.IsNil() {
+		infixNotationOfThreshold, err := InfixNotation(node.Threshold, true)
+		if err != nil {
+			return "", err
+		}
+
+		out.WriteString("[")
+		out.WriteString(infixNotationOfThreshold)
+		out.WriteString("]")
+	}
+
+	return out.String(), nil
+}
+
+// infixNotationOfURollExpr は上方無限ロール式の中置表記を返す。
+func infixNotationOfURollExpr(node *ast.URollExpr) (string, error) {
+	if node.Bonus == nil {
+		uRollListNotation, uRollListNotationErr :=
+			InfixNotation(node.URollList, true)
+		if uRollListNotationErr != nil {
+			return "", uRollListNotationErr
+		}
+
+		return uRollListNotation, nil
+	}
+
+	// 以下はボーナスが指定されていたときの中置表記生成処理
+
+	// ボーナスのノードのコピーを作る
+	var copiedBonus ast.InfixExpression
+
+	switch b := node.Bonus.(type) {
+	case *ast.Add:
+		bonusAdd := util.Clone(b).(ast.Add)
+		copiedBonus = &bonusAdd
+	case *ast.Subtract:
+		bonusSubtract := util.Clone(b).(ast.Subtract)
+		copiedBonus = &bonusSubtract
+	default:
+		return "", fmt.Errorf("unknown type: %s", node.Type())
+	}
+
+	// ボーナスのノードの左側はnilになっているので、URollListを設定する
+	copiedBonus.SetLeft(node.URollList)
+
+	bonusInfixNotation, bonusInfixNotationErr :=
+		InfixNotation(copiedBonus, true)
+	if bonusInfixNotationErr != nil {
+		return "", bonusInfixNotationErr
+	}
+
+	return bonusInfixNotation, nil
+}
+
+// infixNotationOfURollList は上方無限ロール列の中置表記を返す。
+func infixNotationOfURollList(node *ast.URollList) (string, error) {
+	var out bytes.Buffer
+
+	infixNotations := make([]string, 0, len(node.URolls))
+	for _, r := range node.URolls {
 		n, err := InfixNotation(r, true)
 		if err != nil {
 			return "", err
