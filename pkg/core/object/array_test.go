@@ -69,6 +69,19 @@ func TestArray_InspectWithoutSpaces(t *testing.T) {
 			),
 			expected: "[2,3,5,8,13]",
 		},
+		{
+			obj: NewArray(
+				NewArray(
+					NewInteger(1),
+					NewInteger(2),
+				),
+				NewArray(
+					NewInteger(3),
+					NewInteger(4),
+				),
+			),
+			expected: "[[1,2],[3,4]]",
+		},
 	}
 
 	for _, test := range testcases {
