@@ -32,3 +32,27 @@ func (r *URollExprResult) Inspect() string {
 
 	return out.String()
 }
+
+// MaxValue は出目のグループの最大値を返す。
+func (r *URollExprResult) MaxValue() *Integer {
+	max, _ := r.sumOfGroups().MaxInteger()
+
+	return NewInteger(max.Value + r.Modifier.Value)
+}
+
+// sumOfGroups は出目のグループごとの合計値の配列を返す。
+func (r *URollExprResult) sumOfGroups() *Array {
+	sums := make([]Object, 0, len(r.ValueGroups.Elements))
+
+	for _, e := range r.ValueGroups.Elements {
+		ea := e.(*Array)
+		sum, ok := ea.SumOfIntegers()
+		if !ok {
+			panic("ValueGroups contain non-Integer elements")
+		}
+
+		sums = append(sums, sum)
+	}
+
+	return NewArrayByMove(sums)
+}
