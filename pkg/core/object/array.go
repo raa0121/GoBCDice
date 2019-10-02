@@ -115,3 +115,25 @@ func (a *Array) MaxInteger() (*Integer, bool) {
 
 	return maxElement, true
 }
+
+// SumOfIntegers は整数配列の値の合計を返す。
+//
+// 空の配列だった場合は、値0の整数オブジェクトへのポインタとtrueを返す。
+// 要素のいずれかが整数でなかった場合は、nilとfalseを返す。
+func (a *Array) SumOfIntegers() (*Integer, bool) {
+	if len(a.Elements) < 1 {
+		return NewInteger(0), true
+	}
+
+	sum := 0
+	for _, e := range a.Elements {
+		eInt, eIsInteger := e.(*Integer)
+		if !eIsInteger {
+			return nil, false
+		}
+
+		sum += eInt.Value
+	}
+
+	return NewInteger(sum), true
+}

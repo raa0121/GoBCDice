@@ -241,3 +241,72 @@ func TestArray_MaxInteger(t *testing.T) {
 		})
 	}
 }
+
+func TestArray_SumOfIntegers(t *testing.T) {
+	testcases := []struct {
+		obj           *Array
+		expectedValue int
+		expectedOK    bool
+	}{
+		{
+			obj:           NewArray(),
+			expectedValue: 0,
+			expectedOK:    true,
+		},
+		{
+			obj: NewArray(
+				NewInteger(1),
+				NewString("str"),
+			),
+			expectedOK: false,
+		},
+		{
+			obj: NewArray(
+				NewInteger(1),
+			),
+			expectedValue: 1,
+			expectedOK:    true,
+		},
+		{
+			obj: NewArray(
+				NewInteger(1),
+				NewInteger(2),
+			),
+			expectedValue: 3,
+			expectedOK:    true,
+		},
+		{
+			obj: NewArray(
+				NewInteger(2),
+				NewInteger(3),
+				NewInteger(5),
+				NewInteger(8),
+				NewInteger(13),
+			),
+			expectedValue: 31,
+			expectedOK:    true,
+		},
+	}
+
+	for _, test := range testcases {
+		t.Run(test.obj.InspectWithoutSpaces(), func(t *testing.T) {
+			actualInt, actualOK := test.obj.SumOfIntegers()
+			if !actualOK {
+				if test.expectedOK {
+					t.Fatal("not OK")
+				}
+
+				return
+			}
+
+			if !test.expectedOK {
+				t.Fatal("unexpected OK")
+				return
+			}
+
+			if actualInt.Value != test.expectedValue {
+				t.Errorf("got=%d, want=%d", actualInt.Value, test.expectedValue)
+			}
+		})
+	}
+}
