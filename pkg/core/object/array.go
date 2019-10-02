@@ -84,3 +84,34 @@ func (a *Array) JoinedElementsWithoutSpaces(sep string) string {
 
 	return strings.Join(elements, sep)
 }
+
+// MaxInteger は整数配列内の最大の値へのポインタを返す。
+//
+// 要素がすべて整数だった場合は、最大値へのポインタとtrueを返す。
+// 空の配列だった場合は、値0の整数オブジェクトへのポインタとtrueを返す。
+// 要素のいずれかが整数でなかった場合は、nilとfalseを返す。
+func (a *Array) MaxInteger() (*Integer, bool) {
+	if len(a.Elements) < 1 {
+		return NewInteger(0), true
+	}
+
+	e0, e0IsInteger := a.Elements[0].(*Integer)
+	if !e0IsInteger {
+		return nil, false
+	}
+
+	maxElement := e0
+
+	for _, e := range a.Elements[1:len(a.Elements)] {
+		eInt, eIsInteger := e.(*Integer)
+		if !eIsInteger {
+			return nil, false
+		}
+
+		if eInt.Value > maxElement.Value {
+			maxElement = eInt
+		}
+	}
+
+	return maxElement, true
+}
