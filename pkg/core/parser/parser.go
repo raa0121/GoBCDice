@@ -2075,11 +2075,11 @@ func (c *current) onURollList1(first, rest, th interface{}) (interface{}, error)
 		threshold = ths[1].(ast.Node)
 	}
 
-	uRollList := ast.NewURollList(first.(*ast.URoll), threshold)
+	uRollList := ast.NewURollList(first.(*ast.RRoll), threshold)
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
-		rr := rs[1].(*ast.URoll)
+		rr := rs[1].(*ast.RRoll)
 		uRollList.Append(rr)
 	}
 

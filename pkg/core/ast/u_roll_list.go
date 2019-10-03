@@ -5,12 +5,12 @@ import (
 	"strings"
 )
 
-// 上方無限ロール列のノード。
+// URollList は上方無限ロール列のノード。
 type URollList struct {
 	NonNilNode
 
 	// 上方無限ロールのスライス。
-	URolls []*URoll
+	URolls []*RRoll
 	// 上方無限の閾値。
 	Threshold Node
 }
@@ -22,9 +22,9 @@ var _ Node = (*URollList)(nil)
 //
 // first: 最初の上方無限ロール
 // threshold: 上方無限の閾値。
-func NewURollList(first *URoll, threshold Node) *URollList {
+func NewURollList(first *RRoll, threshold Node) *URollList {
 	return &URollList{
-		URolls:    []*URoll{first},
+		URolls:    []*RRoll{first},
 		Threshold: threshold,
 	}
 }
@@ -38,15 +38,15 @@ func (n *URollList) Type() NodeType {
 func (n *URollList) SExp() string {
 	var out bytes.Buffer
 
-	rRollSExps := make([]string, 0, len(n.URolls))
+	uRollSExps := make([]string, 0, len(n.URolls))
 	for _, rRoll := range n.URolls {
-		rRollSExps = append(rRollSExps, rRoll.SExp())
+		uRollSExps = append(uRollSExps, rRoll.SExp())
 	}
 
 	out.WriteString("(URollList ")
 	out.WriteString(n.Threshold.SExp())
 	out.WriteString(" ")
-	out.WriteString(strings.Join(rRollSExps, " "))
+	out.WriteString(strings.Join(uRollSExps, " "))
 	out.WriteString(")")
 
 	return out.String()
@@ -66,6 +66,6 @@ func (n *URollList) IsVariable() bool {
 }
 
 // Append はリストにURollを追加する。
-func (n *URollList) Append(r *URoll) {
+func (n *URollList) Append(r *RRoll) {
 	n.URolls = append(n.URolls, r)
 }

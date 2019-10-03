@@ -46,7 +46,7 @@ func (n *RRoll) IsVariable() bool {
 	return true
 }
 
-// NewRRoll はバラバラロールのノードを返す。
+// NewRRoll は新しい個数振り足しロールのノードを返す。
 //
 // num: 振るダイスの数のノード,
 // sides: ダイスの面数のノード。
@@ -56,6 +56,24 @@ func NewRRoll(num Node, sides Node) *RRoll {
 			left:            num,
 			operator:        "R",
 			operatorForSExp: "RRoll",
+			right:           sides,
+		},
+	}
+}
+
+// NewURoll は新しい上方無限ロールのノードを返す。
+//
+// num: 振るダイスの数のノード,
+// sides: ダイスの面数のノード。
+//
+// 機能はRRollと同じなので、同じ構造体を使用している。
+// 演算子の表記のみRRollと異なる。
+func NewURoll(num Node, sides Node) *RRoll {
+	return &RRoll{
+		InfixExpressionImpl: InfixExpressionImpl{
+			left:            num,
+			operator:        "U",
+			operatorForSExp: "URoll",
 			right:           sides,
 		},
 	}

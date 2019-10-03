@@ -33,8 +33,8 @@ func TestNode_Type(t *testing.T) {
 		{&DivideWithRoundingDown{}, "DivideWithRoundingDown"},
 		{&DRoll{}, "DRoll"},
 		{&BRoll{}, "BRoll"},
-		{&RRoll{}, "RRoll"},
-		{&URoll{}, "URoll"},
+		{NewRRoll(nil, nil), "RRoll"},
+		{NewURoll(nil, nil), "RRoll"},
 		{&RandomNumber{}, "RandomNumber"},
 
 		{&Int{}, "Int"},
@@ -84,7 +84,6 @@ func TestNode_IsNil(t *testing.T) {
 		{&DRoll{}, false},
 		{&BRoll{}, false},
 		{&RRoll{}, false},
-		{&URoll{}, false},
 		{&RandomNumber{}, false},
 
 		{&Int{}, false},
@@ -133,7 +132,6 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&DRoll{}, true},
 		{&BRoll{}, true},
 		{&RRoll{}, true},
-		{&URoll{}, true},
 		{&RandomNumber{}, true},
 
 		{&Int{}, true},
