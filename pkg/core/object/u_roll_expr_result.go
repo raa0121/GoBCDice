@@ -35,13 +35,21 @@ func (r *URollExprResult) Inspect() string {
 
 // MaxValue は出目のグループの最大値を返す。
 func (r *URollExprResult) MaxValue() *Integer {
-	max, _ := r.sumOfGroups().MaxInteger()
+	max, _ := r.SumOfGroups().MaxInteger()
 
 	return NewInteger(max.Value + r.Modifier.Value)
 }
 
-// sumOfGroups は出目のグループごとの合計値の配列を返す。
-func (r *URollExprResult) sumOfGroups() *Array {
+// SumOfValues は出目の合計を返す。
+func (r *URollExprResult) SumOfValues() *Integer {
+	sumOfGroups := r.SumOfGroups()
+	sum, _ := r.SumOfGroups().SumOfIntegers()
+
+	return NewInteger(sum.Value + len(sumOfGroups.Elements)*r.Modifier.Value)
+}
+
+// SumOfGroups は出目のグループごとの合計値の配列を返す。
+func (r *URollExprResult) SumOfGroups() *Array {
 	sums := make([]Object, 0, len(r.ValueGroups.Elements))
 
 	for _, e := range r.ValueGroups.Elements {
