@@ -16,7 +16,6 @@ func TestNode_Type(t *testing.T) {
 		{&RRollList{}, "RRollList"},
 		{&URollExpr{}, "URollExpr"},
 		{&URollComp{}, "URollComp"},
-		{&URollList{}, "URollList"},
 		{&Calc{}, "Calc"},
 		{&Choice{}, "Choice"},
 
@@ -65,7 +64,6 @@ func TestNode_IsNil(t *testing.T) {
 		{&RRollList{}, false},
 		{&URollExpr{}, false},
 		{&URollComp{}, false},
-		{&URollList{}, false},
 		{&Calc{}, false},
 		{&Choice{}, false},
 
@@ -113,7 +111,6 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		{&BRollComp{}, false},
 		{&RRollList{}, false},
 		{&URollExpr{}, false},
-		{&URollList{}, false},
 		{&Calc{}, false},
 		{&Choice{}, false},
 
@@ -339,7 +336,7 @@ func TestNode_IsVariable(t *testing.T) {
 		},
 		{
 			node: NewURollExpr(
-				NewURollList(
+				NewRRollList(
 					NewURoll(
 						NewInt(2),
 						NewInt(6),
@@ -352,7 +349,7 @@ func TestNode_IsVariable(t *testing.T) {
 		},
 		{
 			node: NewURollExpr(
-				NewURollList(
+				NewRRollList(
 					NewURoll(
 						NewInt(2),
 						NewInt(6),
@@ -367,7 +364,7 @@ func TestNode_IsVariable(t *testing.T) {
 			node: NewURollComp(
 				NewCompare(
 					NewURollExpr(
-						NewURollList(
+						NewRRollList(
 							NewURoll(
 								NewInt(3),
 								NewInt(6),
@@ -383,7 +380,7 @@ func TestNode_IsVariable(t *testing.T) {
 			expected: true,
 		},
 		{
-			node: NewURollList(
+			node: NewRRollList(
 				NewURoll(
 					NewInt(2),
 					NewInt(6),

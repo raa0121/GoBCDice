@@ -202,7 +202,7 @@ URollExpr <- uRollList:URollList bonus:(('+' / '-') IntExprAdditive)? {
 		}
 	}
 
-	return ast.NewURollExpr(uRollList.(*ast.URollList), bonusNode), nil
+	return ast.NewURollExpr(uRollList.(*ast.RRollList), bonusNode), nil
 }
 
 URollList <- first:URoll rest:('+' URoll)* th:('[' IntExpr ']')? {
@@ -213,7 +213,7 @@ URollList <- first:URoll rest:('+' URoll)* th:('[' IntExpr ']')? {
 		threshold = ths[1].(ast.Node)
 	}
 
-	uRollList := ast.NewURollList(first.(*ast.RRoll), threshold)
+	uRollList := ast.NewRRollList(first.(*ast.RRoll), threshold)
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)

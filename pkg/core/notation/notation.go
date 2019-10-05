@@ -38,8 +38,6 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 		return infixNotationOfRRollList(n)
 	case *ast.URollExpr:
 		return infixNotationOfURollExpr(n)
-	case *ast.URollList:
-		return infixNotationOfURollList(n)
 	case *ast.Choice:
 		return infixNotationOfChoice(n)
 	case ast.Command:
@@ -166,36 +164,6 @@ func infixNotationOfURollExpr(node *ast.URollExpr) (string, error) {
 	}
 
 	return bonusInfixNotation, nil
-}
-
-// infixNotationOfURollList は上方無限ロール列の中置表記を返す。
-func infixNotationOfURollList(node *ast.URollList) (string, error) {
-	var out bytes.Buffer
-
-	infixNotations := make([]string, 0, len(node.URolls))
-	for _, r := range node.URolls {
-		n, err := InfixNotation(r, true)
-		if err != nil {
-			return "", err
-		}
-
-		infixNotations = append(infixNotations, n)
-	}
-
-	out.WriteString(strings.Join(infixNotations, "+"))
-
-	if !node.Threshold.IsNil() {
-		infixNotationOfThreshold, err := InfixNotation(node.Threshold, true)
-		if err != nil {
-			return "", err
-		}
-
-		out.WriteString("[")
-		out.WriteString(infixNotationOfThreshold)
-		out.WriteString("]")
-	}
-
-	return out.String(), nil
 }
 
 func infixNotationOfChoice(node *ast.Choice) (string, error) {

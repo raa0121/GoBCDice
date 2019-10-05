@@ -2058,7 +2058,7 @@ func (c *current) onURollExpr1(uRollList, bonus interface{}) (interface{}, error
 		}
 	}
 
-	return ast.NewURollExpr(uRollList.(*ast.URollList), bonusNode), nil
+	return ast.NewURollExpr(uRollList.(*ast.RRollList), bonusNode), nil
 }
 
 func (p *parser) callonURollExpr1() (interface{}, error) {
@@ -2075,7 +2075,7 @@ func (c *current) onURollList1(first, rest, th interface{}) (interface{}, error)
 		threshold = ths[1].(ast.Node)
 	}
 
-	uRollList := ast.NewURollList(first.(*ast.RRoll), threshold)
+	uRollList := ast.NewRRollList(first.(*ast.RRoll), threshold)
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)

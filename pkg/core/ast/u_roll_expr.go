@@ -10,7 +10,7 @@ type URollExpr struct {
 	NonNilNode
 
 	// 上方無限ロールのリスト。
-	URollList *URollList
+	URollList *RRollList
 	// ボーナスのノード。
 	Bonus InfixExpression
 }
@@ -19,7 +19,7 @@ type URollExpr struct {
 var _ Node = (*URollExpr)(nil)
 
 // NewURollExpr は新しい上方無限ロール式のノードを返す。
-func NewURollExpr(uRollList *URollList, bonus InfixExpression) *URollExpr {
+func NewURollExpr(uRollList *RRollList, bonus InfixExpression) *URollExpr {
 	return &URollExpr{
 		URollList: uRollList,
 		Bonus:     bonus,
