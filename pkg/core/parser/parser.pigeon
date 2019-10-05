@@ -194,9 +194,9 @@ URollExpr <- uRollList:URollList bonus:(('+' / '-') IntExprAdditive)? {
 
 		switch op {
 		case "+":
-			bonusNode = ast.NewAdd(nil, right)
+			bonusNode = ast.NewAdd(ast.NewInt(0), right)
 		case "-":
-			bonusNode = ast.NewSubtract(nil, right)
+			bonusNode = ast.NewSubtract(ast.NewInt(0), right)
 		default:
 			return nil, fmt.Errorf("unknown operator: %s", op)
 		}

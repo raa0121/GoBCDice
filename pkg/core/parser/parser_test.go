@@ -225,6 +225,7 @@ func TestParse(t *testing.T) {
 		{"3u6[2+4]", "(URollExpr (RRollList (+ 2 4) (URoll 3 6)))", false},
 		{"3u6+5u6[6]", "(URollExpr (RRollList 6 (URoll 3 6) (URoll 5 6)))", false},
 		{"3u6[6]+1", "(URollExpr (+ (RRollList 6 (URoll 3 6)) 1))", false},
+		{"3u6[6]-1", "(URollExpr (- (RRollList 6 (URoll 3 6)) 1))", false},
 		{"1U100[96]+3", "(URollExpr (+ (RRollList 96 (URoll 1 100)) 3))", false},
 		{"3u6[6]=10", "(URollComp (= (URollExpr (RRollList 6 (URoll 3 6))) 10))", false},
 		{"3u6[6]<>10", "(URollComp (<> (URollExpr (RRollList 6 (URoll 3 6))) 10))", false},

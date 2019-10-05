@@ -213,7 +213,7 @@ func TestURollExprResult_SumOfValues(t *testing.T) {
 				),
 				Modifier: NewInteger(1),
 			},
-			expected: 14,
+			expected: 12,
 		},
 		{
 			obj: &URollExprResult{
@@ -231,7 +231,7 @@ func TestURollExprResult_SumOfValues(t *testing.T) {
 				),
 				Modifier: NewInteger(-1),
 			},
-			expected: 8,
+			expected: 10,
 		},
 		{
 			obj: &URollExprResult{

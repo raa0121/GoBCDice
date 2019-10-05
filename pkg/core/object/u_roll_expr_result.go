@@ -15,6 +15,14 @@ type URollExprResult struct {
 // URollExprResultがObjectを実装していることを確認する
 var _ Object = (*URollExprResult)(nil)
 
+// NewURollExprResult は、上方無限ロール式の評価結果を表す新しいオブジェクトを返す。
+func NewURollExprResult(valueGroups *Array, modifier *Integer) *URollExprResult {
+	return &URollExprResult{
+		ValueGroups: valueGroups,
+		Modifier:    modifier,
+	}
+}
+
 // Type はオブジェクトの種類を返す。
 func (r *URollExprResult) Type() ObjectType {
 	return U_ROLL_EXPR_RESULT_OBJ
@@ -42,10 +50,9 @@ func (r *URollExprResult) MaxValue() *Integer {
 
 // SumOfValues は出目の合計を返す。
 func (r *URollExprResult) SumOfValues() *Integer {
-	sumOfGroups := r.SumOfGroups()
 	sum, _ := r.SumOfGroups().SumOfIntegers()
 
-	return NewInteger(sum.Value + len(sumOfGroups.Elements)*r.Modifier.Value)
+	return NewInteger(sum.Value + r.Modifier.Value)
 }
 
 // SumOfGroups は出目のグループごとの合計値の配列を返す。
