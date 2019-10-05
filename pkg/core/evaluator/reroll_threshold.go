@@ -26,8 +26,8 @@ func (e *Evaluator) SetRerollThreshold(node *ast.RRollComp) error {
 	return nil
 }
 
-// CheckRerollThreshold は振り足しの閾値をチェックする。
-func (e *Evaluator) CheckRerollThreshold(node *ast.RRollList) error {
+// CheckRRollThreshold は個数振り足しロールの振り足しの閾値をチェックする。
+func (e *Evaluator) CheckRRollThreshold(node *ast.RRollList) error {
 	if node.Threshold.IsNil() {
 		return fmt.Errorf("2R6>=5 あるいは 2R6[5] のように振り足し目標値を指定してください")
 	}

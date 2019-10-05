@@ -50,7 +50,7 @@ func TestSetRerollThreshold(t *testing.T) {
 	}
 }
 
-func TestCheckRerollThreshold(t *testing.T) {
+func TestCheckRRollThreshold(t *testing.T) {
 	testcases := []struct {
 		input      string
 		err        bool
@@ -77,7 +77,7 @@ func TestCheckRerollThreshold(t *testing.T) {
 			dieFeeder := feeder.NewEmptyQueue()
 			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-			checkErr := evaluator.CheckRerollThreshold(node)
+			checkErr := evaluator.CheckRRollThreshold(node)
 			if checkErr != nil {
 				if !test.err {
 					t.Fatalf("閾値チェックエラー: %s", checkErr)

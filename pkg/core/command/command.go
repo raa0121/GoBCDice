@@ -274,7 +274,7 @@ func executeRRollList(
 	result.appendMessagePart(notation.Parenthesize(infixNotation))
 
 	// 振り足しの閾値を確認する
-	checkRerollThresholdErr := evaluator.CheckRerollThreshold(node)
+	checkRerollThresholdErr := evaluator.CheckRRollThreshold(node)
 	if checkRerollThresholdErr != nil {
 		result.appendMessagePart(checkRerollThresholdErr.Error())
 		return result, nil
@@ -329,7 +329,7 @@ func executeRRollComp(
 
 	// 振り足しの閾値を確認する
 	checkRerollThresholdErr :=
-		evaluator.CheckRerollThreshold(compareNode.Left().(*ast.RRollList))
+		evaluator.CheckRRollThreshold(compareNode.Left().(*ast.RRollList))
 	if checkRerollThresholdErr != nil {
 		result.appendMessagePart(checkRerollThresholdErr.Error())
 		return result, nil
