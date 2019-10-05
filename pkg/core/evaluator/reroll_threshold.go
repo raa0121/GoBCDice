@@ -46,3 +46,24 @@ func (e *Evaluator) CheckRRollThreshold(node *ast.RRollList) error {
 
 	return nil
 }
+
+// CheckURollThreshold は上方無限ロールの振り足しの閾値をチェックする。
+func (e *Evaluator) CheckURollThreshold(node *ast.RRollList) error {
+	if node.Threshold.IsNil() {
+		return fmt.Errorf("2U6[5] のように振り足し目標値を指定してください")
+	}
+
+	thresholdObj, evalErr := e.Eval(node.Threshold)
+	if evalErr != nil {
+		return fmt.Errorf("閾値評価エラー: %s", evalErr)
+	}
+
+	thresholdInt := thresholdObj.(*object.Integer)
+	threshold := thresholdInt.Value
+
+	if threshold < 2 {
+		return fmt.Errorf("振り足し目標値として2以上の整数を指定してください")
+	}
+
+	return nil
+}
