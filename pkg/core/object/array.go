@@ -59,6 +59,16 @@ func (a *Array) InspectWithoutSpaces() string {
 	return out.String()
 }
 
+// Length は配列の要素数を返す。
+func (a *Array) Length() int {
+	return len(a.Elements)
+}
+
+// At はi番目の要素を返す。
+func (a *Array) At(i int) Object {
+	return a.Elements[i]
+}
+
 // JoinedElements は要素の内容を区切り文字sepを使って結合した文字列を返す。
 func (a *Array) JoinedElements(sep string) string {
 	elements := make([]string, 0, len(a.Elements))
