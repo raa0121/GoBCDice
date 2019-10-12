@@ -171,16 +171,16 @@ func TestEvalURollExpr(t *testing.T) {
 				return
 			}
 
-			elements := obj.ValueGroups.Elements
+			elementsLength := obj.ValueGroups().Length()
 
-			if len(elements) != len(test.expectedValueGroups) {
+			if elementsLength != len(test.expectedValueGroups) {
 				t.Fatalf("異なる配列の長さ（回転数）: got=%d, want=%d",
-					len(elements), len(test.expectedValueGroups))
+					elementsLength, len(test.expectedValueGroups))
 				return
 			}
 
 			for i, expectedValues := range test.expectedValueGroups {
-				ei := elements[i]
+				ei := obj.ValueGroups().At(i)
 
 				t.Run(fmt.Sprintf("%v", expectedValues), func(t *testing.T) {
 					eiArray, eiTypeMatched := ei.(*object.Array)
@@ -189,15 +189,15 @@ func TestEvalURollExpr(t *testing.T) {
 						return
 					}
 
-					eiElements := eiArray.Elements
-					if len(eiElements) != len(expectedValues) {
+					eiLength := eiArray.Length()
+					if eiLength != len(expectedValues) {
 						t.Fatalf("異なる配列の長さ（振られたダイスの数）: got=%d, want=%d",
-							len(eiElements), len(expectedValues))
+							eiLength, len(expectedValues))
 						return
 					}
 
 					for j, e := range expectedValues {
-						ej := eiElements[j]
+						ej := eiArray.At(j)
 
 						t.Run(fmt.Sprintf("%d", e), func(t *testing.T) {
 							ejInt, ejTypeMatched := ej.(*object.Integer)
@@ -215,16 +215,15 @@ func TestEvalURollExpr(t *testing.T) {
 				})
 			}
 
-			sumOfGroupsElements := obj.SumOfGroups().Elements
-
-			if len(sumOfGroupsElements) != len(test.expectedSumOfGroups) {
+			sumOfGroupsLength := obj.SumOfGroups().Length()
+			if sumOfGroupsLength != len(test.expectedSumOfGroups) {
 				t.Fatalf("異なる配列の長さ（グループの合計）: got=%d, want=%d",
-					len(sumOfGroupsElements), len(test.expectedSumOfGroups))
+					sumOfGroupsLength, len(test.expectedSumOfGroups))
 				return
 			}
 
 			for i, expectedSumOfGroup := range test.expectedSumOfGroups {
-				ei := sumOfGroupsElements[i]
+				ei := obj.SumOfGroups().At(i)
 
 				t.Run(fmt.Sprintf("SumOfGroup:%d", expectedSumOfGroup), func(t *testing.T) {
 					eiInt, eiTypeMatched := ei.(*object.Integer)

@@ -5,11 +5,16 @@ import (
 )
 
 // URollExprResult は上方無限ロール式の結果を表すオブジェクト。
+//
+// 計算回数を少なくするため、読み出し専用としている。
 type URollExprResult struct {
 	// 出目のグループの配列
-	ValueGroups *Array
+	valueGroups *Array
 	// 修正値
-	Modifier *Integer
+	modifier *Integer
+
+	// 出目のグループごとの合計値の配列
+	sumOfGroups *Array
 }
 
 // URollExprResultがObjectを実装していることを確認する
@@ -18,8 +23,8 @@ var _ Object = (*URollExprResult)(nil)
 // NewURollExprResult は、上方無限ロール式の評価結果を表す新しいオブジェクトを返す。
 func NewURollExprResult(valueGroups *Array, modifier *Integer) *URollExprResult {
 	return &URollExprResult{
-		ValueGroups: valueGroups,
-		Modifier:    modifier,
+		valueGroups: valueGroups,
+		modifier:    modifier,
 	}
 }
 
@@ -33,41 +38,62 @@ func (r *URollExprResult) Inspect() string {
 	var out bytes.Buffer
 
 	out.WriteString("<URollExprResult ValueGroups=")
-	out.WriteString(r.ValueGroups.Inspect())
+	out.WriteString(r.valueGroups.Inspect())
 	out.WriteString(", Modifier=")
-	out.WriteString(r.Modifier.Inspect())
+	out.WriteString(r.modifier.Inspect())
 	out.WriteString(">")
 
 	return out.String()
+}
+
+// ValueGroups は出目のグループの配列を返す。
+func (r *URollExprResult) ValueGroups() *Array {
+	return r.valueGroups
+}
+
+// Modifier は修正値を返す。
+func (r *URollExprResult) Modifier() *Integer {
+	return r.modifier
+}
+
+// SumOfGroups は出目のグループごとの合計値の配列を返す。
+func (r *URollExprResult) SumOfGroups() *Array {
+	if r.sumOfGroups == nil {
+		// 呼び出し初回に配列を求め、キャッシュする
+		r.calculateSumOfGroups()
+	}
+
+	return r.sumOfGroups
 }
 
 // MaxValue は出目のグループの最大値を返す。
 func (r *URollExprResult) MaxValue() *Integer {
 	max, _ := r.SumOfGroups().MaxInteger()
 
-	return NewInteger(max.Value + r.Modifier.Value)
+	return NewInteger(max.Value + r.modifier.Value)
 }
 
 // SumOfValues は出目の合計を返す。
 func (r *URollExprResult) SumOfValues() *Integer {
 	sum, _ := r.SumOfGroups().SumOfIntegers()
 
-	return NewInteger(sum.Value + r.Modifier.Value)
+	return NewInteger(sum.Value + r.modifier.Value)
 }
 
-// SumOfGroups は出目のグループごとの合計値の配列を返す。
-func (r *URollExprResult) SumOfGroups() *Array {
-	sums := make([]Object, 0, len(r.ValueGroups.Elements))
+// calculateSumOfGroups は出目のグループごとの合計値を計算する。
+func (r *URollExprResult) calculateSumOfGroups() {
+	valueGroups := r.valueGroups
+	sums := make([]Object, 0, valueGroups.Length())
 
-	for _, e := range r.ValueGroups.Elements {
+	for _, e := range valueGroups.Elements {
 		ea := e.(*Array)
 		sum, ok := ea.SumOfIntegers()
 		if !ok {
-			panic("ValueGroups contain non-Integer elements")
+			panic("valueGroups contain non-Integer elements")
 		}
 
 		sums = append(sums, sum)
 	}
 
-	return NewArrayByMove(sums)
+	r.sumOfGroups = NewArrayByMove(sums)
 }
