@@ -171,11 +171,10 @@ func TestEvalURollExpr(t *testing.T) {
 				return
 			}
 
-			elementsLength := obj.ValueGroups().Length()
-
-			if elementsLength != len(test.expectedValueGroups) {
+			valueGroupsLength := obj.ValueGroups().Length()
+			if valueGroupsLength != len(test.expectedValueGroups) {
 				t.Fatalf("異なる配列の長さ（回転数）: got=%d, want=%d",
-					elementsLength, len(test.expectedValueGroups))
+					valueGroupsLength, len(test.expectedValueGroups))
 				return
 			}
 

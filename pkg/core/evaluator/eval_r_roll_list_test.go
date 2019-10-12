@@ -146,15 +146,14 @@ func TestEvalRRollList(t *testing.T) {
 				return
 			}
 
-			elements := obj.Elements
-
-			if len(elements) != len(test.expected) {
-				t.Fatalf("異なる配列の長さ（回転数）: got=%d, want=%d", len(elements), len(test.expected))
+			valueGroupsLength := obj.Length()
+			if valueGroupsLength != len(test.expected) {
+				t.Fatalf("異なる配列の長さ（回転数）: got=%d, want=%d", valueGroupsLength, len(test.expected))
 				return
 			}
 
 			for i, expectedValues := range test.expected {
-				ei := elements[i]
+				ei := obj.At(i)
 
 				t.Run(fmt.Sprintf("%v", expectedValues), func(t *testing.T) {
 					eiArray, eiTypeMatched := ei.(*object.Array)
@@ -163,15 +162,15 @@ func TestEvalRRollList(t *testing.T) {
 						return
 					}
 
-					eiElements := eiArray.Elements
-					if len(eiElements) != len(expectedValues) {
+					valuesLength := eiArray.Length()
+					if valuesLength != len(expectedValues) {
 						t.Fatalf("異なる配列の長さ（振られたダイスの数）: got=%d, want=%d",
-							len(eiElements), len(expectedValues))
+							valuesLength, len(expectedValues))
 						return
 					}
 
 					for j, e := range expectedValues {
-						ej := eiElements[j]
+						ej := eiArray.At(j)
 
 						t.Run(fmt.Sprintf("%d", e), func(t *testing.T) {
 							ejInt, ejTypeMatched := ej.(*object.Integer)

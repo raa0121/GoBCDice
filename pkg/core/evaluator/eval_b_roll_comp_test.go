@@ -139,16 +139,15 @@ func TestEvalBRollComp(t *testing.T) {
 				return
 			}
 
-			elements := obj.Values.Elements
-
-			if len(elements) != len(test.expectedValues) {
+			length := obj.Values.Length()
+			if length != len(test.expectedValues) {
 				t.Fatalf("異なる値の配列の長さ: got=%d, want=%d",
-					len(elements), len(test.expectedValues))
+					length, len(test.expectedValues))
 				return
 			}
 
 			for i, e := range test.expectedValues {
-				ei := elements[i]
+				ei := obj.Values.At(i)
 
 				t.Run(fmt.Sprintf("%d", e), func(t *testing.T) {
 					eiInt, ok := ei.(*object.Integer)
