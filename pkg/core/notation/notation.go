@@ -363,3 +363,16 @@ func infixNotationOfSumRollResult(node *ast.SumRollResult) (string, error) {
 
 	return fmt.Sprintf("%d[%s]", node.Value(), strings.Join(dieValueStrs, ",")), nil
 }
+
+// FormatModifier は修正値を符号に応じて整形する
+func FormatModifier(modifier int) string {
+	if modifier == 0 {
+		return ""
+	}
+
+	if modifier > 0 {
+		return fmt.Sprintf("+%d", modifier)
+	}
+
+	return fmt.Sprintf("%d", modifier)
+}
