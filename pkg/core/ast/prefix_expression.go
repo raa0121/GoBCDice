@@ -23,6 +23,7 @@ type PrefixExpression interface {
 // 前置式のノードが共通して持つ要素。
 type PrefixExpressionImpl struct {
 	NonNilNode
+	NodeImpl
 
 	// 演算子
 	operator string
@@ -35,10 +36,8 @@ type PrefixExpressionImpl struct {
 // PrefixExpressionImpl がNodeを実装していることの確認。
 var _ Node = (*PrefixExpressionImpl)(nil)
 
-// Type はノードの種類を返す。
-func (n *PrefixExpressionImpl) Type() NodeType {
-	return PREFIX_EXPRESSION_NODE
-}
+// PrefixExpressionImpl がPrefixExpressionを実装していることの確認。
+var _ PrefixExpression = (*PrefixExpressionImpl)(nil)
 
 // IsPrefixExpression は前置式であるかを返す（ダミー関数）。
 // 前置式ではtrueを返す。
@@ -79,16 +78,26 @@ func (n *PrefixExpressionImpl) SExp() string {
 	return fmt.Sprintf("(%s %s)", n.OperatorForSExp(), rightSExp)
 }
 
-// IsPrimaryExpression は一次式かどうかを返す。
-// 前置式ではfalseを返す。
-func (n *PrefixExpressionImpl) IsPrimaryExpression() bool {
-	return false
-}
-
 // IsVariable は可変ノードかどうかを返す。
 //
 // 前置式では、右のノードが可変ノードならばtrueを返す。
 // 右のノードが可変ノードでない場合はfalseを返す。
 func (n *PrefixExpressionImpl) IsVariable() bool {
 	return n.Right().IsVariable()
+}
+
+// NewUnaryMinus は新しい単項マイナスのノードを返す。
+//
+// right: 右のノード。
+func NewUnaryMinus(right Node) *PrefixExpressionImpl {
+	return &PrefixExpressionImpl{
+		NodeImpl: NodeImpl{
+			nodeType:            UNARY_MINUS_NODE,
+			isPrimaryExpression: false,
+		},
+
+		operator:        "-",
+		operatorForSExp: "-",
+		right:           right,
+	}
 }

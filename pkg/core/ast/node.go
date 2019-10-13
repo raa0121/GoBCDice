@@ -101,3 +101,21 @@ type Node interface {
 	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、実行のたびに値が変わり得るノードのこと。
 	IsVariable() bool
 }
+
+// NodeImpl はノードが共通して持つ要素。
+type NodeImpl struct {
+	// nodeType はノードの種類。
+	nodeType NodeType
+	// isPrimaryExpression は一次式かどうか。
+	isPrimaryExpression bool
+}
+
+// Type はノードの種類を返す。
+func (n *NodeImpl) Type() NodeType {
+	return n.nodeType
+}
+
+// IsPrimaryExpression は一次式かどうかを返す。
+func (n *NodeImpl) IsPrimaryExpression() bool {
+	return n.isPrimaryExpression
+}

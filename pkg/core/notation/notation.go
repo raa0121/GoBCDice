@@ -309,8 +309,8 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression, walkingTo
 	// 例えば、-1+2 の中置表記が (-1)+2 ではなく -1+2 とならなければならない
 	//
 	// 左結合性でない場合、例えば (-1)^2 の中置表記は (-1)^2 のままとなる
-	leftUMinus, uMinus := node.Left().(*ast.UnaryMinus)
-	if uMinus && walkingToLeft && node.IsLeftAssociative() {
+	if node.Left().Type() == ast.UNARY_MINUS_NODE && walkingToLeft && node.IsLeftAssociative() {
+		leftUMinus := node.Left().(ast.PrefixExpression)
 		leftInfixNotation, leftErr = infixNotationOfPrefixExpression(leftUMinus, walkingToLeft)
 	} else {
 		leftInfixNotation, leftErr = parenthesizeChildOfInfixExpression(
