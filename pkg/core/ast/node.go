@@ -23,7 +23,6 @@ const (
 	R_ROLL_COMP_NODE
 	U_ROLL_EXPR_NODE
 	U_ROLL_COMP_NODE
-	U_ROLL_LIST_NODE
 	CALC_NODE
 	CHOICE_NODE
 
@@ -62,7 +61,6 @@ var nodeTypeString = map[NodeType]string{
 	R_ROLL_COMP_NODE: "RRollComp",
 	U_ROLL_EXPR_NODE: "URollExpr",
 	U_ROLL_COMP_NODE: "URollComp",
-	U_ROLL_LIST_NODE: "URollList",
 	CALC_NODE:        "Calc",
 	CHOICE_NODE:      "Choice",
 
