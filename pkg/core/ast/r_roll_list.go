@@ -7,7 +7,9 @@ import (
 
 // 個数振り足しロール列のノード。
 type RRollList struct {
+	NodeImpl
 	NonNilNode
+	VariableNode
 
 	// 個数振り足しロールのスライス。
 	RRolls []*RRoll
@@ -24,14 +26,14 @@ var _ Node = (*RRollList)(nil)
 // threshold: 個数振り足しの閾値。
 func NewRRollList(first *RRoll, threshold Node) *RRollList {
 	return &RRollList{
+		NodeImpl: NodeImpl{
+			nodeType:            R_ROLL_LIST_NODE,
+			isPrimaryExpression: false,
+		},
+
 		RRolls:    []*RRoll{first},
 		Threshold: threshold,
 	}
-}
-
-// Type はノードの種類を返す。
-func (n *RRollList) Type() NodeType {
-	return R_ROLL_LIST_NODE
 }
 
 // SExp はノードのS式を返す。
@@ -50,19 +52,6 @@ func (n *RRollList) SExp() string {
 	out.WriteString(")")
 
 	return out.String()
-}
-
-// IsPrimaryExpression は一次式かどうかを返す。
-// RRollListではfalseを返す。
-func (n *RRollList) IsPrimaryExpression() bool {
-	return false
-}
-
-// IsVariable は可変ノードかどうかを返す。
-//
-// RRollListではtrueを返す。
-func (n *RRollList) IsVariable() bool {
-	return true
 }
 
 // Append はリストにRRollを追加する。

@@ -7,7 +7,9 @@ import (
 
 // バラバラロール列のノード。
 type BRollList struct {
+	NodeImpl
 	NonNilNode
+	VariableNode
 
 	// バラバラロールのスライス。
 	// 2b6+4d10のように連続してダイスロールを行えるように、複数のバラバラロールを格納する。
@@ -22,13 +24,13 @@ var _ Node = (*BRollList)(nil)
 // first: 最初のバラバラロール
 func NewBRollList(first *BRoll) *BRollList {
 	return &BRollList{
+		NodeImpl: NodeImpl{
+			nodeType:            B_ROLL_LIST_NODE,
+			isPrimaryExpression: false,
+		},
+
 		BRolls: []*BRoll{first},
 	}
-}
-
-// Type はノードの種類を返す。
-func (n *BRollList) Type() NodeType {
-	return B_ROLL_LIST_NODE
 }
 
 // SExp はノードのS式を返す。
@@ -45,19 +47,6 @@ func (n *BRollList) SExp() string {
 	out.WriteString(")")
 
 	return out.String()
-}
-
-// IsPrimaryExpression は一次式かどうかを返す。
-// BRollListではfalseを返す。
-func (n *BRollList) IsPrimaryExpression() bool {
-	return false
-}
-
-// IsVariable は可変ノードかどうかを返す。
-//
-// BRollListではtrueを返す。
-func (n *BRollList) IsVariable() bool {
-	return true
 }
 
 // Append はリストにBRollを追加する。

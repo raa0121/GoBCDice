@@ -7,7 +7,9 @@ import (
 
 // URollExpr は上方無限ロール式のノードを表す。
 type URollExpr struct {
+	NodeImpl
 	NonNilNode
+	VariableNode
 
 	// 上方無限ロールのリスト。
 	URollList *RRollList
@@ -21,14 +23,14 @@ var _ Node = (*URollExpr)(nil)
 // NewURollExpr は新しい上方無限ロール式のノードを返す。
 func NewURollExpr(uRollList *RRollList, bonus InfixExpression) *URollExpr {
 	return &URollExpr{
+		NodeImpl: NodeImpl{
+			nodeType:            U_ROLL_EXPR_NODE,
+			isPrimaryExpression: false,
+		},
+
 		URollList: uRollList,
 		Bonus:     bonus,
 	}
-}
-
-// Type はノードの種類を返す。
-func (n *URollExpr) Type() NodeType {
-	return U_ROLL_EXPR_NODE
 }
 
 // SExp はノードのS式を返す。
@@ -59,17 +61,4 @@ func (n *URollExpr) SExp() string {
 	out.WriteString(")")
 
 	return out.String()
-}
-
-// IsPrimaryExpression は一次式かどうかを返す。
-// URollExprではfalseを返す。
-func (n *URollExpr) IsPrimaryExpression() bool {
-	return false
-}
-
-// IsVariable は可変ノードかどうかを返す。
-//
-// URollExprではtrueを返す。
-func (n *URollExpr) IsVariable() bool {
-	return true
 }

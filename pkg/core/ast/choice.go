@@ -6,7 +6,9 @@ import (
 
 // ランダム選択のノード。
 type Choice struct {
+	NodeImpl
 	NonNilNode
+	VariableNode
 
 	// 選択肢のスライス。
 	Items []*String
@@ -20,13 +22,13 @@ var _ Node = (*Choice)(nil)
 // first: 最初の選択肢。
 func NewChoice(first *String) *Choice {
 	return &Choice{
+		NodeImpl: NodeImpl{
+			nodeType:            CHOICE_NODE,
+			isPrimaryExpression: false,
+		},
+
 		Items: []*String{first},
 	}
-}
-
-// Type はノードの種類を返す。
-func (n *Choice) Type() NodeType {
-	return CHOICE_NODE
 }
 
 // SExp はノードのS式を返す。
@@ -43,19 +45,6 @@ func (n *Choice) SExp() string {
 	out.WriteString(")")
 
 	return out.String()
-}
-
-// IsPrimaryExpression は一次式かどうかを返す。
-// Choiceではfalseを返す。
-func (n *Choice) IsPrimaryExpression() bool {
-	return false
-}
-
-// IsVariable は可変ノードかどうかを返す。
-//
-// Choiceではtrueを返す。
-func (n *Choice) IsVariable() bool {
-	return true
 }
 
 // Append はリストに文字列ノードを追加する。

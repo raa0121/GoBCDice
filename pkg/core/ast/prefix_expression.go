@@ -22,8 +22,8 @@ type PrefixExpression interface {
 
 // 前置式のノードが共通して持つ要素。
 type PrefixExpressionImpl struct {
-	NonNilNode
 	NodeImpl
+	NonNilNode
 
 	// 演算子
 	operator string
