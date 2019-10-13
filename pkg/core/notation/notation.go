@@ -40,16 +40,19 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 		return infixNotationOfChoice(n)
 	case *ast.Command:
 		return infixNotationOfCommand(n, walkingToLeft)
-	case *ast.Compare:
-		return infixNotationOfCompare(n)
-	case ast.Divide:
+	case *ast.Divide:
 		return infixNotationOfDivide(n, walkingToLeft)
-	case *ast.RandomNumber:
-		return infixNotationOfRandomNumber(n)
 	case ast.PrefixExpression:
 		return infixNotationOfPrefixExpression(n, walkingToLeft)
 	case ast.InfixExpression:
-		return infixNotationOfInfixExpression(n, walkingToLeft)
+		switch n.Type() {
+		case ast.COMPARE_NODE:
+			return infixNotationOfCompare(n)
+		case ast.RANDOM_NUMBER_NODE:
+			return infixNotationOfRandomNumber(n)
+		default:
+			return infixNotationOfInfixExpression(n, walkingToLeft)
+		}
 	case *ast.Int:
 		return fmt.Sprintf("%d", n.Value), nil
 	case *ast.SumRollResult:
@@ -149,24 +152,13 @@ func infixNotationOfURollExpr(node *ast.URollExpr) (string, error) {
 	// 以下はボーナスが指定されていたときの中置表記生成処理
 
 	// ボーナスのノードのコピーを作る
-	var copiedBonus ast.InfixExpression
-
-	switch b := node.Bonus.(type) {
-	case *ast.Add:
-		bonusAdd := util.Clone(b).(ast.Add)
-		copiedBonus = &bonusAdd
-	case *ast.Subtract:
-		bonusSubtract := util.Clone(b).(ast.Subtract)
-		copiedBonus = &bonusSubtract
-	default:
-		return "", fmt.Errorf("unknown type: %s", node.Type())
-	}
+	copiedBonus := util.Clone(node.Bonus).(ast.BasicInfixExpression)
 
 	// ボーナスのノードの左側はnilになっているので、URollListを設定する
 	copiedBonus.SetLeft(node.URollList)
 
 	bonusInfixNotation, bonusInfixNotationErr :=
-		InfixNotation(copiedBonus, true)
+		InfixNotation(&copiedBonus, true)
 	if bonusInfixNotationErr != nil {
 		return "", bonusInfixNotationErr
 	}
@@ -191,7 +183,7 @@ func infixNotationOfChoice(node *ast.Choice) (string, error) {
 }
 
 // infixNotationOfCompare は比較式の中置表記を返す。
-func infixNotationOfCompare(node *ast.Compare) (string, error) {
+func infixNotationOfCompare(node ast.InfixExpression) (string, error) {
 	leftInfixNotation, leftErr := InfixNotation(node.Left(), true)
 	if leftErr != nil {
 		return "", leftErr
@@ -299,13 +291,20 @@ func infixNotationOfInfixExpression(node ast.InfixExpression, walkingToLeft bool
 
 // infixNotationOfDivide は除算の中置表記を返す。
 // 除算では端数処理の方法を除数の後で示す必要があるため、処理が特別になる。
-func infixNotationOfDivide(node ast.Divide, walkingToLeft bool) (string, error) {
+func infixNotationOfDivide(node *ast.Divide, walkingToLeft bool) (string, error) {
 	left, right, err := infixNotationsOfInfixExpressionChildren(node, walkingToLeft)
 	if err != nil {
 		return "", err
 	}
 
-	return left + "/" + right + node.RoundingMethod().String(), nil
+	var buf bytes.Buffer
+
+	buf.WriteString(left)
+	buf.WriteString("/")
+	buf.WriteString(right)
+	buf.WriteString(node.RoundingMethod.String())
+
+	return buf.String(), nil
 }
 
 // infixNotationsOfInfixExpressionChildren は中置式の左右の子ノードの中置表記を返す。
@@ -346,7 +345,7 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression, walkingTo
 }
 
 // infixNotationOfRandomNumber はランダム数値取り出しの中置表記を返す。
-func infixNotationOfRandomNumber(node *ast.RandomNumber) (string, error) {
+func infixNotationOfRandomNumber(node ast.InfixExpression) (string, error) {
 	var out bytes.Buffer
 
 	n, err := infixNotationOfInfixExpression(node, true)

@@ -17,12 +17,14 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 		return e.evalVarArgsInURollExpr(n)
 	case *ast.Command:
 		return e.evalVarArgsInCommand(n)
-	case *ast.Compare:
-		return e.evalVarArgsInCompare(n)
 	case ast.PrefixExpression:
 		return e.evalVarArgsInPrefixExpression(n)
 	case ast.InfixExpression:
-		return e.evalVarArgsInInfixExpression(n)
+		if n.Type() == ast.COMPARE_NODE {
+			return e.evalVarArgsInCompare(n)
+		} else {
+			return e.evalVarArgsInInfixExpression(n)
+		}
 	}
 
 	return fmt.Errorf("EvalVarArgs not implemented: %s", node.Type())
@@ -34,7 +36,7 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 // このメソッドは、ノードの型に合わせて処理を振り分ける。
 func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
 	switch node.Type() {
-	case ast.D_ROLL_NODE, ast.B_ROLL_NODE, ast.R_ROLL_NODE:
+	case ast.D_ROLL_NODE, ast.B_ROLL_NODE, ast.R_ROLL_NODE, ast.U_ROLL_NODE:
 		return e.evalVarArgsOfRoll(node.(ast.InfixExpression))
 	}
 
@@ -157,7 +159,7 @@ func (e *Evaluator) evalVarArgsInCommand(node *ast.Command) error {
 }
 
 // evalVarArgsInCompare は、比較式の左辺の可変ノードの引数および右辺を評価する。
-func (e *Evaluator) evalVarArgsInCompare(node *ast.Compare) error {
+func (e *Evaluator) evalVarArgsInCompare(node ast.InfixExpression) error {
 	// 左辺の可変ノードの引数を評価して整数に変換する
 	leftEvalErr := e.EvalVarArgs(node.Left())
 	if leftEvalErr != nil {

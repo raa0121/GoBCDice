@@ -61,7 +61,7 @@ func (e *Evaluator) evalURollExpr(node *ast.URollExpr) (*object.URollExprResult,
 // evalCompoundingRoll は上方無限ロールを評価する。
 // 返り値は、出目のグループを要素として持つ配列オブジェクト、およびエラー。
 func (e *Evaluator) evalCompoundingRoll(
-	node *ast.RRoll,
+	node *ast.VariableInfixExpression,
 	threshold *object.Integer,
 ) (*object.Array, error) {
 	left, right, operandsEvalErr := e.evalInfixExpressionOperands(node)

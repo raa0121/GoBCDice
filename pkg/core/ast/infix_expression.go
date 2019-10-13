@@ -30,26 +30,25 @@ type InfixExpression interface {
 	IsRightAssociative() bool
 }
 
-// 中置式のノードが共通して持つ要素。
+// InfixExpressionImpl は中置式のノードが共通して持つ要素。
 type InfixExpressionImpl struct {
+	NodeImpl
 	NonNilNode
 
-	// 左のノード
+	// left は左のノード。
 	left Node
-	// 演算子
+	// operator は演算子。
 	operator string
-	// S式で表示する演算子
+	// operatorForSExp はS式で表示する演算子。
 	operatorForSExp string
-	// 右のノード
+	// right は右のノード。
 	right Node
-}
-
-// InfixExpressionImpl がNodeを実装していることの確認。
-var _ Node = (*InfixExpressionImpl)(nil)
-
-// Type はノードの種類を返す。
-func (n *InfixExpressionImpl) Type() NodeType {
-	return INFIX_EXPRESSION_NODE
+	// precedence は演算子の優先順位。
+	precedence OperatorPrecedenceType
+	// isLeftAssociative は左結合性かどうか。
+	isLeftAssociative bool
+	// isRightAssociative は右結合性かどうか。
+	isRightAssociative bool
 }
 
 // IsInfixExpression は中置式であるかを返す（ダミー関数）。
@@ -88,6 +87,21 @@ func (n *InfixExpressionImpl) SetRight(r Node) {
 	n.right = r
 }
 
+// Precedence は演算子の優先順位を返す。
+func (n *InfixExpressionImpl) Precedence() OperatorPrecedenceType {
+	return n.precedence
+}
+
+// IsLeftAssociative は左結合性かどうかを返す。
+func (n *InfixExpressionImpl) IsLeftAssociative() bool {
+	return n.isLeftAssociative
+}
+
+// IsRightAssociative は右結合性かどうかを返す。
+func (n *InfixExpressionImpl) IsRightAssociative() bool {
+	return n.isRightAssociative
+}
+
 // SExp はノードのS式を返す。
 func (n *InfixExpressionImpl) SExp() string {
 	var leftSExp string
@@ -107,18 +121,4 @@ func (n *InfixExpressionImpl) SExp() string {
 
 	return fmt.Sprintf("(%s %s %s)",
 		n.OperatorForSExp(), leftSExp, rightSExp)
-}
-
-// IsPrimaryExpression は一次式かどうかを返す。
-// 中置式ではfalseを返す。
-func (n *InfixExpressionImpl) IsPrimaryExpression() bool {
-	return false
-}
-
-// IsVariable は可変ノードかどうかを返す。
-//
-// 中置式では、左または右のノードが可変ノードならばtrueを返す。
-// 左右の両方のノードが可変ノードでない場合はfalseを返す。
-func (n *InfixExpressionImpl) IsVariable() bool {
-	return n.Left().IsVariable() || n.Right().IsVariable()
 }

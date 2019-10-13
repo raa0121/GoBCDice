@@ -26,7 +26,7 @@ func (e *Evaluator) evalRRollList(node *ast.RRollList) (*object.Array, error) {
 	// ダイスロールのキュー。
 	// ダイスロール後、条件を満たす出目が得られるたびに、このキューに
 	// そのダイスロールを追加する。
-	rollQueue := make([]*ast.RRoll, len(node.RRolls))
+	rollQueue := make([]*ast.VariableInfixExpression, len(node.RRolls))
 	copy(rollQueue, node.RRolls)
 
 	// ダイスロール結果を格納する配列

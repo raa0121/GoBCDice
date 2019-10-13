@@ -12,7 +12,7 @@ type RRollList struct {
 	VariableNode
 
 	// 個数振り足しロールのスライス。
-	RRolls []*RRoll
+	RRolls []*VariableInfixExpression
 	// 個数振り足しの閾値。
 	Threshold Node
 }
@@ -24,14 +24,14 @@ var _ Node = (*RRollList)(nil)
 //
 // first: 最初の個数振り足しロール
 // threshold: 個数振り足しの閾値。
-func NewRRollList(first *RRoll, threshold Node) *RRollList {
+func NewRRollList(first *VariableInfixExpression, threshold Node) *RRollList {
 	return &RRollList{
 		NodeImpl: NodeImpl{
 			nodeType:            R_ROLL_LIST_NODE,
 			isPrimaryExpression: false,
 		},
 
-		RRolls:    []*RRoll{first},
+		RRolls:    []*VariableInfixExpression{first},
 		Threshold: threshold,
 	}
 }
@@ -55,6 +55,6 @@ func (n *RRollList) SExp() string {
 }
 
 // Append はリストにRRollを追加する。
-func (n *RRollList) Append(r *RRoll) {
+func (n *RRollList) Append(r *VariableInfixExpression) {
 	n.RRolls = append(n.RRolls, r)
 }

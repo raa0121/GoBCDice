@@ -19,10 +19,10 @@ func executeDRollComp(
 		GameID: gameID,
 	}
 
-	compareNode, exprIsCompareNode := node.Expression.(*ast.Compare)
-	if !exprIsCompareNode {
+	if node.Expression.Type() != ast.COMPARE_NODE {
 		return nil, fmt.Errorf("DRollComp: expression is not a Compare node: %s", node.Type())
 	}
+	compareNode := node.Expression.(*ast.BasicInfixExpression)
 
 	// 左辺の可変ノードの引数および右辺を評価する
 	infixNotation1, evalVarArgsErr := evalVarArgs(compareNode, evaluator)
@@ -76,7 +76,10 @@ func executeDRollComp(
 
 // determineCompareValues は比較式の可変ノードの値を決定する。
 // 返り値はその結果の中置表記とエラー。
-func determineCompareValues(node *ast.Compare, evaluator *evaluator.Evaluator) (string, error) {
+func determineCompareValues(
+	node *ast.BasicInfixExpression,
+	evaluator *evaluator.Evaluator,
+) (string, error) {
 	determineValuesErr := evaluator.DetermineValues(node)
 	if determineValuesErr != nil {
 		return "", determineValuesErr

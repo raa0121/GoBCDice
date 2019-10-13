@@ -31,7 +31,7 @@ func TestNode_Type(t *testing.T) {
 		{NewDRoll(nil, nil), "DRoll"},
 		{NewBRoll(nil, nil), "BRoll"},
 		{NewRRoll(nil, nil), "RRoll"},
-		{NewURoll(nil, nil), "RRoll"},
+		{NewURoll(nil, nil), "URoll"},
 		{NewRandomNumber(nil, nil), "RandomNumber"},
 
 		{NewInt(0), "Int"},

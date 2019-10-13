@@ -43,19 +43,10 @@ func (n *URollExpr) SExp() string {
 		out.WriteString(n.URollList.SExp())
 	} else {
 		// cloneしてinterface{}型に変わる
-		clonedBonus := util.Clone(n.Bonus)
+		clonedBonus := util.Clone(n.Bonus).(BasicInfixExpression)
+		clonedBonus.SetLeft(n.URollList)
 
-		var bonusInfixExpession InfixExpression
-		switch b := clonedBonus.(type) {
-		case Add:
-			bonusInfixExpession = &b
-		case Subtract:
-			bonusInfixExpession = &b
-		}
-
-		bonusInfixExpession.SetLeft(n.URollList)
-
-		out.WriteString(bonusInfixExpession.SExp())
+		out.WriteString(clonedBonus.SExp())
 	}
 
 	out.WriteString(")")

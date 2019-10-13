@@ -22,7 +22,7 @@ func (e *Evaluator) evalInfixExpression(
 		rightInteger := right.(*object.Integer)
 
 		switch n := node.(type) {
-		case ast.Divide:
+		case *ast.Divide:
 			return e.evalIntegerDivide(n, leftInteger, rightInteger)
 		default:
 			return e.evalIntegerInfixExpression(n.Operator(), leftInteger, rightInteger)
@@ -110,7 +110,7 @@ func (e *Evaluator) evalIntegerInfixExpression(
 
 // evalIntegerDivide は除算を評価する。
 func (e *Evaluator) evalIntegerDivide(
-	divide ast.Divide,
+	divide *ast.Divide,
 	left *object.Integer,
 	right *object.Integer,
 ) (object.Object, error) {
@@ -121,7 +121,7 @@ func (e *Evaluator) evalIntegerDivide(
 		return nil, fmt.Errorf("%d divided by zero", leftValue)
 	}
 
-	switch divide.RoundingMethod() {
+	switch divide.RoundingMethod {
 	case ast.ROUNDING_METHOD_ROUND_DOWN:
 		// 除算（小数点以下切り捨て）
 		return object.NewInteger(leftValue / rightValue), nil

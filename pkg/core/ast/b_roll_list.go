@@ -13,7 +13,7 @@ type BRollList struct {
 
 	// バラバラロールのスライス。
 	// 2b6+4d10のように連続してダイスロールを行えるように、複数のバラバラロールを格納する。
-	BRolls []*BRoll
+	BRolls []*VariableInfixExpression
 }
 
 // BRollList がNodeを実装していることの確認。
@@ -22,14 +22,14 @@ var _ Node = (*BRollList)(nil)
 // NewBRollList は新しいバラバラロール列のノードを返す。
 //
 // first: 最初のバラバラロール
-func NewBRollList(first *BRoll) *BRollList {
+func NewBRollList(first *VariableInfixExpression) *BRollList {
 	return &BRollList{
 		NodeImpl: NodeImpl{
 			nodeType:            B_ROLL_LIST_NODE,
 			isPrimaryExpression: false,
 		},
 
-		BRolls: []*BRoll{first},
+		BRolls: []*VariableInfixExpression{first},
 	}
 }
 
@@ -50,6 +50,6 @@ func (n *BRollList) SExp() string {
 }
 
 // Append はリストにBRollを追加する。
-func (n *BRollList) Append(b *BRoll) {
+func (n *BRollList) Append(b *VariableInfixExpression) {
 	n.BRolls = append(n.BRolls, b)
 }

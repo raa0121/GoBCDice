@@ -7,7 +7,7 @@ import (
 
 // evalBRollComp はバラバラロールの成功数カウントを評価する。
 func (e *Evaluator) evalBRollComp(node *ast.Command) (*object.BRollCompResult, error) {
-	compareNode := node.Expression.(*ast.Compare)
+	compareNode := node.Expression.(*ast.BasicInfixExpression)
 
 	// 左辺を評価する
 	valuesObj, evalBRollListErr := e.Eval(compareNode.Left())

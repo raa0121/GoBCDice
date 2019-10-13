@@ -17,7 +17,7 @@ func executeRRollComp(
 		GameID: gameID,
 	}
 
-	compareNode := node.Expression.(*ast.Compare)
+	compareNode := node.Expression.(*ast.BasicInfixExpression)
 
 	// 左辺の可変ノードの引数および右辺を評価する
 	evalVarArgsErr := evaluator.EvalVarArgs(compareNode)

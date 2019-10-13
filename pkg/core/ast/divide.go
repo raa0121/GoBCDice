@@ -28,161 +28,78 @@ func (t RoundingMethodType) String() string {
 	return "UNKNOWN"
 }
 
-// 除算のインターフェース。
-type Divide interface {
-	InfixExpression
+// Divide は除算のノード。
+type Divide struct {
+	BasicInfixExpression
 
-	// IsDivide は除算かどうかを返す（ダミーメソッド）。
-	IsDivide() bool
 	// RoundingMethod は端数処理の方法を返す。
-	RoundingMethod() RoundingMethodType
+	RoundingMethod RoundingMethodType
 }
 
-// 除算のノードに共通する要素。
-type DivideImpl struct{}
+// Divide がNodeを実装していることの確認。
+var _ Node = (*Divide)(nil)
 
-// 小数点以下を切り上げる除算のノード。
-// 中置式、除算。
-type DivideWithRoundingUp struct {
-	InfixExpressionImpl
-	DivideImpl
+// Divide がInfixExpressionを実装していることの確認。
+var _ InfixExpression = (*Divide)(nil)
+
+// nodeTypeToRoundingMethod はノードの種類と端数処理の方法との対応。
+var nodeTypeToRoundingMethod = map[NodeType]RoundingMethodType{
+	DIVIDE_WITH_ROUNDING_UP_NODE:   ROUNDING_METHOD_ROUND_UP,
+	DIVIDE_WITH_ROUNDING_NODE:      ROUNDING_METHOD_ROUND,
+	DIVIDE_WITH_ROUNDING_DOWN_NODE: ROUNDING_METHOD_ROUND_DOWN,
 }
 
-// 小数点以下を四捨五入する除算のノード。
-// 中置式、除算。
-type DivideWithRounding struct {
-	InfixExpressionImpl
-	DivideImpl
-}
+// newDivide は除算の新しいノードを返す。
+//
+// dividend: 被除数のノード,
+// divisor: 除数のノード,
+// roundingMethod: 端数処理の方法。
+func newDivide(dividend Node, divisor Node, nodeType NodeType) *Divide {
+	roundingMethod := nodeTypeToRoundingMethod[nodeType]
+	operator := "/" + roundingMethod.String()
 
-// 小数点以下を切り捨てる除算のノード。
-// 中置式、除算。
-type DivideWithRoundingDown struct {
-	InfixExpressionImpl
-	DivideImpl
-}
+	return &Divide{
+		BasicInfixExpression: BasicInfixExpression{
+			InfixExpressionImpl: InfixExpressionImpl{
+				NodeImpl: NodeImpl{
+					nodeType:            nodeType,
+					isPrimaryExpression: false,
+				},
 
-// DivideWithRoundingUp がNodeを実装していることの確認。
-var _ Node = (*DivideWithRoundingUp)(nil)
+				left:               dividend,
+				operator:           operator,
+				operatorForSExp:    operator,
+				right:              divisor,
+				precedence:         PREC_MULTITIVE,
+				isLeftAssociative:  true,
+				isRightAssociative: false,
+			},
+		},
 
-// DivideWithRounding がNodeを実装していることの確認。
-var _ Node = (*DivideWithRounding)(nil)
-
-// DivideWithRoundingDown がNodeを実装していることの確認。
-var _ Node = (*DivideWithRoundingDown)(nil)
-
-// DivideWithRoundingUp がInfixExpressionを実装していることの確認。
-var _ InfixExpression = (*DivideWithRoundingUp)(nil)
-
-// DivideWithRounding がInfixExpressionを実装していることの確認。
-var _ InfixExpression = (*DivideWithRounding)(nil)
-
-// DivideWithRoundingDown がInfixExpressionを実装していることの確認。
-var _ InfixExpression = (*DivideWithRoundingDown)(nil)
-
-// DivideWithRoundingUp がDivideを実装していることの確認。
-var _ Divide = (*DivideWithRoundingUp)(nil)
-
-// DivideWithRounding がDivideを実装していることの確認。
-var _ Divide = (*DivideWithRounding)(nil)
-
-// DivideWithRoundingDown がDivideを実装していることの確認。
-var _ Divide = (*DivideWithRoundingDown)(nil)
-
-// IsDivide は除算かどうかを返す（ダミーメソッド）。
-// trueを返す。
-func (n *DivideImpl) IsDivide() bool {
-	return true
-}
-
-// Precedence は演算子の優先順位を返す。
-func (n *DivideImpl) Precedence() OperatorPrecedenceType {
-	return PREC_MULTITIVE
-}
-
-// IsLeftAssociative は左結合性かどうかを返す。
-// 除算ではtrueを返す。
-func (n *DivideImpl) IsLeftAssociative() bool {
-	return true
-}
-
-// IsRightAssociative は右結合性かどうかを返す。
-// 除算ではfalseを返す。
-func (n *DivideImpl) IsRightAssociative() bool {
-	return false
-}
-
-// Type はノードの種類を返す。
-func (n *DivideWithRoundingUp) Type() NodeType {
-	return DIVIDE_WITH_ROUNDING_UP_NODE
-}
-
-// Type はノードの種類を返す。
-func (n *DivideWithRounding) Type() NodeType {
-	return DIVIDE_WITH_ROUNDING_NODE
-}
-
-// Type はノードの種類を返す。
-func (n *DivideWithRoundingDown) Type() NodeType {
-	return DIVIDE_WITH_ROUNDING_DOWN_NODE
-}
-
-// RoundingMethod は端数処理の方法を返す。
-func (n *DivideWithRoundingUp) RoundingMethod() RoundingMethodType {
-	return ROUNDING_METHOD_ROUND_UP
-}
-
-// RoundingMethod は端数処理の方法を返す。
-func (n *DivideWithRounding) RoundingMethod() RoundingMethodType {
-	return ROUNDING_METHOD_ROUND
-}
-
-// RoundingMethod は端数処理の方法を返す。
-func (n *DivideWithRoundingDown) RoundingMethod() RoundingMethodType {
-	return ROUNDING_METHOD_ROUND_DOWN
+		RoundingMethod: roundingMethod,
+	}
 }
 
 // NewDivideWithRoundingUp は小数点以下を切り上げる除算の新しいノードを返す。
 //
 // dividend: 被除数のノード,
 // divisor: 除数のノード。
-func NewDivideWithRoundingUp(dividend Node, divisor Node) *DivideWithRoundingUp {
-	return &DivideWithRoundingUp{
-		InfixExpressionImpl: InfixExpressionImpl{
-			left:            dividend,
-			operator:        "/U",
-			operatorForSExp: "/U",
-			right:           divisor,
-		},
-	}
+func NewDivideWithRoundingUp(dividend Node, divisor Node) *Divide {
+	return newDivide(dividend, divisor, DIVIDE_WITH_ROUNDING_UP_NODE)
 }
 
 // NewDivideWithRounding は小数点以下を四捨五入する除算の新しいノードを返す。
 //
 // dividend: 被除数のノード,
 // divisor: 除数のノード。
-func NewDivideWithRounding(dividend Node, divisor Node) *DivideWithRounding {
-	return &DivideWithRounding{
-		InfixExpressionImpl: InfixExpressionImpl{
-			left:            dividend,
-			operator:        "/R",
-			operatorForSExp: "/R",
-			right:           divisor,
-		},
-	}
+func NewDivideWithRounding(dividend Node, divisor Node) *Divide {
+	return newDivide(dividend, divisor, DIVIDE_WITH_ROUNDING_NODE)
 }
 
 // NewDivideWithRoundingDown は小数点以下を切り捨てる除算の新しいノードを返す。
 //
 // dividend: 被除数のノード,
 // divisor: 除数のノード。
-func NewDivideWithRoundingDown(dividend Node, divisor Node) *DivideWithRoundingDown {
-	return &DivideWithRoundingDown{
-		InfixExpressionImpl: InfixExpressionImpl{
-			left:            dividend,
-			operator:        "/",
-			operatorForSExp: "/",
-			right:           divisor,
-		},
-	}
+func NewDivideWithRoundingDown(dividend Node, divisor Node) *Divide {
+	return newDivide(dividend, divisor, DIVIDE_WITH_ROUNDING_DOWN_NODE)
 }

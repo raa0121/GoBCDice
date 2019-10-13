@@ -19,7 +19,7 @@ func executeBRollComp(
 
 	// 左辺の可変ノードの引数および右辺を評価する
 	infixNotation, evalVarArgsErr := evalVarArgs(
-		node.Expression.(*ast.Compare),
+		node.Expression.(*ast.BasicInfixExpression),
 		evaluator,
 	)
 	if evalVarArgsErr != nil {

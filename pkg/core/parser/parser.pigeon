@@ -124,11 +124,11 @@ DRollCompCommand <- expr:DRollComp {
 }
 
 BRollList <- first:BRoll rest:('+' BRoll)* {
-	bRollList := ast.NewBRollList(first.(*ast.BRoll))
+	bRollList := ast.NewBRollList(first.(*ast.VariableInfixExpression))
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
-		b := rs[1].(*ast.BRoll)
+		b := rs[1].(*ast.VariableInfixExpression)
 		bRollList.Append(b)
 	}
 
@@ -153,11 +153,11 @@ RRollList <- first:RRoll rest:('+' RRoll)* th:('[' IntExpr ']')? {
 		threshold = ths[1].(ast.Node)
 	}
 
-	rRollList := ast.NewRRollList(first.(*ast.RRoll), threshold)
+	rRollList := ast.NewRRollList(first.(*ast.VariableInfixExpression), threshold)
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
-		rr := rs[1].(*ast.RRoll)
+		rr := rs[1].(*ast.VariableInfixExpression)
 		rRollList.Append(rr)
 	}
 
@@ -213,11 +213,11 @@ URollList <- first:URoll rest:('+' URoll)* th:('[' IntExpr ']')? {
 		threshold = ths[1].(ast.Node)
 	}
 
-	uRollList := ast.NewRRollList(first.(*ast.RRoll), threshold)
+	uRollList := ast.NewRRollList(first.(*ast.VariableInfixExpression), threshold)
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
-		rr := rs[1].(*ast.RRoll)
+		rr := rs[1].(*ast.VariableInfixExpression)
 		uRollList.Append(rr)
 	}
 
@@ -266,7 +266,7 @@ DRollExprMultitive <- first:DRollExprPrimary rest:('/' DRollExprPrimary [ur]i / 
 	return leftAssociativeMultitive(first, rest)
 }
 
-DRollExprPrimary <- DRoll / Rand / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
+DRollExprPrimary <- DRoll / RandomNumber / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
 
 ParenthesizedDRollExpr <- '(' e:DRollExpr ')' {
 	return e.(ast.Node), nil
@@ -290,7 +290,7 @@ IntRandExprMultitive <- first:IntRandExprPrimary rest:('/' IntRandExprPrimary [u
 	return leftAssociativeMultitive(first, rest)
 }
 
-IntRandExprPrimary <- Integer / Rand / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
+IntRandExprPrimary <- Integer / RandomNumber / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
 
 ParenthesizedIntRandExpr <- '(' e:IntRandExpr ')' {
 	return e.(ast.Node), nil
@@ -332,16 +332,16 @@ URoll <- num:RollOperand 'U'i sides:RollOperand IncRandCount {
 	return ast.NewURoll(numNode, sidesNode), nil
 }
 
-RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
+RollOperand <- Integer / RandomNumber / ParenthesizedIntRandExpr
 
-Rand <- '[' min:RandOperand "..." max:RandOperand ']' IncRandCount {
+RandomNumber <- '[' min:RandomNumberOperand "..." max:RandomNumberOperand ']' IncRandCount {
 	minNode := min.(ast.Node)
 	maxNode := max.(ast.Node)
 
 	return ast.NewRandomNumber(minNode, maxNode), nil
 }
 
-RandOperand <- Integer / ParenthesizedIntExpr
+RandomNumberOperand <- Integer / ParenthesizedIntExpr
 
 ResetRandCount <- #{
 	c.state["RandCount"] = 0

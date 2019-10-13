@@ -20,15 +20,16 @@ func (e *Evaluator) DetermineValues(node ast.Node) error {
 }
 
 func (e *Evaluator) determineValueOfVariableExpr(node ast.Node) (ast.Node, error) {
-	switch n := node.(type) {
-	case *ast.DRoll:
-		return e.determineValueOfDRoll(n)
+	if node.Type() == ast.D_ROLL_NODE {
+		return e.determineValueOfDRoll(node.(*ast.VariableInfixExpression))
 	}
 
 	return nil, fmt.Errorf("determineValueOfVariableExpr not implemented: %s", node.Type())
 }
 
-func (e *Evaluator) determineValueOfDRoll(node *ast.DRoll) (*ast.SumRollResult, error) {
+func (e *Evaluator) determineValueOfDRoll(
+	node *ast.VariableInfixExpression,
+) (*ast.SumRollResult, error) {
 	num, numIsInt := node.Left().(*ast.Int)
 	if !numIsInt {
 		return nil, fmt.Errorf("num is not Int: %s", node.Left().Type())
