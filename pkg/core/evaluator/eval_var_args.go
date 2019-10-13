@@ -15,7 +15,7 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 		return e.evalVarArgsInRRollList(n)
 	case *ast.URollExpr:
 		return e.evalVarArgsInURollExpr(n)
-	case ast.Command:
+	case *ast.Command:
 		return e.evalVarArgsInCommand(n)
 	case *ast.Compare:
 		return e.evalVarArgsInCompare(n)
@@ -143,8 +143,8 @@ func (e *Evaluator) evalVarArgsInURollExpr(node *ast.URollExpr) error {
 }
 
 // evalVarArgsInCommand はコマンドノード内の可変ノードの引数を評価して整数に変換する。
-func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
-	expr := node.Expression()
+func (e *Evaluator) evalVarArgsInCommand(node *ast.Command) error {
+	expr := node.Expression
 	if expr.IsPrimaryExpression() {
 		if expr.IsVariable() {
 			return e.evalVarArgsOfVariableExpr(expr)

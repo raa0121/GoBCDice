@@ -11,7 +11,7 @@ import (
 
 // executeDRollComp は加算ロール式の成功判定を実行する。
 func executeDRollComp(
-	node *ast.DRollComp,
+	node *ast.Command,
 	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
@@ -19,7 +19,7 @@ func executeDRollComp(
 		GameID: gameID,
 	}
 
-	compareNode, exprIsCompareNode := node.Expression().(*ast.Compare)
+	compareNode, exprIsCompareNode := node.Expression.(*ast.Compare)
 	if !exprIsCompareNode {
 		return nil, fmt.Errorf("DRollComp: expression is not a Compare node: %s", node.Type())
 	}

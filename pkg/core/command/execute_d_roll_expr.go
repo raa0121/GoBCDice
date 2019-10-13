@@ -8,7 +8,7 @@ import (
 
 // executeDRollExpr は加算ロールを実行する。
 func executeDRollExpr(
-	node *ast.DRollExpr,
+	node *ast.Command,
 	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {

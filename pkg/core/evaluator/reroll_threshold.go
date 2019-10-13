@@ -7,8 +7,8 @@ import (
 )
 
 // SetRerollThreshold は振り足しの閾値を設定する。
-func (e *Evaluator) SetRerollThreshold(node *ast.RRollComp) error {
-	compareNode := node.Expression().(*ast.Compare)
+func (e *Evaluator) SetRerollThreshold(node *ast.Command) error {
+	compareNode := node.Expression.(*ast.Compare)
 	rRollList := compareNode.Left().(*ast.RRollList)
 
 	// xRn[...] で閾値が設定されていた場合は何もしない

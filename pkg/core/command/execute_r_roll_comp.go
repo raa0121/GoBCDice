@@ -9,7 +9,7 @@ import (
 
 // executeRRollComp は個数振り足しロールの成功数カウントを実行する。
 func executeRRollComp(
-	node *ast.RRollComp,
+	node *ast.Command,
 	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
@@ -17,7 +17,7 @@ func executeRRollComp(
 		GameID: gameID,
 	}
 
-	compareNode := node.Expression().(*ast.Compare)
+	compareNode := node.Expression.(*ast.Compare)
 
 	// 左辺の可変ノードの引数および右辺を評価する
 	evalVarArgsErr := evaluator.EvalVarArgs(compareNode)

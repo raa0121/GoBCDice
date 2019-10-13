@@ -30,7 +30,11 @@ func TestSetRerollThreshold(t *testing.T) {
 				return
 			}
 
-			node := r.(*ast.RRollComp)
+			node := r.(*ast.Command)
+			if node.Type() != ast.R_ROLL_COMP_NODE {
+				t.Fatal("RRollCompでない")
+				return
+			}
 
 			// 可変ノードの引数を評価する
 			dieFeeder := feeder.NewEmptyQueue()

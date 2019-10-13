@@ -25,24 +25,38 @@ func Execute(
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
 	switch c := node.(type) {
-	case *ast.Calc:
-		return executeCalc(c, gameID, evaluator)
-	case *ast.DRollExpr:
-		return executeDRollExpr(c, gameID, evaluator)
-	case *ast.DRollComp:
-		return executeDRollComp(c, gameID, evaluator)
+	case *ast.Command:
+		return executeCommand(c, gameID, evaluator)
 	case *ast.BRollList:
 		return executeBRollList(c, gameID, evaluator)
-	case *ast.BRollComp:
-		return executeBRollComp(c, gameID, evaluator)
 	case *ast.RRollList:
 		return executeRRollList(c, gameID, evaluator)
-	case *ast.RRollComp:
-		return executeRRollComp(c, gameID, evaluator)
 	case *ast.URollExpr:
 		return executeURollExpr(c, gameID, evaluator)
 	case *ast.Choice:
 		return executeChoice(c, gameID, evaluator)
+	}
+
+	return nil, fmt.Errorf("command execution not implemented: %s", node.Type())
+}
+
+// executeCommand は種類に応じたコマンドの処理を実行する。
+func executeCommand(
+	node *ast.Command,
+	gameID string,
+	evaluator *evaluator.Evaluator,
+) (*Result, error) {
+	switch node.Type() {
+	case ast.D_ROLL_EXPR_NODE:
+		return executeDRollExpr(node, gameID, evaluator)
+	case ast.D_ROLL_COMP_NODE:
+		return executeDRollComp(node, gameID, evaluator)
+	case ast.B_ROLL_COMP_NODE:
+		return executeBRollComp(node, gameID, evaluator)
+	case ast.R_ROLL_COMP_NODE:
+		return executeRRollComp(node, gameID, evaluator)
+	case ast.CALC_NODE:
+		return executeCalc(node, gameID, evaluator)
 	}
 
 	return nil, fmt.Errorf("command execution not implemented: %s", node.Type())

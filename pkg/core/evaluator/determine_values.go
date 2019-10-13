@@ -8,7 +8,7 @@ import (
 // DetermneValuesは、可変ノードの値を決定する
 func (e *Evaluator) DetermineValues(node ast.Node) error {
 	switch n := node.(type) {
-	case ast.Command:
+	case *ast.Command:
 		return e.determineValuesInCommand(n)
 	case ast.PrefixExpression:
 		return e.determineValuesInPrefixExpression(n)
@@ -65,11 +65,11 @@ func (e *Evaluator) replaceVariablePrimaryExpr(node ast.Node, setter nodeSetter)
 	return nil
 }
 
-func (e *Evaluator) determineValuesInCommand(node ast.Command) error {
-	expr := node.Expression()
+func (e *Evaluator) determineValuesInCommand(node *ast.Command) error {
+	expr := node.Expression
 	if expr.IsPrimaryExpression() {
 		return e.replaceVariablePrimaryExpr(expr, func(newNode ast.Node) {
-			node.SetExpression(newNode)
+			node.Expression = newNode
 		})
 	}
 

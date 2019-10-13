@@ -30,8 +30,6 @@ import (
 // 設定し、右側の中置表記を求める際にはfalseを設定する。
 func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
-	case *ast.Calc:
-		return infixNotationOfCalc(n, walkingToLeft)
 	case *ast.BRollList:
 		return infixNotationOfBRollList(n)
 	case *ast.RRollList:
@@ -40,7 +38,7 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 		return infixNotationOfURollExpr(n)
 	case *ast.Choice:
 		return infixNotationOfChoice(n)
-	case ast.Command:
+	case *ast.Command:
 		return infixNotationOfCommand(n, walkingToLeft)
 	case *ast.Compare:
 		return infixNotationOfCompare(n)
@@ -62,8 +60,18 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 }
 
 // infixNotationOfCommand はコマンドの中置表記を返す。
-func infixNotationOfCommand(node ast.Command, walkingToLeft bool) (string, error) {
-	expr, err := InfixNotation(node.Expression(), walkingToLeft)
+func infixNotationOfCommand(node *ast.Command, walkingToLeft bool) (string, error) {
+	switch node.Type() {
+	case ast.CALC_NODE:
+		return infixNotationOfCalc(node)
+	default:
+		return infixNotationOfNormalCommand(node, walkingToLeft)
+	}
+}
+
+// infixNotationOfNormalCommand は通常のコマンドの中置表記を返す。
+func infixNotationOfNormalCommand(node *ast.Command, walkingToLeft bool) (string, error) {
+	expr, err := InfixNotation(node.Expression, walkingToLeft)
 	if err != nil {
 		return "", err
 	}
@@ -72,8 +80,8 @@ func infixNotationOfCommand(node ast.Command, walkingToLeft bool) (string, error
 }
 
 // infixNotationOfCalc は計算ノードの中置表記を返す。
-func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
-	expr, err := InfixNotation(node.Expression(), walkingToLeft)
+func infixNotationOfCalc(node *ast.Command) (string, error) {
+	expr, err := InfixNotation(node.Expression, true)
 	if err != nil {
 		return "", err
 	}

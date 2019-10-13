@@ -59,10 +59,10 @@ func TestExecuteCalc(t *testing.T) {
 				return
 			}
 
-			calcNode, rootIsCalc := root.(*ast.Calc)
-			if !rootIsCalc {
+			if root.(ast.Node).Type() != ast.CALC_NODE {
 				t.Fatal("Calcではない")
 			}
+			calcNode := root.(*ast.Command)
 
 			// ノードを評価する
 			dieFeeder := feeder.NewEmptyQueue()

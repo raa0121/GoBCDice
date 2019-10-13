@@ -107,10 +107,10 @@ func TestExecuteRRollComp(t *testing.T) {
 				return
 			}
 
-			rRollCompNode, rootIsRRollComp := root.(*ast.RRollComp)
-			if !rootIsRRollComp {
+			if root.(ast.Node).Type() != ast.R_ROLL_COMP_NODE {
 				t.Fatal("RRollCompではない")
 			}
+			rRollCompNode := root.(*ast.Command)
 
 			// ノードを評価する
 			dieFeeder := feeder.NewQueue(test.dice)

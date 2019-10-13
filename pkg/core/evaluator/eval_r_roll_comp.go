@@ -6,8 +6,8 @@ import (
 )
 
 // evalRRollComp は個数振り足しロールの成功数カウントを評価する。
-func (e *Evaluator) evalRRollComp(node *ast.RRollComp) (*object.RRollCompResult, error) {
-	compareNode := node.Expression().(*ast.Compare)
+func (e *Evaluator) evalRRollComp(node *ast.Command) (*object.RRollCompResult, error) {
+	compareNode := node.Expression.(*ast.Compare)
 
 	// 左辺を評価する
 	valueGroupsObj, evalRRollListErr := e.Eval(compareNode.Left())

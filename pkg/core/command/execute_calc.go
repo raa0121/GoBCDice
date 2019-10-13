@@ -8,7 +8,7 @@ import (
 
 // executeCalc は計算を実行する。
 func executeCalc(
-	node *ast.Calc,
+	node *ast.Command,
 	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {

@@ -53,18 +53,14 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	switch n := node.(type) {
 	case *ast.BRollList:
 		return e.evalBRollList(n)
-	case *ast.BRollComp:
-		return e.evalBRollComp(n)
 	case *ast.RRollList:
 		return e.evalRRollList(n)
-	case *ast.RRollComp:
-		return e.evalRRollComp(n)
 	case *ast.URollExpr:
 		return e.evalURollExpr(n)
 	case *ast.Choice:
 		return e.evalChoice(n)
-	case ast.Command:
-		return e.Eval(n.Expression())
+	case *ast.Command:
+		return e.evalCommand(n)
 	case ast.PrefixExpression:
 		return e.evalPrefixExpression(n)
 	case ast.InfixExpression:
@@ -76,6 +72,18 @@ func (e *Evaluator) Eval(node ast.Node) (object.Object, error) {
 	}
 
 	return nil, fmt.Errorf("unknown type: %s", node.Type())
+}
+
+// evalCommand はコマンドのノードを評価する。
+func (e *Evaluator) evalCommand(node *ast.Command) (object.Object, error) {
+	switch node.Type() {
+	case ast.B_ROLL_COMP_NODE:
+		return e.evalBRollComp(node)
+	case ast.R_ROLL_COMP_NODE:
+		return e.evalRRollComp(node)
+	default:
+		return e.Eval(node.Expression)
+	}
 }
 
 // RollDice は、sides個の面を持つダイスをnum個振り、その結果を返す。

@@ -9,7 +9,7 @@ import (
 
 // executeBRollComp はバラバラロールの成功数カウントを実行する。
 func executeBRollComp(
-	node *ast.BRollComp,
+	node *ast.Command,
 	gameID string,
 	evaluator *evaluator.Evaluator,
 ) (*Result, error) {
@@ -19,7 +19,7 @@ func executeBRollComp(
 
 	// 左辺の可変ノードの引数および右辺を評価する
 	infixNotation, evalVarArgsErr := evalVarArgs(
-		node.Expression().(*ast.Compare),
+		node.Expression.(*ast.Compare),
 		evaluator,
 	)
 	if evalVarArgsErr != nil {
