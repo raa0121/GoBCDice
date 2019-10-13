@@ -101,11 +101,3 @@ type Node interface {
 	// 可変ノードとは、ダイスロールやランダム数値の取り出しなど、実行のたびに値が変わり得るノードのこと。
 	IsVariable() bool
 }
-
-// NonNilNode はnilでないノードの型。
-type NonNilNode struct{}
-
-// IsNil はnilかどうかを返す。
-func (n *NonNilNode) IsNil() bool {
-	return false
-}

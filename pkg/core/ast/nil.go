@@ -1,5 +1,13 @@
 package ast
 
+// NonNilNode はnilでないノードの型。
+type NonNilNode struct{}
+
+// IsNil はnilかどうかを返す。
+func (n *NonNilNode) IsNil() bool {
+	return false
+}
+
 // Nil はnilを表すノード。
 // 一次式。
 type Nil struct{}
