@@ -70,14 +70,14 @@ func (r *URollExprResult) SumOfGroups() *Array {
 func (r *URollExprResult) MaxValue() *Integer {
 	max, _ := r.SumOfGroups().MaxInteger()
 
-	return NewInteger(max.Value + r.modifier.Value)
+	return max.Add(r.modifier)
 }
 
 // SumOfValues は出目の合計を返す。
 func (r *URollExprResult) SumOfValues() *Integer {
 	sum, _ := r.SumOfGroups().SumOfIntegers()
 
-	return NewInteger(sum.Value + r.modifier.Value)
+	return sum.Add(r.modifier)
 }
 
 // calculateSumOfGroups は出目のグループごとの合計値を計算する。

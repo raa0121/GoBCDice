@@ -24,3 +24,8 @@ func (i *Integer) Type() ObjectType {
 func (i *Integer) Inspect() string {
 	return fmt.Sprintf("%d", i.Value)
 }
+
+// Add は加算を行い、その結果を返す。
+func (i *Integer) Add(j *Integer) *Integer {
+	return NewInteger(i.Value + j.Value)
+}
