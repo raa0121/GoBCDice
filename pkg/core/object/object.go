@@ -25,6 +25,7 @@ const (
 	B_ROLL_COMP_RESULT_OBJ
 	R_ROLL_COMP_RESULT_OBJ
 	U_ROLL_EXPR_RESULT_OBJ
+	U_ROLL_COMP_RESULT_OBJ
 )
 
 // オブジェクトの種類とそれを表す文字列との対応
@@ -38,6 +39,7 @@ var objectTypeString = map[ObjectType]string{
 	B_ROLL_COMP_RESULT_OBJ: "B_ROLL_COMP_RESULT",
 	R_ROLL_COMP_RESULT_OBJ: "R_ROLL_COMP_RESULT",
 	U_ROLL_EXPR_RESULT_OBJ: "U_ROLL_EXPR_RESULT",
+	U_ROLL_COMP_RESULT_OBJ: "U_ROLL_COMP_RESULT",
 }
 
 // Object はオブジェクトが持つインターフェース。
