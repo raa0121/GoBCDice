@@ -12,8 +12,7 @@ func (e *Evaluator) EvalCompareLeft(node *ast.BasicInfixExpression) (object.Obje
 		return nil, leftEvalErr
 	}
 
-	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value)
-	node.SetLeft(evaluatedLeft)
+	node.SetLeft(objectToIntNode(leftObj))
 
 	return leftObj, nil
 }

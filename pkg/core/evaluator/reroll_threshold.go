@@ -21,7 +21,7 @@ func (e *Evaluator) SetRerollThreshold(node *ast.Command) error {
 		return evalErr
 	}
 
-	rRollList.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+	rRollList.Threshold = objectToIntNode(thresholdObj)
 
 	return nil
 }

@@ -55,11 +55,8 @@ func (e *Evaluator) evalVarArgsOfRoll(node ast.InfixExpression) error {
 		return rightErr
 	}
 
-	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value)
-	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
-
-	node.SetLeft(evaluatedLeft)
-	node.SetRight(evaluatedRight)
+	node.SetLeft(objectToIntNode(leftObj))
+	node.SetRight(objectToIntNode(rightObj))
 
 	return nil
 }
@@ -85,7 +82,7 @@ func (e *Evaluator) evalVarArgsInRRollList(node *ast.RRollList) error {
 			return err
 		}
 
-		node.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+		node.Threshold = objectToIntNode(thresholdObj)
 	}
 
 	// 個数振り足しロールの引数を評価して整数に変換する
@@ -110,7 +107,7 @@ func (e *Evaluator) evalVarArgsInURollExpr(node *ast.URollExpr) error {
 			return err
 		}
 
-		uRollList.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+		uRollList.Threshold = objectToIntNode(thresholdObj)
 	}
 
 	// 上方無限ロールの引数を評価して整数に変換する
@@ -172,8 +169,7 @@ func (e *Evaluator) evalVarArgsInCompare(node ast.InfixExpression) error {
 		return rightEvalErr
 	}
 
-	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
-	node.SetRight(evaluatedRight)
+	node.SetRight(objectToIntNode(rightObj))
 
 	return nil
 }

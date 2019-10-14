@@ -98,3 +98,10 @@ func (e *Evaluator) RollDice(num int, sides int) ([]dice.Die, error) {
 
 	return rolledDice, nil
 }
+
+// objectToIntNode はオブジェクトを整数のノードに変換する。
+//
+// oを*object.Integerに変換できない場合はpanicに陥るので注意。
+func objectToIntNode(o object.Object) *ast.Int {
+	return ast.NewInt(o.(*object.Integer).Value)
+}

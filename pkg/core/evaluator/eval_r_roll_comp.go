@@ -22,17 +22,15 @@ func (e *Evaluator) evalRRollComp(node *ast.Command) (*object.RRollCompResult, e
 	}
 
 	valueGroupsArray := valueGroupsObj.(*object.Array)
-	evaluatedTargetNode :=
-		ast.NewInt(evaluatedTargetObj.(*object.Integer).Value)
+	evaluatedTargetNode := objectToIntNode(evaluatedTargetObj)
 
 	// 振られた各ダイスに対して成功判定を行い、成功数を数える
 	numOfSuccesses := 0
 	for _, vg := range valueGroupsArray.Elements {
 		valuesArray := vg.(*object.Array)
 		for _, el := range valuesArray.Elements {
-			valueNode := ast.NewInt(el.(*object.Integer).Value)
 			valueCompareNode := ast.NewCompare(
-				valueNode,
+				objectToIntNode(el),
 				compareNode.Operator(),
 				evaluatedTargetNode,
 			)

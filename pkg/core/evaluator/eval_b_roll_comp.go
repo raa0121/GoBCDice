@@ -22,15 +22,13 @@ func (e *Evaluator) evalBRollComp(node *ast.Command) (*object.BRollCompResult, e
 	}
 
 	valuesArray := valuesObj.(*object.Array)
-	evaluatedTargetNode :=
-		ast.NewInt(evaluatedTargetObj.(*object.Integer).Value)
+	evaluatedTargetNode := objectToIntNode(evaluatedTargetObj)
 
 	// 振られた各ダイスに対して成功判定を行い、成功数を数える
 	numOfSuccesses := 0
 	for _, el := range valuesArray.Elements {
-		valueNode := ast.NewInt(el.(*object.Integer).Value)
 		valueCompareNode := ast.NewCompare(
-			valueNode,
+			objectToIntNode(el),
 			compareNode.Operator(),
 			evaluatedTargetNode,
 		)
