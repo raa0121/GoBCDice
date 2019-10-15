@@ -9,39 +9,24 @@ import (
 func (e *Evaluator) evalBRollComp(node *ast.Command) (*object.BRollCompResult, error) {
 	compareNode := node.Expression.(*ast.BasicInfixExpression)
 
-	// 左辺を評価する
-	valuesObj, evalBRollListErr := e.Eval(compareNode.Left())
-	if evalBRollListErr != nil {
-		return nil, evalBRollListErr
-	}
-
-	// 右辺を評価する
-	evaluatedTargetObj, evalTargetErr := e.Eval(compareNode.Right())
-	if evalTargetErr != nil {
-		return nil, evalTargetErr
+	// 両辺を評価する
+	valuesObj, targetObj, evalOperandsErr :=
+		e.evalInfixExpressionOperands(compareNode)
+	if evalOperandsErr != nil {
+		return nil, evalOperandsErr
 	}
 
 	valuesArray := valuesObj.(*object.Array)
-	evaluatedTargetNode := objectToIntNode(evaluatedTargetObj)
 
-	// 振られた各ダイスに対して成功判定を行い、成功数を数える
-	numOfSuccesses := 0
-	for _, el := range valuesArray.Elements {
-		valueCompareNode := ast.NewCompare(
-			objectToIntNode(el),
-			compareNode.Operator(),
-			evaluatedTargetNode,
-		)
-
-		r, compErr := e.Eval(valueCompareNode)
-		if compErr != nil {
-			return nil, compErr
-		}
-
-		if success := r.(*object.Boolean).Value; success {
-			numOfSuccesses++
-		}
+	// 成功数を数える
+	numOfSuccesses, countErr := e.countNumOfSuccesses(
+		valuesObj.(*object.Array),
+		compareNode.Operator(),
+		targetObj.(*object.Integer),
+	)
+	if countErr != nil {
+		return nil, countErr
 	}
 
-	return object.NewBRollCompResult(valuesArray, object.NewInteger(numOfSuccesses)), nil
+	return object.NewBRollCompResult(valuesArray, numOfSuccesses), nil
 }

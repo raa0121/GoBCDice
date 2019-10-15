@@ -9,41 +9,29 @@ import (
 func (e *Evaluator) evalRRollComp(node *ast.Command) (*object.RRollCompResult, error) {
 	compareNode := node.Expression.(*ast.BasicInfixExpression)
 
-	// 左辺を評価する
-	valueGroupsObj, evalRRollListErr := e.Eval(compareNode.Left())
-	if evalRRollListErr != nil {
-		return nil, evalRRollListErr
-	}
-
-	// 右辺を評価する
-	evaluatedTargetObj, evalTargetErr := e.Eval(compareNode.Right())
-	if evalTargetErr != nil {
-		return nil, evalTargetErr
+	// 両辺を評価する
+	valueGroupsObj, targetObj, evalOperandsErr :=
+		e.evalInfixExpressionOperands(compareNode)
+	if evalOperandsErr != nil {
+		return nil, evalOperandsErr
 	}
 
 	valueGroupsArray := valueGroupsObj.(*object.Array)
-	evaluatedTargetNode := objectToIntNode(evaluatedTargetObj)
+	targetIntObj := targetObj.(*object.Integer)
 
-	// 振られた各ダイスに対して成功判定を行い、成功数を数える
+	// 成功判定を行い、出目のグループごとの成功数を加算する
 	numOfSuccesses := 0
-	for _, vg := range valueGroupsArray.Elements {
-		valuesArray := vg.(*object.Array)
-		for _, el := range valuesArray.Elements {
-			valueCompareNode := ast.NewCompare(
-				objectToIntNode(el),
-				compareNode.Operator(),
-				evaluatedTargetNode,
-			)
-
-			r, compErr := e.Eval(valueCompareNode)
-			if compErr != nil {
-				return nil, compErr
-			}
-
-			if success := r.(*object.Boolean).Value; success {
-				numOfSuccesses++
-			}
+	for _, valueGroupObj := range valueGroupsArray.Elements {
+		numOfSuccessesInGroup, countErr := e.countNumOfSuccesses(
+			valueGroupObj.(*object.Array),
+			compareNode.Operator(),
+			targetIntObj,
+		)
+		if countErr != nil {
+			return nil, countErr
 		}
+
+		numOfSuccesses += numOfSuccessesInGroup.Value
 	}
 
 	return object.NewRRollCompResult(

@@ -81,6 +81,8 @@ func (e *Evaluator) evalCommand(node *ast.Command) (object.Object, error) {
 		return e.evalBRollComp(node)
 	case ast.R_ROLL_COMP_NODE:
 		return e.evalRRollComp(node)
+	case ast.U_ROLL_COMP_NODE:
+		return e.evalURollComp(node)
 	default:
 		return e.Eval(node.Expression)
 	}

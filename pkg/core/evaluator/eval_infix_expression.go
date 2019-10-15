@@ -212,3 +212,31 @@ func (e *Evaluator) evalRandomNumber(
 
 	return object.NewInteger(resultValue), nil
 }
+
+// countNumOfSuccesses は各出目に対して成功判定を行い、成功数を数える。
+func (e *Evaluator) countNumOfSuccesses(
+	values *object.Array,
+	operator string,
+	target *object.Integer,
+) (*object.Integer, error) {
+	numOfSuccesses := 0
+
+	for _, value := range values.Elements {
+		compareNode := ast.NewCompare(
+			objectToIntNode(value),
+			operator,
+			objectToIntNode(target),
+		)
+
+		r, err := e.Eval(compareNode)
+		if err != nil {
+			return nil, err
+		}
+
+		if success := r.(*object.Boolean).Value; success {
+			numOfSuccesses++
+		}
+	}
+
+	return object.NewInteger(numOfSuccesses), nil
+}
