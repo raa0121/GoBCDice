@@ -55,6 +55,8 @@ func executeCommand(
 		return executeBRollComp(node, gameID, evaluator)
 	case ast.R_ROLL_COMP_NODE:
 		return executeRRollComp(node, gameID, evaluator)
+	case ast.U_ROLL_COMP_NODE:
+		return executeURollComp(node, gameID, evaluator)
 	case ast.CALC_NODE:
 		return executeCalc(node, gameID, evaluator)
 	}
