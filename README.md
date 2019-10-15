@@ -26,11 +26,11 @@ go build
 ```
 
 To modify and build the dice notation parser (pkg/core/parser/parser.go),
-you also need to install [modernc.org/goyacc](https://godoc.org/modernc.org/goyacc)
+you also need to install [github.com/mna/pigeon](https://github.com/mna/pigeon)
 first:
 
 ```bash
-GO111MODULE=off go get -u modernc.org/goyacc
+GO111MODULE=off go get -u github.com/mna/pigeon
 ```
 
 And then build it with the following commands:
@@ -54,8 +54,8 @@ The notations currently supported by GoBCDice are checked.
 * [x] Basic roll (バラバラロール, B): `nBx`
     * [x] With success check: `xBn>=y` etc.
 * [x] Exploding roll (個数振り足しロール, R): `xRn>=y` etc.
-* [ ] Compounding roll (上方無限ロール, U): `xUn[t]`
-    * [ ] With success check: `xUn[t]>=y` etc.
+* [x] Compounding roll (上方無限ロール, U): `xUn[t]`
+    * [x] With success check: `xUn[t]>=y` etc.
 
 x: number of dice, n: sides of die, y: target number, t: threshold for rerolling dice.
 
