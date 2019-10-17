@@ -58,29 +58,31 @@ func (b *BCDice) SetDieFeeder(f feeder.DieFeeder) {
 var commandFirstPartRe = regexp.MustCompile(`\A([^\s]*)(\s.*)?`)
 
 // ExecuteCommand は指定されたコマンドを実行する。
-func (b *BCDice) ExecuteCommand(c string) (*command.Result, error) {
-	separated := commandFirstPartRe.FindStringSubmatch(c)
+func (b *BCDice) ExecuteCommand(input string) (*command.Result, error) {
+	command, isSecret := checkIfInputMayBeASecretRoll(input)
+
+	separated := commandFirstPartRe.FindStringSubmatch(command)
 	firstPart := separated[1]
 
 	{
 		result, err := b.ExecuteDiceBotCommand(firstPart)
 		if err == nil {
+			result.IsSecret = isSecret
 			return result, nil
 		}
 	}
 
-	// FIXME: CHOICEコマンドの実装の都合上、空白ありの状態で一度実行してみて、
-	// 失敗したら最初の部分のみで実行するという、無駄の多い処理になっている。
-	// これはPEG構文解析器を導入した場合に不要となる予定。
 	{
-		result, err := b.ExecuteBasicCommand(c)
+		result, err := b.ExecuteBasicCommand(command)
 		if err == nil {
+			result.IsSecret = isSecret
 			return result, nil
 		}
 	}
 	{
 		result, err := b.ExecuteBasicCommand(firstPart)
 		if err == nil {
+			result.IsSecret = isSecret
 			return result, nil
 		}
 
@@ -112,4 +114,24 @@ func (b *BCDice) ExecuteBasicCommand(c string) (*command.Result, error) {
 	ev := evaluator.NewEvaluator(b.diceRoller, env)
 
 	return command.Execute(node.(ast.Node), b.DiceBot.GameID(), ev)
+}
+
+// checkIfInputMayBeASecretRoll は input がシークレットロールの可能性があるか確認する。
+//
+// 返り値:
+// シークレットロールのマークを除去した入力文字列,
+// シークレットロールの可能性があるか（true/false）
+func checkIfInputMayBeASecretRoll(input string) (string, bool) {
+	if len(input) < 1 {
+		return "", false
+	}
+
+	inputRunes := []rune(input)
+
+	switch inputRunes[0] {
+	case 'S', 's':
+		return string(inputRunes[1:len(inputRunes)]), true
+	default:
+		return input, false
+	}
 }
