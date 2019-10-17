@@ -1,15 +1,17 @@
 package bcdice
 
 import (
+	"regexp"
+
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/command"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
+	"github.com/raa0121/GoBCDice/pkg/core/util"
 	"github.com/raa0121/GoBCDice/pkg/dicebot"
 	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
-	"regexp"
 )
 
 // BCDiceの全体動作を統括する構造体。
@@ -59,7 +61,7 @@ var commandFirstPartRe = regexp.MustCompile(`\A([^\s]*)(\s.*)?`)
 
 // ExecuteCommand は指定されたコマンドを実行する。
 func (b *BCDice) ExecuteCommand(input string) (*command.Result, error) {
-	command, isSecret := checkIfInputMayBeASecretRoll(input)
+	command, isSecret := util.CheckIfInputMayBeASecretRoll(input)
 
 	separated := commandFirstPartRe.FindStringSubmatch(command)
 	firstPart := separated[1]
@@ -114,24 +116,4 @@ func (b *BCDice) ExecuteBasicCommand(c string) (*command.Result, error) {
 	ev := evaluator.NewEvaluator(b.diceRoller, env)
 
 	return command.Execute(node.(ast.Node), b.DiceBot.GameID(), ev)
-}
-
-// checkIfInputMayBeASecretRoll は input がシークレットロールの可能性があるか確認する。
-//
-// 返り値:
-// シークレットロールのマークを除去した入力文字列,
-// シークレットロールの可能性があるか（true/false）
-func checkIfInputMayBeASecretRoll(input string) (string, bool) {
-	if len(input) < 1 {
-		return "", false
-	}
-
-	inputRunes := []rune(input)
-
-	switch inputRunes[0] {
-	case 'S', 's':
-		return string(inputRunes[1:len(inputRunes)]), true
-	default:
-		return input, false
-	}
 }
