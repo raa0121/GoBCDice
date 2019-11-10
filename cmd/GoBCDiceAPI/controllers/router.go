@@ -7,6 +7,9 @@ import (
 
 // Setup はすべてのコントローラの初期設定を行う。
 func Setup(e *echo.Echo) {
+	root := NewRootController(e.Router())
+	root.Setup()
+
 	gV1 := e.Group("/v1")
 	setupV1(gV1)
 }
