@@ -23,7 +23,7 @@ func TestRRollCompResult_Inspect(t *testing.T) {
 				),
 				NumOfSuccesses: NewInteger(1),
 			},
-			expected: "<RRollCompResult Values=[[3, 1], [2]], NumOfSuccesses=1>",
+			expected: "<RRollCompResult ValueGroups=[[3, 1], [2]], NumOfSuccesses=1>",
 		},
 		{
 			obj: &RRollCompResult{
@@ -41,7 +41,7 @@ func TestRRollCompResult_Inspect(t *testing.T) {
 				),
 				NumOfSuccesses: NewInteger(3),
 			},
-			expected: "<RRollCompResult Values=[[6, 1], [3], [1]], NumOfSuccesses=3>",
+			expected: "<RRollCompResult ValueGroups=[[6, 1], [3], [1]], NumOfSuccesses=3>",
 		},
 	}
 
@@ -49,7 +49,7 @@ func TestRRollCompResult_Inspect(t *testing.T) {
 		t.Run(fmt.Sprintf("%q", test.expected), func(t *testing.T) {
 			actual := test.obj.Inspect()
 			if actual != test.expected {
-				t.Fatalf("got=%s, want=%s", actual, test.expected)
+				t.Fatalf("got=%q, want=%q", actual, test.expected)
 			}
 		})
 	}

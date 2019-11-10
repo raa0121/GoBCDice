@@ -3,7 +3,7 @@ BCDiceコマンドの評価結果として生成される数値などのオブ�
 */
 package object
 
-// オブジェクトの種類を表す型。
+// ObjectType はオブジェクトの種類を表す型。
 type ObjectType int
 
 // String はオブジェクトの種類を文字列として返す。
@@ -24,6 +24,8 @@ const (
 	ARRAY_OBJ
 	B_ROLL_COMP_RESULT_OBJ
 	R_ROLL_COMP_RESULT_OBJ
+	U_ROLL_EXPR_RESULT_OBJ
+	U_ROLL_COMP_RESULT_OBJ
 )
 
 // オブジェクトの種類とそれを表す文字列との対応
@@ -36,9 +38,11 @@ var objectTypeString = map[ObjectType]string{
 	ARRAY_OBJ:              "ARRAY",
 	B_ROLL_COMP_RESULT_OBJ: "B_ROLL_COMP_RESULT",
 	R_ROLL_COMP_RESULT_OBJ: "R_ROLL_COMP_RESULT",
+	U_ROLL_EXPR_RESULT_OBJ: "U_ROLL_EXPR_RESULT",
+	U_ROLL_COMP_RESULT_OBJ: "U_ROLL_COMP_RESULT",
 }
 
-// オブジェクトが持つインターフェース。
+// Object はオブジェクトが持つインターフェース。
 type Object interface {
 	// Type はオブジェクトの種類を返す。
 	Type() ObjectType

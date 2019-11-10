@@ -10,8 +10,10 @@ package notation
 import (
 	"bytes"
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"strings"
+
+	"github.com/raa0121/GoBCDice/pkg/core/ast"
+	"github.com/raa0121/GoBCDice/pkg/core/util"
 )
 
 // InfixNotation は構文解析木の中置表記を返す。
@@ -28,26 +30,29 @@ import (
 // 設定し、右側の中置表記を求める際にはfalseを設定する。
 func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 	switch n := node.(type) {
-	case *ast.Calc:
-		return infixNotationOfCalc(n, walkingToLeft)
 	case *ast.BRollList:
 		return infixNotationOfBRollList(n)
 	case *ast.RRollList:
 		return infixNotationOfRRollList(n)
+	case *ast.URollExpr:
+		return infixNotationOfURollExpr(n)
 	case *ast.Choice:
 		return infixNotationOfChoice(n)
-	case ast.Command:
+	case *ast.Command:
 		return infixNotationOfCommand(n, walkingToLeft)
-	case *ast.Compare:
-		return infixNotationOfCompare(n)
-	case ast.Divide:
+	case *ast.Divide:
 		return infixNotationOfDivide(n, walkingToLeft)
-	case *ast.RandomNumber:
-		return infixNotationOfRandomNumber(n)
 	case ast.PrefixExpression:
 		return infixNotationOfPrefixExpression(n, walkingToLeft)
 	case ast.InfixExpression:
-		return infixNotationOfInfixExpression(n, walkingToLeft)
+		switch n.Type() {
+		case ast.COMPARE_NODE:
+			return infixNotationOfCompare(n)
+		case ast.RANDOM_NUMBER_NODE:
+			return infixNotationOfRandomNumber(n)
+		default:
+			return infixNotationOfInfixExpression(n, walkingToLeft)
+		}
 	case *ast.Int:
 		return fmt.Sprintf("%d", n.Value), nil
 	case *ast.SumRollResult:
@@ -58,8 +63,18 @@ func InfixNotation(node ast.Node, walkingToLeft bool) (string, error) {
 }
 
 // infixNotationOfCommand はコマンドの中置表記を返す。
-func infixNotationOfCommand(node ast.Command, walkingToLeft bool) (string, error) {
-	expr, err := InfixNotation(node.Expression(), walkingToLeft)
+func infixNotationOfCommand(node *ast.Command, walkingToLeft bool) (string, error) {
+	switch node.Type() {
+	case ast.CALC_NODE:
+		return infixNotationOfCalc(node)
+	default:
+		return infixNotationOfNormalCommand(node, walkingToLeft)
+	}
+}
+
+// infixNotationOfNormalCommand は通常のコマンドの中置表記を返す。
+func infixNotationOfNormalCommand(node *ast.Command, walkingToLeft bool) (string, error) {
+	expr, err := InfixNotation(node.Expression, walkingToLeft)
 	if err != nil {
 		return "", err
 	}
@@ -68,8 +83,8 @@ func infixNotationOfCommand(node ast.Command, walkingToLeft bool) (string, error
 }
 
 // infixNotationOfCalc は計算ノードの中置表記を返す。
-func infixNotationOfCalc(node *ast.Calc, walkingToLeft bool) (string, error) {
-	expr, err := InfixNotation(node.Expression(), walkingToLeft)
+func infixNotationOfCalc(node *ast.Command) (string, error) {
+	expr, err := InfixNotation(node.Expression, true)
 	if err != nil {
 		return "", err
 	}
@@ -122,6 +137,35 @@ func infixNotationOfRRollList(node *ast.RRollList) (string, error) {
 	return out.String(), nil
 }
 
+// infixNotationOfURollExpr は上方無限ロール式の中置表記を返す。
+func infixNotationOfURollExpr(node *ast.URollExpr) (string, error) {
+	if node.Bonus == nil {
+		uRollListNotation, uRollListNotationErr :=
+			InfixNotation(node.URollList, true)
+		if uRollListNotationErr != nil {
+			return "", uRollListNotationErr
+		}
+
+		return uRollListNotation, nil
+	}
+
+	// 以下はボーナスが指定されていたときの中置表記生成処理
+
+	// ボーナスのノードのコピーを作る
+	copiedBonus := util.Clone(node.Bonus).(ast.BasicInfixExpression)
+
+	// ボーナスのノードの左側はnilになっているので、URollListを設定する
+	copiedBonus.SetLeft(node.URollList)
+
+	bonusInfixNotation, bonusInfixNotationErr :=
+		InfixNotation(&copiedBonus, true)
+	if bonusInfixNotationErr != nil {
+		return "", bonusInfixNotationErr
+	}
+
+	return bonusInfixNotation, nil
+}
+
 func infixNotationOfChoice(node *ast.Choice) (string, error) {
 	itemValues := make([]string, 0, len(node.Items))
 
@@ -139,7 +183,7 @@ func infixNotationOfChoice(node *ast.Choice) (string, error) {
 }
 
 // infixNotationOfCompare は比較式の中置表記を返す。
-func infixNotationOfCompare(node *ast.Compare) (string, error) {
+func infixNotationOfCompare(node ast.InfixExpression) (string, error) {
 	leftInfixNotation, leftErr := InfixNotation(node.Left(), true)
 	if leftErr != nil {
 		return "", leftErr
@@ -247,13 +291,20 @@ func infixNotationOfInfixExpression(node ast.InfixExpression, walkingToLeft bool
 
 // infixNotationOfDivide は除算の中置表記を返す。
 // 除算では端数処理の方法を除数の後で示す必要があるため、処理が特別になる。
-func infixNotationOfDivide(node ast.Divide, walkingToLeft bool) (string, error) {
+func infixNotationOfDivide(node *ast.Divide, walkingToLeft bool) (string, error) {
 	left, right, err := infixNotationsOfInfixExpressionChildren(node, walkingToLeft)
 	if err != nil {
 		return "", err
 	}
 
-	return left + "/" + right + node.RoundingMethod().String(), nil
+	var buf bytes.Buffer
+
+	buf.WriteString(left)
+	buf.WriteString("/")
+	buf.WriteString(right)
+	buf.WriteString(node.RoundingMethod.String())
+
+	return buf.String(), nil
 }
 
 // infixNotationsOfInfixExpressionChildren は中置式の左右の子ノードの中置表記を返す。
@@ -265,8 +316,8 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression, walkingTo
 	// 例えば、-1+2 の中置表記が (-1)+2 ではなく -1+2 とならなければならない
 	//
 	// 左結合性でない場合、例えば (-1)^2 の中置表記は (-1)^2 のままとなる
-	leftUMinus, uMinus := node.Left().(*ast.UnaryMinus)
-	if uMinus && walkingToLeft && node.IsLeftAssociative() {
+	if node.Left().Type() == ast.UNARY_MINUS_NODE && walkingToLeft && node.IsLeftAssociative() {
+		leftUMinus := node.Left().(ast.PrefixExpression)
 		leftInfixNotation, leftErr = infixNotationOfPrefixExpression(leftUMinus, walkingToLeft)
 	} else {
 		leftInfixNotation, leftErr = parenthesizeChildOfInfixExpression(
@@ -294,7 +345,7 @@ func infixNotationsOfInfixExpressionChildren(node ast.InfixExpression, walkingTo
 }
 
 // infixNotationOfRandomNumber はランダム数値取り出しの中置表記を返す。
-func infixNotationOfRandomNumber(node *ast.RandomNumber) (string, error) {
+func infixNotationOfRandomNumber(node ast.InfixExpression) (string, error) {
 	var out bytes.Buffer
 
 	n, err := infixNotationOfInfixExpression(node, true)
@@ -318,4 +369,17 @@ func infixNotationOfSumRollResult(node *ast.SumRollResult) (string, error) {
 	}
 
 	return fmt.Sprintf("%d[%s]", node.Value(), strings.Join(dieValueStrs, ",")), nil
+}
+
+// FormatModifier は修正値を符号に応じて整形する
+func FormatModifier(modifier int) string {
+	if modifier == 0 {
+		return ""
+	}
+
+	if modifier > 0 {
+		return fmt.Sprintf("+%d", modifier)
+	}
+
+	return fmt.Sprintf("%d", modifier)
 }

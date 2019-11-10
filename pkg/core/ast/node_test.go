@@ -9,34 +9,35 @@ func TestNode_Type(t *testing.T) {
 		node     Node
 		expected string
 	}{
-		{&DRollExpr{}, "DRollExpr"},
-		{&DRollComp{}, "DRollComp"},
-		{&BRollList{}, "BRollList"},
-		{&BRollComp{}, "BRollComp"},
-		{&RRollList{}, "RRollList"},
-		{&Calc{}, "Calc"},
-		{&Choice{}, "Choice"},
+		{NewDRollExpr(nil), "DRollExpr"},
+		{NewDRollComp(nil), "DRollComp"},
+		{NewBRollList(nil), "BRollList"},
+		{NewBRollComp(nil), "BRollComp"},
+		{NewRRollList(nil, nil), "RRollList"},
+		{NewURollExpr(nil, nil), "URollExpr"},
+		{NewURollComp(nil), "URollComp"},
+		{NewCalc(nil), "Calc"},
+		{NewChoice(nil), "Choice"},
 
-		{&PrefixExpressionImpl{}, "PrefixExpression"},
-		{&UnaryMinus{}, "UnaryMinus"},
+		{NewUnaryMinus(nil), "UnaryMinus"},
 
-		{&InfixExpressionImpl{}, "InfixExpression"},
-		{&Compare{}, "Compare"},
-		{&Add{}, "Add"},
-		{&Subtract{}, "Subtract"},
-		{&Multiply{}, "Multiply"},
-		{&DivideWithRoundingUp{}, "DivideWithRoundingUp"},
-		{&DivideWithRounding{}, "DivideWithRounding"},
-		{&DivideWithRoundingDown{}, "DivideWithRoundingDown"},
-		{&DRoll{}, "DRoll"},
-		{&BRoll{}, "BRoll"},
-		{&RRoll{}, "RRoll"},
-		{&RandomNumber{}, "RandomNumber"},
+		{NewCompare(nil, "", nil), "Compare"},
+		{NewAdd(nil, nil), "Add"},
+		{NewSubtract(nil, nil), "Subtract"},
+		{NewMultiply(nil, nil), "Multiply"},
+		{NewDivideWithRoundingUp(nil, nil), "DivideWithRoundingUp"},
+		{NewDivideWithRounding(nil, nil), "DivideWithRounding"},
+		{NewDivideWithRoundingDown(nil, nil), "DivideWithRoundingDown"},
+		{NewDRoll(nil, nil), "DRoll"},
+		{NewBRoll(nil, nil), "BRoll"},
+		{NewRRoll(nil, nil), "RRoll"},
+		{NewURoll(nil, nil), "URoll"},
+		{NewRandomNumber(nil, nil), "RandomNumber"},
 
-		{&Int{}, "Int"},
-		{&String{}, "String"},
-		{&Nil{}, "Nil"},
-		{&SumRollResult{}, "SumRollResult"},
+		{NewInt(0), "Int"},
+		{NewString(""), "String"},
+		{NilInstance(), "Nil"},
+		{NewSumRollResult(nil), "SumRollResult"},
 	}
 
 	for _, test := range testcases {
@@ -54,35 +55,35 @@ func TestNode_IsNil(t *testing.T) {
 		node     Node
 		expected bool
 	}{
-		{&DRollExpr{}, false},
-		{&DRollComp{}, false},
-		{&BRollList{}, false},
-		{&BRollComp{}, false},
-		{&RRollList{}, false},
-		{&Calc{}, false},
-		{&Choice{}, false},
+		{NewDRollExpr(nil), false},
+		{NewDRollComp(nil), false},
+		{NewBRollList(nil), false},
+		{NewBRollComp(nil), false},
+		{NewRRollList(nil, nil), false},
+		{NewURollExpr(nil, nil), false},
+		{NewURollComp(nil), false},
+		{NewCalc(nil), false},
+		{NewChoice(nil), false},
 
-		{&PrefixExpressionImpl{}, false},
-		{&UnaryMinus{}, false},
+		{NewUnaryMinus(nil), false},
 
-		{&InfixExpressionImpl{}, false},
-		{&Compare{}, false},
-		{&Add{}, false},
-		{&Subtract{}, false},
-		{&Multiply{}, false},
-		{&DivideWithRoundingUp{}, false},
-		{&DivideWithRounding{}, false},
-		{&DivideWithRoundingDown{}, false},
+		{NewCompare(nil, "", nil), false},
+		{NewAdd(nil, nil), false},
+		{NewSubtract(nil, nil), false},
+		{NewMultiply(nil, nil), false},
+		{NewDivideWithRoundingUp(nil, nil), false},
+		{NewDivideWithRounding(nil, nil), false},
+		{NewDivideWithRoundingDown(nil, nil), false},
 
-		{&DRoll{}, false},
-		{&BRoll{}, false},
-		{&RRoll{}, false},
-		{&RandomNumber{}, false},
+		{NewDRoll(nil, nil), false},
+		{NewBRoll(nil, nil), false},
+		{NewRRoll(nil, nil), false},
+		{NewRandomNumber(nil, nil), false},
 
-		{&Int{}, false},
-		{&String{}, false},
-		{&Nil{}, true},
-		{&SumRollResult{}, false},
+		{NewInt(0), false},
+		{NewString(""), false},
+		{NilInstance(), true},
+		{NewSumRollResult(nil), false},
 	}
 
 	for _, test := range testcases {
@@ -100,35 +101,34 @@ func TestNode_IsPrimaryExpression(t *testing.T) {
 		node     Node
 		expected bool
 	}{
-		{&DRollExpr{}, false},
-		{&DRollComp{}, false},
-		{&BRollList{}, false},
-		{&BRollComp{}, false},
-		{&RRollList{}, false},
-		{&Calc{}, false},
-		{&Choice{}, false},
+		{NewDRollExpr(nil), false},
+		{NewDRollComp(nil), false},
+		{NewBRollList(nil), false},
+		{NewBRollComp(nil), false},
+		{NewRRollList(nil, nil), false},
+		{NewURollExpr(nil, nil), false},
+		{NewCalc(nil), false},
+		{NewChoice(nil), false},
 
-		{&PrefixExpressionImpl{}, false},
-		{&UnaryMinus{}, false},
+		{NewUnaryMinus(nil), false},
 
-		{&InfixExpressionImpl{}, false},
-		{&Compare{}, false},
-		{&Add{}, false},
-		{&Subtract{}, false},
-		{&Multiply{}, false},
-		{&DivideWithRoundingUp{}, false},
-		{&DivideWithRounding{}, false},
-		{&DivideWithRoundingDown{}, false},
+		{NewCompare(nil, "", nil), false},
+		{NewAdd(nil, nil), false},
+		{NewSubtract(nil, nil), false},
+		{NewMultiply(nil, nil), false},
+		{NewDivideWithRoundingUp(nil, nil), false},
+		{NewDivideWithRounding(nil, nil), false},
+		{NewDivideWithRoundingDown(nil, nil), false},
 
-		{&DRoll{}, true},
-		{&BRoll{}, true},
-		{&RRoll{}, true},
-		{&RandomNumber{}, true},
+		{NewDRoll(nil, nil), true},
+		{NewBRoll(nil, nil), true},
+		{NewRRoll(nil, nil), true},
+		{NewRandomNumber(nil, nil), true},
 
-		{&Int{}, true},
-		{&String{}, true},
-		{&Nil{}, true},
-		{&SumRollResult{}, true},
+		{NewInt(0), true},
+		{NewString(""), true},
+		{NilInstance(), true},
+		{NewSumRollResult(nil), true},
 	}
 
 	for _, test := range testcases {
@@ -170,6 +170,13 @@ func TestNode_IsVariable(t *testing.T) {
 		},
 		{
 			node: NewRRoll(
+				NewInt(2),
+				NewInt(6),
+			),
+			expected: true,
+		},
+		{
+			node: NewURoll(
 				NewInt(2),
 				NewInt(6),
 			),
@@ -318,6 +325,61 @@ func TestNode_IsVariable(t *testing.T) {
 					">=",
 					NewInt(3),
 				),
+			),
+			expected: true,
+		},
+		{
+			node: NewURollExpr(
+				NewRRollList(
+					NewURoll(
+						NewInt(2),
+						NewInt(6),
+					),
+					NilInstance(),
+				),
+				nil,
+			),
+			expected: true,
+		},
+		{
+			node: NewURollExpr(
+				NewRRollList(
+					NewURoll(
+						NewInt(2),
+						NewInt(6),
+					),
+					NilInstance(),
+				),
+				NewAdd(nil, NewInt(1)),
+			),
+			expected: true,
+		},
+		{
+			node: NewURollComp(
+				NewCompare(
+					NewURollExpr(
+						NewRRollList(
+							NewURoll(
+								NewInt(3),
+								NewInt(6),
+							),
+							NewInt(6),
+						),
+						nil,
+					),
+					">=",
+					NewInt(10),
+				),
+			),
+			expected: true,
+		},
+		{
+			node: NewRRollList(
+				NewURoll(
+					NewInt(2),
+					NewInt(6),
+				),
+				NilInstance(),
 			),
 			expected: true,
 		},

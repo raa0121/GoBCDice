@@ -19,7 +19,7 @@ func ExampleExecute_sumRoll() {
 	}
 
 	// コマンドと認識されたことを確認する
-	commandNode, rootIsCommand := root.(ast.Command)
+	commandNode, rootIsCommand := root.(*ast.Command)
 	if !rootIsCommand {
 		return
 	}

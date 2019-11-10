@@ -214,6 +214,36 @@ func TestEvalVarArgs(t *testing.T) {
 			input:    "3r6>1*4",
 			expected: "(RRollComp (> (RRollList nil (RRoll 3 6)) 4))",
 		},
+
+		// 上方無限ロール式
+		{
+			input:    "(1+2)u6[6]",
+			expected: "(URollExpr (RRollList 6 (URoll 3 6)))",
+		},
+		{
+			input:    "3u(2*3)[6]",
+			expected: "(URollExpr (RRollList 6 (URoll 3 6)))",
+		},
+		{
+			input:    "3u6[12/2]",
+			expected: "(URollExpr (RRollList 6 (URoll 3 6)))",
+		},
+		{
+			input:    "3u6[5]-(-2-2*4)",
+			expected: "(URollExpr (+ (RRollList 5 (URoll 3 6)) 10))",
+		},
+		{
+			input:    "3u6[5]+(-2-2*4)",
+			expected: "(URollExpr (- (RRollList 5 (URoll 3 6)) 10))",
+		},
+		{
+			input:    "3u6[5]+(-2+2)",
+			expected: "(URollExpr (RRollList 5 (URoll 3 6)))",
+		},
+		{
+			input:    "(5+6)u10[10]+5",
+			expected: "(URollExpr (+ (RRollList 10 (URoll 11 10)) 5))",
+		},
 	}
 
 	for _, test := range testcases {

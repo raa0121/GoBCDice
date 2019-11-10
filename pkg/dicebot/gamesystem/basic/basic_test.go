@@ -15,6 +15,8 @@ func TestDiceBot(t *testing.T) {
 		"b_roll_comp.txt",
 		"r_roll_list.txt",
 		"r_roll_comp.txt",
+		"u_roll_expr.txt",
+		"u_roll_comp.txt",
 		"choice.txt",
 	}
 

@@ -203,10 +203,10 @@ func TestExecuteDRollExpr(t *testing.T) {
 				return
 			}
 
-			dRollExprNode, rootIsDRollExpr := root.(*ast.DRollExpr)
-			if !rootIsDRollExpr {
+			if root.(ast.Node).Type() != ast.D_ROLL_EXPR_NODE {
 				t.Fatal("DRollExprではない")
 			}
+			dRollExprNode := root.(*ast.Command)
 
 			// ノードを評価する
 			dieFeeder := feeder.NewQueue(test.dice)

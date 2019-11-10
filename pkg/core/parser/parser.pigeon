@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// toIfaceSlice は、vを任意の型のスライスに変換する。
 func toIfaceSlice(v interface{}) []interface{} {
 	if v == nil {
 		return nil
@@ -16,6 +17,7 @@ func toIfaceSlice(v interface{}) []interface{} {
 	return v.([]interface{})
 }
 
+// leftAssociativeAdditive は、複数の加算/減算項からなる抽象構文木を作る。
 func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range toIfaceSlice(rest) {
@@ -34,6 +36,7 @@ func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, err
 	return lastNode, nil
 }
 
+// leftAssociativeAdditive は、複数の乗算/除算項からなる抽象構文木を作る。
 func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range toIfaceSlice(rest) {
@@ -70,7 +73,7 @@ Command <- ResetRandCount n:(Choice / Calc / CommandWithExpression) {
 	return n, nil
 }
 
-CommandWithExpression <- n:(BRollComp / BRollList / RRollComp / RRollList / DRollCompCommand / DRollExprCommand) EOT {
+CommandWithExpression <- n:(BRollComp / BRollList / RRollComp / RRollList / URollComp / URollExpr / DRollCompCommand / DRollExprCommand) EOT {
 	return n, nil
 }
 
@@ -121,11 +124,11 @@ DRollCompCommand <- expr:DRollComp {
 }
 
 BRollList <- first:BRoll rest:('+' BRoll)* {
-	bRollList := ast.NewBRollList(first.(*ast.BRoll))
+	bRollList := ast.NewBRollList(first.(*ast.VariableInfixExpression))
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
-		b := rs[1].(*ast.BRoll)
+		b := rs[1].(*ast.VariableInfixExpression)
 		bRollList.Append(b)
 	}
 
@@ -150,11 +153,11 @@ RRollList <- first:RRoll rest:('+' RRoll)* th:('[' IntExpr ']')? {
 		threshold = ths[1].(ast.Node)
 	}
 
-	rRollList := ast.NewRRollList(first.(*ast.RRoll), threshold)
+	rRollList := ast.NewRRollList(first.(*ast.VariableInfixExpression), threshold)
 
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
-		rr := rs[1].(*ast.RRoll)
+		rr := rs[1].(*ast.VariableInfixExpression)
 		rRollList.Append(rr)
 	}
 
@@ -169,6 +172,56 @@ RRollComp <- left:RRollList op:CompareOp right:IntExpr {
 			right.(ast.Node),
 		),
 	), nil
+}
+
+URollComp <- left:URollExpr op:CompareOp right:IntExpr {
+	return ast.NewURollComp(
+		ast.NewCompare(
+			left.(ast.Node),
+			string(op.([]byte)),
+			right.(ast.Node),
+		),
+	), nil
+}
+
+URollExpr <- uRollList:URollList bonus:(('+' / '-') IntExprAdditive)? {
+	bonusSlice := toIfaceSlice(bonus)
+
+	var bonusNode ast.InfixExpression = nil
+	if bonusSlice != nil {
+		op := string(bonusSlice[0].([]byte))
+		right := bonusSlice[1].(ast.Node)
+
+		switch op {
+		case "+":
+			bonusNode = ast.NewAdd(ast.NewInt(0), right)
+		case "-":
+			bonusNode = ast.NewSubtract(ast.NewInt(0), right)
+		default:
+			return nil, fmt.Errorf("unknown operator: %s", op)
+		}
+	}
+
+	return ast.NewURollExpr(uRollList.(*ast.RRollList), bonusNode), nil
+}
+
+URollList <- first:URoll rest:('+' URoll)* th:('[' IntExpr ']')? {
+	ths := toIfaceSlice(th)
+
+	var threshold ast.Node = ast.NilInstance()
+	if ths != nil {
+		threshold = ths[1].(ast.Node)
+	}
+
+	uRollList := ast.NewRRollList(first.(*ast.VariableInfixExpression), threshold)
+
+	for _, r := range toIfaceSlice(rest) {
+		rs := toIfaceSlice(r)
+		rr := rs[1].(*ast.VariableInfixExpression)
+		uRollList.Append(rr)
+	}
+
+	return uRollList, nil
 }
 
 IntExpr <- IntExprAdditive
@@ -213,7 +266,7 @@ DRollExprMultitive <- first:DRollExprPrimary rest:('/' DRollExprPrimary [ur]i / 
 	return leftAssociativeMultitive(first, rest)
 }
 
-DRollExprPrimary <- DRoll / Rand / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
+DRollExprPrimary <- DRoll / RandomNumber / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
 
 ParenthesizedDRollExpr <- '(' e:DRollExpr ')' {
 	return e.(ast.Node), nil
@@ -237,7 +290,7 @@ IntRandExprMultitive <- first:IntRandExprPrimary rest:('/' IntRandExprPrimary [u
 	return leftAssociativeMultitive(first, rest)
 }
 
-IntRandExprPrimary <- Integer / Rand / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
+IntRandExprPrimary <- Integer / RandomNumber / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
 
 ParenthesizedIntRandExpr <- '(' e:IntRandExpr ')' {
 	return e.(ast.Node), nil
@@ -272,16 +325,23 @@ RRoll <- num:RollOperand 'R'i sides:RollOperand IncRandCount {
 	return ast.NewRRoll(numNode, sidesNode), nil
 }
 
-RollOperand <- Integer / Rand / ParenthesizedIntRandExpr
+URoll <- num:RollOperand 'U'i sides:RollOperand IncRandCount {
+	numNode := num.(ast.Node)
+	sidesNode := sides.(ast.Node)
 
-Rand <- '[' min:RandOperand "..." max:RandOperand ']' IncRandCount {
+	return ast.NewURoll(numNode, sidesNode), nil
+}
+
+RollOperand <- Integer / RandomNumber / ParenthesizedIntRandExpr
+
+RandomNumber <- '[' min:RandomNumberOperand "..." max:RandomNumberOperand ']' IncRandCount {
 	minNode := min.(ast.Node)
 	maxNode := max.(ast.Node)
 
 	return ast.NewRandomNumber(minNode, maxNode), nil
 }
 
-RandOperand <- Integer / ParenthesizedIntExpr
+RandomNumberOperand <- Integer / ParenthesizedIntExpr
 
 ResetRandCount <- #{
 	c.state["RandCount"] = 0

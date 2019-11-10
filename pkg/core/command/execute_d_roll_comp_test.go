@@ -178,10 +178,10 @@ func TestExecuteDRollComp(t *testing.T) {
 				return
 			}
 
-			dRollCompNode, rootIsDRollComp := root.(*ast.DRollComp)
-			if !rootIsDRollComp {
+			if root.(ast.Node).Type() != ast.D_ROLL_COMP_NODE {
 				t.Fatal("DRollCompではない")
 			}
+			dRollCompNode := root.(*ast.Command)
 
 			// ノードを評価する
 			dieFeeder := feeder.NewQueue(test.dice)

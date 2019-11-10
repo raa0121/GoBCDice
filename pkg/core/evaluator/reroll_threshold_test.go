@@ -30,7 +30,11 @@ func TestSetRerollThreshold(t *testing.T) {
 				return
 			}
 
-			node := r.(*ast.RRollComp)
+			node := r.(*ast.Command)
+			if node.Type() != ast.R_ROLL_COMP_NODE {
+				t.Fatal("RRollCompでない")
+				return
+			}
 
 			// 可変ノードの引数を評価する
 			dieFeeder := feeder.NewEmptyQueue()
@@ -50,7 +54,7 @@ func TestSetRerollThreshold(t *testing.T) {
 	}
 }
 
-func TestCheckRerollThreshold(t *testing.T) {
+func TestCheckRRollThreshold(t *testing.T) {
 	testcases := []struct {
 		input      string
 		err        bool
@@ -77,7 +81,58 @@ func TestCheckRerollThreshold(t *testing.T) {
 			dieFeeder := feeder.NewEmptyQueue()
 			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
 
-			checkErr := evaluator.CheckRerollThreshold(node)
+			checkErr := evaluator.CheckRRollThreshold(node)
+			if checkErr != nil {
+				if !test.err {
+					t.Fatalf("閾値チェックエラー: %s", checkErr)
+					return
+				}
+
+				if checkErr.Error() != test.errMessage {
+					t.Fatalf("異なるエラーメッセージ: got=%q, want=%q",
+						checkErr.Error(), test.errMessage)
+					return
+				}
+
+				return
+			}
+
+			if test.err {
+				t.Fatal("エラーが発生しない")
+				return
+			}
+		})
+	}
+}
+
+func TestCheckURollThreshold(t *testing.T) {
+	testcases := []struct {
+		input      string
+		err        bool
+		errMessage string
+	}{
+		{"2u6[4]", false, ""},
+		{"6U6[6]", false, ""},
+		{"2u6", true, "2U6[5] のように振り足し目標値を指定してください"},
+		{"2u6[0]", true, "振り足し目標値として2以上の整数を指定してください"},
+		{"2u6+3u4[1]", true, "振り足し目標値として2以上の整数を指定してください"},
+	}
+
+	for _, test := range testcases {
+		t.Run(fmt.Sprintf("%q", test.input), func(t *testing.T) {
+			r, parseErr := parser.Parse("test", []byte(test.input))
+			if parseErr != nil {
+				t.Fatalf("構文エラー: %s", parseErr)
+				return
+			}
+
+			node := r.(*ast.URollExpr)
+
+			// 可変ノードの引数を評価する
+			dieFeeder := feeder.NewEmptyQueue()
+			evaluator := NewEvaluator(roller.New(dieFeeder), NewEnvironment())
+
+			checkErr := evaluator.CheckURollThreshold(node.URollList)
 			if checkErr != nil {
 				if !test.err {
 					t.Fatalf("閾値チェックエラー: %s", checkErr)

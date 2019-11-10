@@ -21,6 +21,8 @@ const (
 	B_ROLL_COMP_NODE
 	R_ROLL_LIST_NODE
 	R_ROLL_COMP_NODE
+	U_ROLL_EXPR_NODE
+	U_ROLL_COMP_NODE
 	CALC_NODE
 	CHOICE_NODE
 
@@ -38,6 +40,7 @@ const (
 	D_ROLL_NODE
 	B_ROLL_NODE
 	R_ROLL_NODE
+	U_ROLL_NODE
 	RANDOM_NUMBER_NODE
 
 	INT_NODE
@@ -56,6 +59,8 @@ var nodeTypeString = map[NodeType]string{
 	B_ROLL_COMP_NODE: "BRollComp",
 	R_ROLL_LIST_NODE: "RRollList",
 	R_ROLL_COMP_NODE: "RRollComp",
+	U_ROLL_EXPR_NODE: "URollExpr",
+	U_ROLL_COMP_NODE: "URollComp",
 	CALC_NODE:        "Calc",
 	CHOICE_NODE:      "Choice",
 
@@ -73,6 +78,7 @@ var nodeTypeString = map[NodeType]string{
 	D_ROLL_NODE:                    "DRoll",
 	B_ROLL_NODE:                    "BRoll",
 	R_ROLL_NODE:                    "RRoll",
+	U_ROLL_NODE:                    "URoll",
 	RANDOM_NUMBER_NODE:             "RandomNumber",
 
 	INT_NODE:             "Int",
@@ -96,10 +102,20 @@ type Node interface {
 	IsVariable() bool
 }
 
-// NonNilNode はnilでないノードの型。
-type NonNilNode struct{}
+// NodeImpl はノードが共通して持つ要素。
+type NodeImpl struct {
+	// nodeType はノードの種類。
+	nodeType NodeType
+	// isPrimaryExpression は一次式かどうか。
+	isPrimaryExpression bool
+}
 
-// IsNil はnilかどうかを返す。
-func (n *NonNilNode) IsNil() bool {
-	return false
+// Type はノードの種類を返す。
+func (n *NodeImpl) Type() NodeType {
+	return n.nodeType
+}
+
+// IsPrimaryExpression は一次式かどうかを返す。
+func (n *NodeImpl) IsPrimaryExpression() bool {
+	return n.isPrimaryExpression
 }

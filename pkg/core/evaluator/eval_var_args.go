@@ -13,14 +13,18 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 		return e.evalVarArgsInBRollList(n)
 	case *ast.RRollList:
 		return e.evalVarArgsInRRollList(n)
-	case ast.Command:
+	case *ast.URollExpr:
+		return e.evalVarArgsInURollExpr(n)
+	case *ast.Command:
 		return e.evalVarArgsInCommand(n)
-	case *ast.Compare:
-		return e.evalVarArgsInCompare(n)
 	case ast.PrefixExpression:
 		return e.evalVarArgsInPrefixExpression(n)
 	case ast.InfixExpression:
-		return e.evalVarArgsInInfixExpression(n)
+		if n.Type() == ast.COMPARE_NODE {
+			return e.evalVarArgsInCompare(n)
+		} else {
+			return e.evalVarArgsInInfixExpression(n)
+		}
 	}
 
 	return fmt.Errorf("EvalVarArgs not implemented: %s", node.Type())
@@ -32,7 +36,7 @@ func (e *Evaluator) EvalVarArgs(node ast.Node) error {
 // このメソッドは、ノードの型に合わせて処理を振り分ける。
 func (e *Evaluator) evalVarArgsOfVariableExpr(node ast.Node) error {
 	switch node.Type() {
-	case ast.D_ROLL_NODE, ast.B_ROLL_NODE, ast.R_ROLL_NODE:
+	case ast.D_ROLL_NODE, ast.B_ROLL_NODE, ast.R_ROLL_NODE, ast.U_ROLL_NODE:
 		return e.evalVarArgsOfRoll(node.(ast.InfixExpression))
 	}
 
@@ -51,11 +55,8 @@ func (e *Evaluator) evalVarArgsOfRoll(node ast.InfixExpression) error {
 		return rightErr
 	}
 
-	evaluatedLeft := ast.NewInt(leftObj.(*object.Integer).Value)
-	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
-
-	node.SetLeft(evaluatedLeft)
-	node.SetRight(evaluatedRight)
+	node.SetLeft(objectToIntNode(leftObj))
+	node.SetRight(objectToIntNode(rightObj))
 
 	return nil
 }
@@ -76,12 +77,12 @@ func (e *Evaluator) evalVarArgsInBRollList(node *ast.BRollList) error {
 func (e *Evaluator) evalVarArgsInRRollList(node *ast.RRollList) error {
 	// 振り足しの閾値を評価する
 	if !node.Threshold.IsNil() {
-		thresholdObj, thresholdEvalErr := e.Eval(node.Threshold)
-		if thresholdEvalErr != nil {
-			return thresholdEvalErr
+		thresholdObj, err := e.Eval(node.Threshold)
+		if err != nil {
+			return err
 		}
 
-		node.Threshold = ast.NewInt(thresholdObj.(*object.Integer).Value)
+		node.Threshold = objectToIntNode(thresholdObj)
 	}
 
 	// 個数振り足しロールの引数を評価して整数に変換する
@@ -95,9 +96,54 @@ func (e *Evaluator) evalVarArgsInRRollList(node *ast.RRollList) error {
 	return nil
 }
 
+// evalVarArgsInURollExpr は上方無限ロール式内の可変ノードの引数を評価して整数に変換する。
+func (e *Evaluator) evalVarArgsInURollExpr(node *ast.URollExpr) error {
+	uRollList := node.URollList
+
+	// 振り足しの閾値を評価する
+	if !uRollList.Threshold.IsNil() {
+		thresholdObj, err := e.Eval(uRollList.Threshold)
+		if err != nil {
+			return err
+		}
+
+		uRollList.Threshold = objectToIntNode(thresholdObj)
+	}
+
+	// 上方無限ロールの引数を評価して整数に変換する
+	for _, r := range uRollList.RRolls {
+		err := e.evalVarArgsOfVariableExpr(r)
+		if err != nil {
+			return err
+		}
+	}
+
+	// ボーナスを評価して整数に変換する
+	if node.Bonus != nil {
+		bonusObj, err := e.evalInfixExpression(node.Bonus)
+		if err != nil {
+			return err
+		}
+
+		bonusValue := bonusObj.(*object.Integer).Value
+		var newBonus ast.InfixExpression
+		if bonusValue == 0 {
+			newBonus = nil
+		} else if bonusValue > 0 {
+			newBonus = ast.NewAdd(ast.NewInt(0), ast.NewInt(bonusValue))
+		} else {
+			newBonus = ast.NewSubtract(ast.NewInt(0), ast.NewInt(-bonusValue))
+		}
+
+		node.Bonus = newBonus
+	}
+
+	return nil
+}
+
 // evalVarArgsInCommand はコマンドノード内の可変ノードの引数を評価して整数に変換する。
-func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
-	expr := node.Expression()
+func (e *Evaluator) evalVarArgsInCommand(node *ast.Command) error {
+	expr := node.Expression
 	if expr.IsPrimaryExpression() {
 		if expr.IsVariable() {
 			return e.evalVarArgsOfVariableExpr(expr)
@@ -110,7 +156,7 @@ func (e *Evaluator) evalVarArgsInCommand(node ast.Command) error {
 }
 
 // evalVarArgsInCompare は、比較式の左辺の可変ノードの引数および右辺を評価する。
-func (e *Evaluator) evalVarArgsInCompare(node *ast.Compare) error {
+func (e *Evaluator) evalVarArgsInCompare(node ast.InfixExpression) error {
 	// 左辺の可変ノードの引数を評価して整数に変換する
 	leftEvalErr := e.EvalVarArgs(node.Left())
 	if leftEvalErr != nil {
@@ -123,8 +169,7 @@ func (e *Evaluator) evalVarArgsInCompare(node *ast.Compare) error {
 		return rightEvalErr
 	}
 
-	evaluatedRight := ast.NewInt(rightObj.(*object.Integer).Value)
-	node.SetRight(evaluatedRight)
+	node.SetRight(objectToIntNode(rightObj))
 
 	return nil
 }

@@ -15,6 +15,8 @@ func TestObject_Type(t *testing.T) {
 		{&Array{}, "ARRAY"},
 		{&BRollCompResult{}, "B_ROLL_COMP_RESULT"},
 		{&RRollCompResult{}, "R_ROLL_COMP_RESULT"},
+		{&URollExprResult{}, "U_ROLL_EXPR_RESULT"},
+		{&URollCompResult{}, "U_ROLL_COMP_RESULT"},
 	}
 
 	for _, test := range testcases {

@@ -84,15 +84,14 @@ func TestEvalBRollList(t *testing.T) {
 				return
 			}
 
-			elements := obj.Elements
-
-			if len(elements) != len(test.expected) {
-				t.Fatalf("異なる配列の長さ: got=%d, want=%d", len(elements), len(test.expected))
+			length := obj.Length()
+			if length != len(test.expected) {
+				t.Fatalf("異なる配列の長さ: got=%d, want=%d", length, len(test.expected))
 				return
 			}
 
 			for i, e := range test.expected {
-				ei := elements[i]
+				ei := obj.At(i)
 
 				t.Run(fmt.Sprintf("%d", e), func(t *testing.T) {
 					eiInt, ok := ei.(*object.Integer)

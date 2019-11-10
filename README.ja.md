@@ -22,10 +22,10 @@ go build
 ./GoBCDiceREPL
 ```
 
-ダイス表記の構文解析器（pkg/core/parser/parser.go）を修正し、ビルドするには、さらに[modernc.org/goyacc](https://godoc.org/modernc.org/goyacc)をインストールする必要があります：
+ダイス表記の構文解析器（pkg/core/parser/parser.go）を修正し、ビルドするには、さらに[github.com/mna/pigeon](https://github.com/mna/pigeon)をインストールする必要があります：
 
 ```bash
-GO111MODULE=off go get -u modernc.org/goyacc
+GO111MODULE=off go get -u github.com/mna/pigeon
 ```
 
 そのうえで、以下のコマンドによってビルドします：
@@ -46,8 +46,8 @@ BCDiceは以下のダイス表記に対応しています（詳細について�
 * [x] バラバラロール（B）：`nBx`
     * [x] 成功判定つき：`xBn>=y` など
 * [x] 個数振り足しロール（R）：`xRn>=y` など
-* [ ] 上方無限ロール（U）：`xUn[t]`
-    * [ ] 成功判定つき：`xUn[t]>=y` など
+* [x] 上方無限ロール（U）：`xUn[t]`
+    * [x] 成功判定つき：`xUn[t]>=y` など
 
 x：ダイス数、n：ダイスの面数、y：目標値、t：振り足しの閾値
 
