@@ -1,6 +1,9 @@
 package models
 
-import "github.com/raa0121/GoBCDice/cmd/GoBCDiceAPI/helpers"
+import (
+	"github.com/raa0121/GoBCDice/cmd/GoBCDiceAPI/helpers"
+	"github.com/raa0121/GoBCDice/pkg/version"
+)
 
 type Version struct {
 	Api    string
@@ -8,7 +11,10 @@ type Version struct {
 }
 
 func NewVersion() *Version {
-	return &Version{Api: "0.0.1", Bcdice: "0.0.0"}
+	return &Version{
+		Api:    version.API_VERSION,
+		Bcdice: version.BCDICE_VERSION,
+	}
 }
 
 func (v *Version) ToResponseMap() helpers.ResponseMap {
