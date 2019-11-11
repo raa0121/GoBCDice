@@ -57,7 +57,13 @@ func Run(gameID string, t *testing.T, testDataFiles ...string) {
 			}
 
 			expected := test.Output
-			actual := result.Message()
+
+			var actual string
+			if result.IsSecret {
+				actual = fmt.Sprintf("%s###secret dice###", result.Message())
+			} else {
+				actual = result.Message()
+			}
 
 			if actual != expected {
 				t.Errorf("got: %q, want: %q", actual, expected)

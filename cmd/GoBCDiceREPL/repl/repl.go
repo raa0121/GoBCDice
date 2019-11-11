@@ -2,6 +2,11 @@ package repl
 
 import (
 	"fmt"
+	"io"
+	"regexp"
+	"strconv"
+	"strings"
+
 	"github.com/chzyer/readline"
 	"github.com/raa0121/GoBCDice/pkg/bcdice"
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
@@ -9,12 +14,9 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
+	"github.com/raa0121/GoBCDice/pkg/core/util"
 	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
 	dicebottesting "github.com/raa0121/GoBCDice/pkg/dicebot/testing"
-	"io"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -33,6 +35,8 @@ const (
 	PROMPT = ESC_YELLOW + ">>" + ESC_RESET + " "
 	// 結果の初めに出力する文字列
 	RESULT_HEADER = ESC_CYAN + "=>" + ESC_RESET + " "
+	// シークレットロールであることを表すヘッダ文字列
+	SECRET_HEADER = ESC_YELLOW + "[secret]" + ESC_RESET + " "
 
 	COMMAND_AST            = "ast"
 	COMMAND_EVAL           = "eval"
@@ -299,7 +303,8 @@ func printSExp(r *REPL, c *Command, input string) {
 		return
 	}
 
-	parseResult, err := parser.Parse("REPL", []byte(input))
+	command, isSecret := util.CheckIfInputMayBeASecretRoll(input)
+	parseResult, err := parser.Parse("REPL", []byte(command))
 	if err != nil {
 		r.printError(err)
 		return
@@ -307,7 +312,13 @@ func printSExp(r *REPL, c *Command, input string) {
 
 	node := parseResult.(ast.Node)
 
-	fmt.Fprintf(r.out, "%s%s\n", RESULT_HEADER, node.SExp())
+	fmt.Fprint(r.out, RESULT_HEADER)
+
+	if isSecret {
+		fmt.Fprint(r.out, SECRET_HEADER)
+	}
+
+	fmt.Fprintln(r.out, node.SExp())
 }
 
 // eval はinputを構文解析して評価し、その結果を出力する。
@@ -327,13 +338,20 @@ func eval(r *REPL, c *Command, input string) {
 		}()
 	}
 
-	result, err := r.bcDice.ExecuteCommand(input)
+	command, isSecret := util.CheckIfInputMayBeASecretRoll(input)
+	result, err := r.bcDice.ExecuteCommand(command)
 	if err != nil {
 		r.printError(err)
 		return
 	}
 
-	fmt.Fprintln(r.out, RESULT_HEADER+result.Message())
+	fmt.Fprint(r.out, RESULT_HEADER)
+
+	if isSecret {
+		fmt.Fprint(r.out, SECRET_HEADER)
+	}
+
+	fmt.Fprintln(r.out, result.Message())
 }
 
 var rollDiceRe = regexp.MustCompile(`\A(\d+)\s+(\d+)\z`)

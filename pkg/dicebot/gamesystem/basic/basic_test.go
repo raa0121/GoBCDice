@@ -18,6 +18,7 @@ func TestDiceBot(t *testing.T) {
 		"u_roll_expr.txt",
 		"u_roll_comp.txt",
 		"choice.txt",
+		"secret_roll.txt",
 	}
 
 	testDataFiles := joinWithTestData(testDataFileBaseNames)

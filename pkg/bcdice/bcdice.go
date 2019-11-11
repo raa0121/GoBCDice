@@ -1,15 +1,17 @@
 package bcdice
 
 import (
+	"regexp"
+
 	"github.com/raa0121/GoBCDice/pkg/core/ast"
 	"github.com/raa0121/GoBCDice/pkg/core/command"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/roller"
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/core/parser"
+	"github.com/raa0121/GoBCDice/pkg/core/util"
 	"github.com/raa0121/GoBCDice/pkg/dicebot"
 	dicebotlist "github.com/raa0121/GoBCDice/pkg/dicebot/list"
-	"regexp"
 )
 
 // BCDiceの全体動作を統括する構造体。
@@ -58,29 +60,31 @@ func (b *BCDice) SetDieFeeder(f feeder.DieFeeder) {
 var commandFirstPartRe = regexp.MustCompile(`\A([^\s]*)(\s.*)?`)
 
 // ExecuteCommand は指定されたコマンドを実行する。
-func (b *BCDice) ExecuteCommand(c string) (*command.Result, error) {
-	separated := commandFirstPartRe.FindStringSubmatch(c)
+func (b *BCDice) ExecuteCommand(input string) (*command.Result, error) {
+	command, isSecret := util.CheckIfInputMayBeASecretRoll(input)
+
+	separated := commandFirstPartRe.FindStringSubmatch(command)
 	firstPart := separated[1]
 
 	{
 		result, err := b.ExecuteDiceBotCommand(firstPart)
 		if err == nil {
+			result.IsSecret = isSecret
 			return result, nil
 		}
 	}
 
-	// FIXME: CHOICEコマンドの実装の都合上、空白ありの状態で一度実行してみて、
-	// 失敗したら最初の部分のみで実行するという、無駄の多い処理になっている。
-	// これはPEG構文解析器を導入した場合に不要となる予定。
 	{
-		result, err := b.ExecuteBasicCommand(c)
+		result, err := b.ExecuteBasicCommand(command)
 		if err == nil {
+			result.IsSecret = isSecret
 			return result, nil
 		}
 	}
 	{
 		result, err := b.ExecuteBasicCommand(firstPart)
 		if err == nil {
+			result.IsSecret = isSecret
 			return result, nil
 		}
 

@@ -43,6 +43,8 @@ type Result struct {
 	RolledDice []dice.Die
 	// 成功判定の結果
 	SuccessCheckResult SuccessCheckResultType
+	// シークレットロールかどうか
+	IsSecret bool
 }
 
 // JoinedMessageParts は、メッセージの部分を結合したものを返す。
