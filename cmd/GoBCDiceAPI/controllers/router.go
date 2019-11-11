@@ -18,4 +18,6 @@ func Setup(e *echo.Echo) {
 func setupV1(g *echo.Group) {
 	version := v1.NewVersionController(g)
 	version.Setup()
+	systems := v1.NewSystemsController(g)
+	systems.Setup()
 }
