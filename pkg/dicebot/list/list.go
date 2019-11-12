@@ -15,7 +15,7 @@ import (
 // Find は指定された識別子を持つゲームシステムのダイスボットのコンストラクタを返す。
 // ゲームシステムが見つからなかった場合はエラーを返す。
 func Find(gameID string) (dicebot.DiceBotConstructor, error) {
-	if gameID == basic.GAME_ID {
+	if gameID == basic.BasicInfo().GameID {
 		return basic.New, nil
 	}
 
@@ -42,7 +42,7 @@ func AvailableGameIDs(includeBasicDiceBot bool) []string {
 	}
 
 	gameIDsWithBasicDiceBot := make([]string, 1, len(gameIDs)+1)
-	gameIDsWithBasicDiceBot[0] = basic.GAME_ID
+	gameIDsWithBasicDiceBot[0] = basic.BasicInfo().GameID
 	gameIDsWithBasicDiceBot = append(gameIDsWithBasicDiceBot, gameIDs...)
 
 	return gameIDsWithBasicDiceBot
