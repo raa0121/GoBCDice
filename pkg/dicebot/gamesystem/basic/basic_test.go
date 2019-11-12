@@ -1,7 +1,6 @@
 package basic_test
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/raa0121/GoBCDice/pkg/dicebot/gamesystem/basic"
@@ -23,7 +22,7 @@ func TestDiceBot(t *testing.T) {
 		"secret_roll.txt",
 	}
 
-	testDataFiles := joinWithTestData(testDataFileBaseNames)
+	testDataFiles := dicebottesting.JoinWithTestData(testDataFileBaseNames)
 	dicebottesting.Run("DiceBot", t, testDataFiles...)
 }
 
@@ -49,14 +48,4 @@ func TestBasic_Usage(t *testing.T) {
 	if len(basic.New().Usage()) <= 0 {
 		t.Fatal("Usage() が空文字列")
 	}
-}
-
-func joinWithTestData(basenames []string) []string {
-	files := make([]string, 0, len(basenames))
-
-	for _, b := range basenames {
-		files = append(files, filepath.Join("testdata", b))
-	}
-
-	return files
 }
