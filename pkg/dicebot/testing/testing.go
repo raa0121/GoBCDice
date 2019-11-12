@@ -37,6 +37,14 @@ func Run(gameID string, t *testing.T, testDataFiles ...string) {
 			f := feeder.NewQueue(test.Dice)
 			b := bcdice.New(f)
 
+			{
+				err := b.SetDiceBotByGameID(test.GameID)
+				if err != nil {
+					t.Fatalf("ダイスボット設定エラー: %s", err)
+					return
+				}
+			}
+
 			// TODO: エラーが発生することの予想を明示できるようにする
 			expectErr := (test.Output == "")
 

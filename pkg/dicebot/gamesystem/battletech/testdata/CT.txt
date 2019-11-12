@@ -1,0 +1,41 @@
+input:
+CT
+output:
+BattleTech : 6 ＞ 致命的命中はなかった
+rand:1/6,5/6
+============================
+input:
+CT
+output:
+BattleTech : 7 ＞ 致命的命中はなかった
+rand:6/6,1/6
+============================
+input:
+CT
+output:
+BattleTech : 8 ＞ 1箇所の致命的命中
+rand:6/6,2/6
+============================
+input:
+CT
+output:
+BattleTech : 9 ＞ 1箇所の致命的命中
+rand:6/6,3/6
+============================
+input:
+CT
+output:
+BattleTech : 10 ＞ 2箇所の致命的命中
+rand:6/6,4/6
+============================
+input:
+CT
+output:
+BattleTech : 11 ＞ 2箇所の致命的命中
+rand:6/6,5/6
+============================
+input:
+CT
+output:
+BattleTech : 12 ＞ その部位が吹き飛ぶ（腕、脚、頭）または3箇所の致命的命中（胴）
+rand:6/6,6/6

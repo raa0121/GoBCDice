@@ -7,9 +7,12 @@ package list
 
 import (
 	"fmt"
+	"sort"
+
 	"github.com/raa0121/GoBCDice/pkg/dicebot"
 	"github.com/raa0121/GoBCDice/pkg/dicebot/gamesystem/basic"
-	"sort"
+
+	"github.com/raa0121/GoBCDice/pkg/dicebot/gamesystem/battletech"
 )
 
 // Find は指定された識別子を持つゲームシステムのダイスボットのコンストラクタを返す。
@@ -50,3 +53,7 @@ func AvailableGameIDs(includeBasicDiceBot bool) []string {
 
 // ゲーム識別子とダイスボットのコンストラクタとの対応
 var gameIDToDiceBotConstructor = map[string]dicebot.DiceBotConstructor{}
+
+func init() {
+	gameIDToDiceBotConstructor[battletech.BasicInfo().GameID] = battletech.New
+}
