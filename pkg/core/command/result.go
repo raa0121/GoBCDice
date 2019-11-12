@@ -57,7 +57,7 @@ func (r *Result) Message() string {
 	return r.GameID + " : " + r.JoinedMessageParts()
 }
 
-// appendMessagePart はメッセージの部分を追加する。
-func (r *Result) appendMessagePart(message string) {
+// AppendMessagePart はメッセージの部分を追加する。
+func (r *Result) AppendMessagePart(message string) {
 	r.MessageParts = append(r.MessageParts, message)
 }

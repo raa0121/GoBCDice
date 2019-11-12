@@ -66,10 +66,10 @@ func executeDRollComp(
 		successCheckResultMessage = "失敗"
 	}
 
-	result.appendMessagePart(notation.Parenthesize(infixNotation1))
-	result.appendMessagePart(infixNotation2)
-	result.appendMessagePart(leftObj.Inspect())
-	result.appendMessagePart(successCheckResultMessage)
+	result.AppendMessagePart(notation.Parenthesize(infixNotation1))
+	result.AppendMessagePart(infixNotation2)
+	result.AppendMessagePart(leftObj.Inspect())
+	result.AppendMessagePart(successCheckResultMessage)
 
 	return result, nil
 }

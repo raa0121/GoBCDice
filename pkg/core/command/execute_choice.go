@@ -33,8 +33,8 @@ func executeChoice(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(notation.Parenthesize(infixNotation))
-	result.appendMessagePart(resultObj.Value)
+	result.AppendMessagePart(notation.Parenthesize(infixNotation))
+	result.AppendMessagePart(resultObj.Value)
 
 	return result, nil
 }

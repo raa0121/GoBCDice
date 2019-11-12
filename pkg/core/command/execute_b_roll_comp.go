@@ -36,9 +36,9 @@ func executeBRollComp(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(notation.Parenthesize(infixNotation))
-	result.appendMessagePart(resultObj.Values.JoinedElements(","))
-	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
+	result.AppendMessagePart(notation.Parenthesize(infixNotation))
+	result.AppendMessagePart(resultObj.Values.JoinedElements(","))
+	result.AppendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
 
 	return result, nil
 }

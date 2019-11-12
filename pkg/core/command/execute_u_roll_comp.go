@@ -31,14 +31,14 @@ func executeURollComp(
 		return nil, infixNotationErr
 	}
 
-	result.appendMessagePart(notation.Parenthesize(infixNotation))
+	result.AppendMessagePart(notation.Parenthesize(infixNotation))
 
 	// 振り足しの閾値を確認する
 	checkRerollThresholdErr := evaluator.CheckURollThreshold(
 		compareNode.Left().(*ast.URollExpr).URollList,
 	)
 	if checkRerollThresholdErr != nil {
-		result.appendMessagePart(checkRerollThresholdErr.Error())
+		result.AppendMessagePart(checkRerollThresholdErr.Error())
 		return result, nil
 	}
 
@@ -52,10 +52,10 @@ func executeURollComp(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(
+	result.AppendMessagePart(
 		formatURollExprValueGroupsAndModifier(resultObj.RollResult),
 	)
-	result.appendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
+	result.AppendMessagePart("成功数" + resultObj.NumOfSuccesses.Inspect())
 
 	return result, nil
 }

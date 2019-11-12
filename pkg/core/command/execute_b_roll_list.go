@@ -34,8 +34,8 @@ func executeBRollList(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(notation.Parenthesize(infixNotation))
-	result.appendMessagePart(arrayObj.JoinedElements(","))
+	result.AppendMessagePart(notation.Parenthesize(infixNotation))
+	result.AppendMessagePart(arrayObj.JoinedElements(","))
 
 	return result, nil
 }
