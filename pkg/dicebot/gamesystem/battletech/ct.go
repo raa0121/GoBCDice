@@ -5,17 +5,17 @@ import (
 
 	"github.com/raa0121/GoBCDice/pkg/core/command"
 	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
-	table "github.com/raa0121/GoBCDice/pkg/core/rollabletable/sparse"
+	"github.com/raa0121/GoBCDice/pkg/table"
 )
 
-var ctTable = table.New(
+var ctTable = table.NewSparseTable(
 	"致命的命中表",
 	2,
 	6,
-	table.Item{Max: 7, Content: "致命的命中はなかった"},
-	table.Item{Max: 9, Content: "1箇所の致命的命中"},
-	table.Item{Max: 11, Content: "2箇所の致命的命中"},
-	table.Item{Max: 12, Content: "その部位が吹き飛ぶ（腕、脚、頭）または3箇所の致命的命中（胴）"},
+	table.SparseTableItem{Max: 7, Content: "致命的命中はなかった"},
+	table.SparseTableItem{Max: 9, Content: "1箇所の致命的命中"},
+	table.SparseTableItem{Max: 11, Content: "2箇所の致命的命中"},
+	table.SparseTableItem{Max: 12, Content: "その部位が吹き飛ぶ（腕、脚、頭）または3箇所の致命的命中（胴）"},
 )
 
 // executeCT はCTコマンドを実行する。
