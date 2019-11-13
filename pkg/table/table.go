@@ -33,7 +33,7 @@ func NewTable(name string, numOfDice int, sidesOfDie int, items ...string) *Tabl
 		panic("sidesOfDie must be positive")
 	}
 
-	expectedItemsLength := (numOfDice-1)*sidesOfDie + 1
+	expectedItemsLength := numOfDice*(sidesOfDie-1) + 1
 	if len(items) != expectedItemsLength {
 		message := fmt.Sprintf(
 			"wrong length of items: got=%d, want=%d",

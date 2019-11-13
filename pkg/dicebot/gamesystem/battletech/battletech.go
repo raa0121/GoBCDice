@@ -62,6 +62,8 @@ func (b *BattleTech) ExecuteCommand(
 	switch strings.ToUpper(command) {
 	case "CT":
 		return b.executeCT(evaluator)
+	case "DW":
+		return b.executeDW(evaluator)
 	default:
 		return nil, fmt.Errorf("not implemented")
 	}

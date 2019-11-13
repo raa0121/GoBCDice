@@ -1,0 +1,11 @@
+input:
+DW
+output:
+BattleTech : 1 ＞ 同じ（前面から転倒） 正面／背面
+rand:1/6
+============================
+input:
+DW
+output:
+BattleTech : 6 ＞ 1ヘクスサイド左（側面から転倒） 左側面
+rand:6/6

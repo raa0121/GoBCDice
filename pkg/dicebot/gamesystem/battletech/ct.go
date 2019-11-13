@@ -8,6 +8,7 @@ import (
 	"github.com/raa0121/GoBCDice/pkg/table"
 )
 
+// ctTable は致命的命中表。
 var ctTable = table.NewSparseTable(
 	"致命的命中表",
 	2,
@@ -29,6 +30,8 @@ func (b *BattleTech) executeCT(e *evaluator.Evaluator) (*command.Result, error) 
 		result.AppendMessagePart(err.Error())
 		return result, nil
 	}
+
+	result.RolledDice = e.RolledDice()
 
 	result.AppendMessagePart(fmt.Sprintf("%d", rollResult.Sum))
 	result.AppendMessagePart(rollResult.SelectedItem.Content)

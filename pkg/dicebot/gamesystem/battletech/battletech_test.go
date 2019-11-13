@@ -10,6 +10,7 @@ import (
 func TestDiceBot(t *testing.T) {
 	testDataFileBaseNames := []string{
 		"CT.txt",
+		"DW.txt",
 	}
 
 	testDataFiles := dicebottesting.JoinWithTestData(testDataFileBaseNames)
