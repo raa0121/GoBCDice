@@ -29,9 +29,9 @@ func executeCalc(
 	}
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(infixNotation)
-	result.appendMessagePart("計算結果")
-	result.appendMessagePart(obj.Inspect())
+	result.AppendMessagePart(infixNotation)
+	result.AppendMessagePart("計算結果")
+	result.AppendMessagePart(obj.Inspect())
 
 	return result, nil
 }

@@ -4,39 +4,14 @@
 package basic
 
 import (
-	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/command"
-	"github.com/raa0121/GoBCDice/pkg/core/evaluator"
 	"github.com/raa0121/GoBCDice/pkg/dicebot"
 )
 
-const (
-	// 基本的なダイスボットのゲーム識別子
-	GAME_ID = "DiceBot"
-)
-
-// 基本的なダイスボット。
-type Basic struct {
-}
-
-// New は新しいダイスボットを構築する。
-func New() dicebot.DiceBot {
-	return &Basic{}
-}
-
-// GameID はゲーム識別子を返す。
-func (b *Basic) GameID() string {
-	return "DiceBot"
-}
-
-// GameName はゲームシステム名を返す。
-func (b *Basic) GameName() string {
-	return "ダイスボット (指定無し)"
-}
-
-// Usage はダイスボットの使用法の説明を返す。
-func (b *Basic) Usage() string {
-	return `【ダイスボット】チャットにダイス用の文字を入力するとダイスロールが可能
+// basicInfo はダイスボットの基本情報。
+var basicInfo = dicebot.DiceBotBasicInfo{
+	GameID:   "DiceBot",
+	GameName: "ダイスボット (指定無し)",
+	Usage: `【ダイスボット】チャットにダイス用の文字を入力するとダイスロールが可能
 入力例）２ｄ６＋１　攻撃！
 出力例）2d6+1　攻撃！
 　　　　  diceBot: (2d6) → 7
@@ -52,15 +27,24 @@ func (b *Basic) Usage() string {
 　choice[a,b,c]：列挙した要素から一つを選択表示。ランダム攻撃対象決定などに
 　S3d6 ： 各コマンドの先頭に「S」を付けると他人結果の見えないシークレットロール
 　3d6/2 ： ダイス出目を割り算（切り捨て）。切り上げは /2U、四捨五入は /2R。
-　D66 ： D66ダイス。順序はゲームに依存。D66N：そのまま、D66S：昇順。`
+　D66 ： D66ダイス。順序はゲームに依存。D66N：そのまま、D66S：昇順。`,
 }
 
-// ExecuteCommand は指定されたコマンドを実行する。
-//
-// 基本のダイスボットには特別なコマンドが存在しないため、必ずエラーを返す。
-func (b *Basic) ExecuteCommand(
-	_ string,
-	_ *evaluator.Evaluator,
-) (*command.Result, error) {
-	return nil, fmt.Errorf("no game-system-specific command")
+// BasicInfo はダイスボットの基本情報を返す。
+func BasicInfo() *dicebot.DiceBotBasicInfo {
+	return &basicInfo
+}
+
+// 基本的なダイスボット。
+type Basic struct {
+	dicebot.DiceBotImpl
+}
+
+// New は新しいダイスボットを構築する。
+func New() dicebot.DiceBot {
+	return &Basic{
+		DiceBotImpl: dicebot.DiceBotImpl{
+			BasicInfo: BasicInfo(),
+		},
+	}
 }

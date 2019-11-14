@@ -37,9 +37,9 @@ func executeDRollExpr(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(notation.Parenthesize(infixNotation1))
-	result.appendMessagePart(infixNotation2)
-	result.appendMessagePart(obj.Inspect())
+	result.AppendMessagePart(notation.Parenthesize(infixNotation1))
+	result.AppendMessagePart(infixNotation2)
+	result.AppendMessagePart(obj.Inspect())
 
 	return result, nil
 }

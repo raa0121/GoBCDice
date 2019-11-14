@@ -27,12 +27,12 @@ func executeURollExpr(
 		return nil, evalVarArgsErr
 	}
 
-	result.appendMessagePart(notation.Parenthesize(infixNotation))
+	result.AppendMessagePart(notation.Parenthesize(infixNotation))
 
 	// 振り足しの閾値を確認する
 	checkRerollThresholdErr := evaluator.CheckURollThreshold(node.URollList)
 	if checkRerollThresholdErr != nil {
-		result.appendMessagePart(checkRerollThresholdErr.Error())
+		result.AppendMessagePart(checkRerollThresholdErr.Error())
 		return result, nil
 	}
 
@@ -45,8 +45,8 @@ func executeURollExpr(
 	uRollExprResult := obj.(*object.URollExprResult)
 	result.RolledDice = evaluator.RolledDice()
 
-	result.appendMessagePart(formatURollExprValueGroupsAndModifier(uRollExprResult))
-	result.appendMessagePart(fmt.Sprintf(
+	result.AppendMessagePart(formatURollExprValueGroupsAndModifier(uRollExprResult))
+	result.AppendMessagePart(fmt.Sprintf(
 		"%d/%d (最大/合計)",
 		uRollExprResult.MaxValue().Value,
 		uRollExprResult.SumOfValues().Value,

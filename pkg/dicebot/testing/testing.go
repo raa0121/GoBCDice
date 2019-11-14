@@ -5,10 +5,12 @@ package testing
 
 import (
 	"fmt"
+	"path/filepath"
+	"testing"
+
 	"github.com/raa0121/GoBCDice/pkg/bcdice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
-	"testing"
 )
 
 // Run はダイスボットのテストを実行する。
@@ -74,4 +76,15 @@ func Run(gameID string, t *testing.T, testDataFiles ...string) {
 			}
 		})
 	}
+}
+
+// JoinWithTestData はbasenamesの各要素の先頭に "testdata/" を追加したスライスを返す。
+func JoinWithTestData(basenames []string) []string {
+	files := make([]string, 0, len(basenames))
+
+	for _, b := range basenames {
+		files = append(files, filepath.Join("testdata", b))
+	}
+
+	return files
 }

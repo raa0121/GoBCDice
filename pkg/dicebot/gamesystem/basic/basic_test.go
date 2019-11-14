@@ -1,9 +1,10 @@
 package basic_test
 
 import (
-	dicebottesting "github.com/raa0121/GoBCDice/pkg/dicebot/testing"
-	"path/filepath"
 	"testing"
+
+	"github.com/raa0121/GoBCDice/pkg/dicebot/gamesystem/basic"
+	dicebottesting "github.com/raa0121/GoBCDice/pkg/dicebot/testing"
 )
 
 func TestDiceBot(t *testing.T) {
@@ -21,16 +22,30 @@ func TestDiceBot(t *testing.T) {
 		"secret_roll.txt",
 	}
 
-	testDataFiles := joinWithTestData(testDataFileBaseNames)
+	testDataFiles := dicebottesting.JoinWithTestData(testDataFileBaseNames)
 	dicebottesting.Run("DiceBot", t, testDataFiles...)
 }
 
-func joinWithTestData(basenames []string) []string {
-	files := make([]string, 0, len(basenames))
+func TestBasic_GameID(t *testing.T) {
+	expected := "DiceBot"
+	actual := basic.New().GameID()
 
-	for _, b := range basenames {
-		files = append(files, filepath.Join("testdata", b))
+	if actual != expected {
+		t.Fatalf("got: %q, want: %q", actual, expected)
 	}
+}
 
-	return files
+func TestBasic_GameName(t *testing.T) {
+	expected := "ダイスボット (指定無し)"
+	actual := basic.New().GameName()
+
+	if actual != expected {
+		t.Fatalf("got: %q, want: %q", actual, expected)
+	}
+}
+
+func TestBasic_Usage(t *testing.T) {
+	if len(basic.New().Usage()) <= 0 {
+		t.Fatal("Usage() が空文字列")
+	}
 }

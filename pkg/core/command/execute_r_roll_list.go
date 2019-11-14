@@ -25,12 +25,12 @@ func executeRRollList(
 		return nil, evalVarArgsErr
 	}
 
-	result.appendMessagePart(notation.Parenthesize(infixNotation))
+	result.AppendMessagePart(notation.Parenthesize(infixNotation))
 
 	// 振り足しの閾値を確認する
 	checkRerollThresholdErr := evaluator.CheckRRollThreshold(node)
 	if checkRerollThresholdErr != nil {
-		result.appendMessagePart(checkRerollThresholdErr.Error())
+		result.AppendMessagePart(checkRerollThresholdErr.Error())
 		return result, nil
 	}
 
@@ -44,7 +44,7 @@ func executeRRollList(
 	result.RolledDice = evaluator.RolledDice()
 
 	// 結果のメッセージを作る
-	result.appendMessagePart(formatRRollValues(valueGroups))
+	result.AppendMessagePart(formatRRollValues(valueGroups))
 
 	return result, nil
 }
