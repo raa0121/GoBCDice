@@ -62,7 +62,7 @@ x: number of dice, n: sides of die, y: target number, t: threshold for rerolling
 The optional syntaxes are as follows:
 
 * [x] Embedding random number: `[min...max]`
-* [ ] Secret roll: `SxDn` etc.
+* [x] Secret roll: `SxDn` etc.
 
 The core dice roller also supports the following commands:
 
