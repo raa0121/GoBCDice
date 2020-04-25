@@ -11,7 +11,7 @@ const (
 	// Add, Subtract
 	PREC_ADDITIVE
 	// Multiply, Divide
-	PREC_MULTITIVE
+	PREC_MULTIPLICATIVE
 	// ダイスロール
 	PREC_ROLL
 	// RandomNumber

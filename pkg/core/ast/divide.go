@@ -70,7 +70,7 @@ func newDivide(dividend Node, divisor Node, nodeType NodeType) *Divide {
 				operator:           operator,
 				operatorForSExp:    operator,
 				right:              divisor,
-				precedence:         PREC_MULTITIVE,
+				precedence:         PREC_MULTIPLICATIVE,
 				isLeftAssociative:  true,
 				isRightAssociative: false,
 			},

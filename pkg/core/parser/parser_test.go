@@ -39,6 +39,8 @@ func TestParse(t *testing.T) {
 
 		// int_expr SLASH int_expr
 		{"C(1/2)", "(Calc (/ 1 2))", false},
+		// int_expr SLASH int_expr D
+		{"C(1/2d)", "(Calc (/ 1 2))", false},
 		// int_expr SLASH int_expr U
 		{"C(1/2u)", "(Calc (/U 1 2))", false},
 		// int_expr SLASH int_expr R
@@ -55,9 +57,11 @@ func TestParse(t *testing.T) {
 		{"C((1+2)*3)", "(Calc (* (+ 1 2) 3))", false},
 		{"C((1+2)/3)", "(Calc (/ (+ 1 2) 3))", false},
 		{"C((1+2)/3+4*5-6)", "(Calc (- (+ (/ (+ 1 2) 3) (* 4 5)) 6))", false},
+		{"C((1+2)/3d+4*5-6)", "(Calc (- (+ (/ (+ 1 2) 3) (* 4 5)) 6))", false},
 		{"C((1+2)/3u+4*5-6)", "(Calc (- (+ (/U (+ 1 2) 3) (* 4 5)) 6))", false},
 		{"C((1+2)/3r+4*5-6)", "(Calc (- (+ (/R (+ 1 2) 3) (* 4 5)) 6))", false},
 		{"C(100/(1+2))", "(Calc (/ 100 (+ 1 2)))", false},
+		{"C(100/(1+2)d)", "(Calc (/ 100 (+ 1 2)))", false},
 		{"C(100/(1+2)u)", "(Calc (/U 100 (+ 1 2)))", false},
 		{"C(100/(1+2)r)", "(Calc (/R 100 (+ 1 2)))", false},
 		{"C(-(1+2))", "(Calc (- (+ 1 2)))", false},
@@ -96,6 +100,8 @@ func TestParse(t *testing.T) {
 
 		// d_roll_expr SLASH int_expr
 		{"2d6/2", "(DRollExpr (/ (DRoll 2 6) 2))", false},
+		// d_roll_expr SLASH int_expr D
+		{"2d6/2d", "(DRollExpr (/ (DRoll 2 6) 2))", false},
 		// d_roll_expr SLASH int_expr U
 		{"2d6/2u", "(DRollExpr (/U (DRoll 2 6) 2))", false},
 		// d_roll_expr SLASH int_expr R
@@ -103,6 +109,8 @@ func TestParse(t *testing.T) {
 
 		// int_expr SLASH d_roll_expr
 		{"100/2d6+1", "(DRollExpr (+ (/ 100 (DRoll 2 6)) 1))", false},
+		// int_expr SLASH d_roll_expr D
+		{"100/2d6d+1", "(DRollExpr (+ (/ 100 (DRoll 2 6)) 1))", false},
 		// int_expr SLASH d_roll_expr U
 		{"100/2d6u+1", "(DRollExpr (+ (/U 100 (DRoll 2 6)) 1))", false},
 		// int_expr SLASH d_roll_expr R
@@ -110,6 +118,8 @@ func TestParse(t *testing.T) {
 
 		// int_expr SLASH d_roll_expr
 		{"100/(2d6+1)+4*5", "(DRollExpr (+ (/ 100 (+ (DRoll 2 6) 1)) (* 4 5)))", false},
+		// int_expr SLASH d_roll_expr D
+		{"100/(2d6+1)d+4*5", "(DRollExpr (+ (/ 100 (+ (DRoll 2 6) 1)) (* 4 5)))", false},
 		// int_expr SLASH d_roll_expr U
 		{"100/(2d6+1)u+4*5", "(DRollExpr (+ (/U 100 (+ (DRoll 2 6) 1)) (* 4 5)))", false},
 		// int_expr SLASH d_roll_expr R
@@ -117,6 +127,8 @@ func TestParse(t *testing.T) {
 
 		// d_roll_expr SLASH d_roll_expr
 		{"4d10/2d6+1", "(DRollExpr (+ (/ (DRoll 4 10) (DRoll 2 6)) 1))", false},
+		// d_roll_expr SLASH d_roll_expr D
+		{"4d10/2d6d+1", "(DRollExpr (+ (/ (DRoll 4 10) (DRoll 2 6)) 1))", false},
 		// d_roll_expr SLASH d_roll_expr U
 		{"4d10/2d6u+1", "(DRollExpr (+ (/U (DRoll 4 10) (DRoll 2 6)) 1))", false},
 		// d_roll_expr SLASH d_roll_expr R
@@ -125,6 +137,7 @@ func TestParse(t *testing.T) {
 		{"2d10+3-4", "(DRollExpr (- (+ (DRoll 2 10) 3) 4))", false},
 		{"2d10+3*4", "(DRollExpr (+ (DRoll 2 10) (* 3 4)))", false},
 		{"2d10/3+4*5-6", "(DRollExpr (- (+ (/ (DRoll 2 10) 3) (* 4 5)) 6))", false},
+		{"2d10/3d+4*5-6", "(DRollExpr (- (+ (/ (DRoll 2 10) 3) (* 4 5)) 6))", false},
 		{"2d10/3u+4*5-6", "(DRollExpr (- (+ (/U (DRoll 2 10) 3) (* 4 5)) 6))", false},
 		{"2d10/3r+4*5-6", "(DRollExpr (- (+ (/R (DRoll 2 10) 3) (* 4 5)) 6))", false},
 		{"2d6*3-1d6+1", "(DRollExpr (+ (- (* (DRoll 2 6) 3) (DRoll 1 6)) 1))", false},

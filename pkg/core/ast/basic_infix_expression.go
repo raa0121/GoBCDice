@@ -78,7 +78,7 @@ func NewMultiply(multiplicand Node, multiplier Node) *BasicInfixExpression {
 			operator:           "*",
 			operatorForSExp:    "*",
 			right:              multiplier,
-			precedence:         PREC_MULTITIVE,
+			precedence:         PREC_MULTIPLICATIVE,
 			isLeftAssociative:  true,
 			isRightAssociative: true,
 		},

@@ -36,8 +36,8 @@ func leftAssociativeAdditive(first interface{}, rest interface{}) (ast.Node, err
 	return lastNode, nil
 }
 
-// leftAssociativeAdditive は、複数の乗算/除算項からなる抽象構文木を作る。
-func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, error) {
+// leftAssociativeMultiplicative は、複数の乗算/除算項からなる抽象構文木を作る。
+func leftAssociativeMultiplicative(first interface{}, rest interface{}) (ast.Node, error) {
 	lastNode := first.(ast.Node)
 	for _, r := range toIfaceSlice(rest) {
 		rs := toIfaceSlice(r)
@@ -58,7 +58,7 @@ func leftAssociativeMultitive(first interface{}, rest interface{}) (ast.Node, er
 				lastNode = ast.NewDivideWithRoundingUp(lastNode, right)
 			case "R":
 				lastNode = ast.NewDivideWithRounding(lastNode, right)
-			case "":
+			case "D", "":
 				lastNode = ast.NewDivideWithRoundingDown(lastNode, right)
 			}
 		}
@@ -226,12 +226,12 @@ URollList <- first:URoll rest:('+' URoll)* th:('[' IntExpr ']')? {
 
 IntExpr <- IntExprAdditive
 
-IntExprAdditive <- first:IntExprMultitive rest:(('+' / '-') IntExprMultitive)* {
+IntExprAdditive <- first:IntExprMultiplicative rest:(('+' / '-') IntExprMultiplicative)* {
 	return leftAssociativeAdditive(first, rest)
 }
 
-IntExprMultitive <- first:IntExprPrimary rest:('/' IntExprPrimary [ur]i / (('*' / '/') IntExprPrimary))* {
-	return leftAssociativeMultitive(first, rest)
+IntExprMultiplicative <- first:IntExprPrimary rest:('/' IntExprPrimary [urd]i / (('*' / '/') IntExprPrimary))* {
+	return leftAssociativeMultiplicative(first, rest)
 }
 
 IntExprPrimary <- Integer / IntExprUnaryPlus / IntExprUnaryMinus / ParenthesizedIntExpr
@@ -258,12 +258,12 @@ DRollComp <- left:DRollExprAdditive op:CompareOp right:IntExpr {
 
 DRollExpr <- DRollExprAdditive
 
-DRollExprAdditive <- first:DRollExprMultitive rest:(('+' / '-') DRollExprMultitive)* {
+DRollExprAdditive <- first:DRollExprMultiplicative rest:(('+' / '-') DRollExprMultiplicative)* {
 	return leftAssociativeAdditive(first, rest)
 }
 
-DRollExprMultitive <- first:DRollExprPrimary rest:('/' DRollExprPrimary [ur]i / (('*' / '/') DRollExprPrimary))* {
-	return leftAssociativeMultitive(first, rest)
+DRollExprMultiplicative <- first:DRollExprPrimary rest:('/' DRollExprPrimary [urd]i / (('*' / '/') DRollExprPrimary))* {
+	return leftAssociativeMultiplicative(first, rest)
 }
 
 DRollExprPrimary <- DRoll / RandomNumber / Integer / DRollExprUnaryPlus / DRollExprUnaryMinus / ParenthesizedDRollExpr
@@ -282,12 +282,12 @@ DRollExprUnaryMinus <- '-' e:DRollExprPrimary {
 
 IntRandExpr <- IntRandExprAdditive
 
-IntRandExprAdditive <- first:IntRandExprMultitive rest:(('+' / '-') IntRandExprMultitive)* {
+IntRandExprAdditive <- first:IntRandExprMultiplicative rest:(('+' / '-') IntRandExprMultiplicative)* {
 	return leftAssociativeAdditive(first, rest)
 }
 
-IntRandExprMultitive <- first:IntRandExprPrimary rest:('/' IntRandExprPrimary [ur]i / (('*' / '/') IntRandExprPrimary))* {
-	return leftAssociativeMultitive(first, rest)
+IntRandExprMultiplicative <- first:IntRandExprPrimary rest:('/' IntRandExprPrimary [urd]i / (('*' / '/') IntRandExprPrimary))* {
+	return leftAssociativeMultiplicative(first, rest)
 }
 
 IntRandExprPrimary <- Integer / RandomNumber / IntRandExprUnaryPlus / IntRandExprUnaryMinus / ParenthesizedIntRandExpr
