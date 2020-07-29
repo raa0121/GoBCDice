@@ -16,4 +16,4 @@ before_test:
 
 test_script:
   - C:\gopath\bin\go-acc ./pkg/... -- -race
-  - codecov -t 3f455cbc-75ca-4ab2-a50a-8e37557bb938
+  - codecov -f "coverage.txt" -t 3f455cbc-75ca-4ab2-a50a-8e37557bb938
