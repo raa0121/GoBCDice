@@ -21,6 +21,8 @@ type DiceBot interface {
 	GameName() string
 	// Usage はダイスボットの使用法の説明を返す。
 	Usage() string
+	// SortKey は並べ替え順のよみがなを返す。
+	SortKey() string
 	// ExecuteCommand は指定されたコマンドを実行する。
 	ExecuteCommand(command string, ev *evaluator.Evaluator) (*command.Result, error)
 }
@@ -33,6 +35,8 @@ type DiceBotBasicInfo struct {
 	GameName string
 	// Usage はダイスボットの使用法の説明。
 	Usage string
+	// SortKey は並べ替え順のよみがな。
+	SortKey string
 }
 
 // DiceBotImpl はダイスボットの実装のベースとなる構造体。
@@ -59,6 +63,10 @@ func (d *DiceBotImpl) Usage() string {
 	return d.BasicInfo.Usage
 }
 
+// SortKey は並べ替え順のよみがなを返す。
+func (d *DiceBotImpl)SortKey() string {
+	return d.BasicInfo.SortKey
+}
 // ExecuteCommand は指定されたコマンドを実行する。
 //
 // 基本のダイスボットには特別なコマンドが存在しないため、必ずエラーを返す。
