@@ -20,4 +20,6 @@ func setupV1(g *echo.Group) {
 	version.Setup()
 	systems := v1.NewSystemsController(g)
 	systems.Setup()
+	names := v1.NewNamesController(g)
+	names.Setup()
 }

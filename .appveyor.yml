@@ -8,6 +8,7 @@ environment:
 stack: go 1.12.3
 
 before_test:
+  - choco install codecov
   - SET GO111MODULE=off
   - go get -u github.com/ory/go-acc
   - SET GO111MODULE=on
@@ -15,9 +16,4 @@ before_test:
 
 test_script:
   - C:\gopath\bin\go-acc ./pkg/... -- -race
-
-after_test:
-  - ps: |
-      $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
-      Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
-      bash codecov.sh -t 3f455cbc-75ca-4ab2-a50a-8e37557bb938
+  - codecov -f "coverage.txt" -t 3f455cbc-75ca-4ab2-a50a-8e37557bb938
