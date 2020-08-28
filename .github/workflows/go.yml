@@ -1,0 +1,160 @@
+name: Go
+
+on: [push, pull_request]
+
+jobs:
+
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
+        exclude:
+          - os: macos-latest
+            go: '1.11.13'
+          - os: macos-latest
+            go: '1.12.17'
+      fail-fast: false
+    env:
+      OS: ${{ matrix.os }}
+      GO: ${{ matrix.go }}
+    steps:
+      - if: startsWith(matrix.os, 'macos')
+        run: brew update
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Get Build Tools
+        run: |
+          go get github.com/ory/go-acc
+
+      - name: Add $GOPATH/bin to $PATH
+        run: |
+          echo "::add-path::$(go env GOPATH)/bin"
+
+      - uses: actions/checkout@v2
+
+      - name: before get
+        run: go get ./pkg/...
+
+      - name: 'Tags: default'
+        run: go-acc ./pkg/... -- -race -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          env_vars: OS,GO
+          file: coverage.txt
+
+  test-windows:
+    name: Test for Windows
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
+      fail-fast: false
+    env:
+      OS: windows-latest
+      GO: ${{ matrix.go }}
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Get Build Tools
+        run: |
+          go get -u github.com/ory/go-acc
+
+      - name: Add $GOPATH/bin to $PATH
+        run: |
+          echo "::add-path::$(go env GOPATH)/bin"
+
+      - name: git autocrlf off
+        run: |
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v2
+
+      - name: before get
+        run: go get ./pkg/...
+
+      - name: 'Tags: default'
+        run: go-acc ./pkg/... -- -race -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          env_vars: OS,GO
+          file: coverage.txt
+
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    needs: test
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
+        exclude:
+          - os: macos-latest
+            go: '1.11.13'
+          - os: macos-latest
+            go: '1.12.17'
+      fail-fast: false
+    env:
+      OS: ${{ matrix.os }}
+      GO: ${{ matrix.go }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - if: startsWith(matrix.os, 'macos')
+        run: |
+          ./scripts/install_prerequisites_osx.sh
+
+      - if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          ./scripts/install_prerequisites_linux.sh
+
+      - run: make
+
+  build-windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    needs: test-windows
+
+    strategy:
+      matrix:
+        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
+      fail-fast: false
+    env:
+      OS: windows-latest
+      GO: ${{ matrix.go }}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-gtk3
+          msystem: MINGW64
+          path-type: inherit
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: git autocrlf off
+        run: |
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v2
+
+      - run: make
+        shell: msys2 {0}
+
+# based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
