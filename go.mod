@@ -13,6 +13,6 @@ require (
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.2
 	github.com/seehuhn/mt19937 v0.0.0-20180715112136-cc7708819361
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
 	gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
 )
