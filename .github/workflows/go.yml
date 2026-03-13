@@ -26,7 +26,7 @@ jobs:
 
       - name: Get Build Tools
         run: |
-          go get github.com/ory/go-acc
+          go install github.com/ory/go-acc@latest
 
       - name: Add $GOPATH/bin to $PATH
         run: |
@@ -64,7 +64,7 @@ jobs:
 
       - name: Get Build Tools
         run: |
-          go get -u github.com/ory/go-acc
+          go install github.com/ory/go-acc@latest
 
       - name: Add $GOPATH/bin to $PATH
         run: |
