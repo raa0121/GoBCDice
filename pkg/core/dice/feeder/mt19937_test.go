@@ -2,29 +2,26 @@ package feeder
 
 import (
 	"fmt"
-	"github.com/raa0121/GoBCDice/pkg/core/dice"
 	"reflect"
 	"testing"
+
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
 )
 
 // ダイスをランダムに供給：現在時刻をシードとする場合の例。
-func Example_mT19937WithSeedFromTime() dice.Die {
+func Example_mT19937WithSeedFromTime() {
 	// ダイスの値をランダムにする
 	dieFeeder := NewMT19937WithSeedFromTime()
 	// 6面ダイスを1個振る
-	d, _ := dieFeeder.Next(6)
-
-	return d
+	_, _ = dieFeeder.Next(6)
 }
 
 // ダイスをランダムに供給：シードを指定する場合の例。
-func Example_mT19937WithSpecifiedSeed() dice.Die {
+func Example_mT19937WithSpecifiedSeed() {
 	// ダイスの値をランダムにする
 	dieFeeder := NewMT19937(1)
 	// 6面ダイスを1個振る
-	d, _ := dieFeeder.Next(6)
-
-	return d
+	_, _ = dieFeeder.Next(6)
 }
 
 func TestMT19937_CanSpecifyDie(t *testing.T) {

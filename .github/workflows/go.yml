@@ -11,12 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
-        exclude:
-          - os: macos-latest
-            go: '1.11.13'
-          - os: macos-latest
-            go: '1.12.17'
+        go: ['1.26.0']
       fail-fast: false
     env:
       OS: ${{ matrix.os }}
@@ -25,19 +20,19 @@ jobs:
       - if: startsWith(matrix.os, 'macos')
         run: brew update
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version: ${{ matrix.go }}
 
       - name: Get Build Tools
         run: |
-          go get github.com/ory/go-acc
+          go install github.com/ory/go-acc@latest
 
       - name: Add $GOPATH/bin to $PATH
         run: |
-          echo "::add-path::$(go env GOPATH)/bin"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: before get
         run: go get ./pkg/...
@@ -46,7 +41,7 @@ jobs:
         run: go-acc ./pkg/... -- -race -v
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@0561704f0f02c16a585d4c7555e57fa2e44cf909 # v5.5.2
         with:
           env_vars: OS,GO
           file: coverage.txt
@@ -57,29 +52,30 @@ jobs:
 
     strategy:
       matrix:
-        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
+        go: ['1.26.0']
       fail-fast: false
     env:
       OS: windows-latest
       GO: ${{ matrix.go }}
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version: ${{ matrix.go }}
 
       - name: Get Build Tools
         run: |
-          go get -u github.com/ory/go-acc
+          go install github.com/ory/go-acc@latest
 
       - name: Add $GOPATH/bin to $PATH
         run: |
-          echo "::add-path::$(go env GOPATH)/bin"
+          $gopath = go env GOPATH
+          Add-Content -Path $env:GITHUB_PATH -Value "$gopath\bin"
 
       - name: git autocrlf off
         run: |
           git config --global core.autocrlf false
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: before get
         run: go get ./pkg/...
@@ -88,7 +84,7 @@ jobs:
         run: go-acc ./pkg/... -- -race -v
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@0561704f0f02c16a585d4c7555e57fa2e44cf909 # v5.5.2
         with:
           env_vars: OS,GO
           file: coverage.txt
@@ -101,18 +97,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
-        exclude:
-          - os: macos-latest
-            go: '1.11.13'
-          - os: macos-latest
-            go: '1.12.17'
+        go: ['1.26.0']
       fail-fast: false
     env:
       OS: ${{ matrix.os }}
       GO: ${{ matrix.go }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version: ${{ matrix.go }}
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - if: startsWith(matrix.os, 'macos')
         run: |
@@ -131,20 +125,20 @@ jobs:
 
     strategy:
       matrix:
-        go: ['1.11.13', '1.12.17', '1.13.15', '1.14.7', '1.15']
+        go: ['1.26.0']
       fail-fast: false
     env:
       OS: windows-latest
       GO: ${{ matrix.go }}
     steps:
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
         with:
           update: true
           install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-gtk3
           msystem: MINGW64
           path-type: inherit
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version: ${{ matrix.go }}
 
@@ -152,7 +146,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - run: make
         shell: msys2 {0}
