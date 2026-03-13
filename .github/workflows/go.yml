@@ -20,7 +20,7 @@ jobs:
       - if: startsWith(matrix.os, 'macos')
         run: brew update
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version: ${{ matrix.go }}
 
@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: before get
         run: go get ./pkg/...
@@ -41,7 +41,7 @@ jobs:
         run: go-acc ./pkg/... -- -race -v
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@0561704f0f02c16a585d4c7555e57fa2e44cf909 # v5.5.2
         with:
           env_vars: OS,GO
           file: coverage.txt
@@ -58,7 +58,7 @@ jobs:
       OS: windows-latest
       GO: ${{ matrix.go }}
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version: ${{ matrix.go }}
 
@@ -75,7 +75,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: before get
         run: go get ./pkg/...
@@ -84,7 +84,7 @@ jobs:
         run: go-acc ./pkg/... -- -race -v
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@0561704f0f02c16a585d4c7555e57fa2e44cf909 # v5.5.2
         with:
           env_vars: OS,GO
           file: coverage.txt
@@ -103,7 +103,7 @@ jobs:
       OS: ${{ matrix.os }}
       GO: ${{ matrix.go }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - if: startsWith(matrix.os, 'macos')
         run: |
@@ -128,14 +128,14 @@ jobs:
       OS: windows-latest
       GO: ${{ matrix.go }}
     steps:
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
         with:
           update: true
           install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-gtk3
           msystem: MINGW64
           path-type: inherit
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version: ${{ matrix.go }}
 
@@ -143,7 +143,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - run: make
         shell: msys2 {0}
