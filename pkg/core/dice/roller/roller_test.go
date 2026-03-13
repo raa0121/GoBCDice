@@ -1,36 +1,27 @@
 package roller
 
 import (
-	"github.com/raa0121/GoBCDice/pkg/core/dice"
-	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 	"reflect"
 	"testing"
+
+	"github.com/raa0121/GoBCDice/pkg/core/dice"
+	"github.com/raa0121/GoBCDice/pkg/core/dice/feeder"
 )
 
-func ExampleDiceRoller_RollDice_mT19937() ([]dice.Die, error) {
+func ExampleDiceRoller_RollDice_mT19937() {
 	dieFeeder := feeder.NewMT19937WithSeedFromTime()
 	dieRoller := New(dieFeeder)
 
 	// 6面ダイスを2個振る
-	rolledDice, err := dieRoller.RollDice(2, 6)
-	if err != nil {
-		return nil, err
-	}
-
-	return rolledDice, nil
+	_, _ = dieRoller.RollDice(2, 6)
 }
 
-func ExampleDiceRoller_RollDice_queue() ([]dice.Die, error) {
+func ExampleDiceRoller_RollDice_queue() {
 	dieFeeder := feeder.NewQueue([]dice.Die{{1, 6}, {3, 6}, {5, 6}})
 	dieRoller := New(dieFeeder)
 
 	// 6面ダイスを3個振る
-	rolledDice, err := dieRoller.RollDice(3, 6)
-	if err != nil {
-		return nil, err
-	}
-
-	return rolledDice, nil
+	_, _ = dieRoller.RollDice(3, 6)
 }
 
 func TestDiceRoller_RollDice_Queue(t *testing.T) {
